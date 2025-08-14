@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import LeadGenResults from "./LeadGenResults";
 
 const LeadGenForm = () => {
   const [targetLocation, setTargetLocation] = useState("atlanta");
@@ -13,6 +14,7 @@ const LeadGenForm = () => {
   const [jobTitles, setJobTitles] = useState("Owner / CEO / President, CFO / VP Finance, Director");
   const [leadCount, setLeadCount] = useState([100]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showResults, setShowResults] = useState(false);
 
   const handleGenerate = () => {
     // This will be connected to N8n webhook later
@@ -23,7 +25,16 @@ const LeadGenForm = () => {
       jobTitles,
       leadCount: leadCount[0]
     });
+    setShowResults(true);
   };
+
+  const handleNewSearch = () => {
+    setShowResults(false);
+  };
+
+  if (showResults) {
+    return <LeadGenResults onNewSearch={handleNewSearch} />;
+  }
 
   return (
     <Card>
