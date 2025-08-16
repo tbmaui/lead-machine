@@ -129,10 +129,10 @@ export const useLeadGeneration = (userId?: string) => {
       const { jobId } = response.data;
       console.log('Lead generation job started:', jobId);
 
-      // Fetch the created job with retry logic to handle timing issues
+      // Fetch the created job with retry logic to handle timing and RLS issues
       let job = null;
       let attempts = 0;
-      const maxAttempts = 5;
+      const maxAttempts = 10; // Increased attempts
       
       while (!job && attempts < maxAttempts) {
         const { data, error: jobError } = await supabase
@@ -141,18 +141,23 @@ export const useLeadGeneration = (userId?: string) => {
           .eq('id', jobId)
           .maybeSingle();
 
-        if (jobError) throw jobError;
+        if (jobError) {
+          console.error('Error fetching job:', jobError);
+          throw jobError;
+        }
         
         if (data) {
+          console.log('Successfully retrieved job:', data);
           job = data;
           break;
         }
         
         attempts++;
         if (attempts < maxAttempts) {
-          // Wait with exponential backoff: 100ms, 200ms, 400ms, 800ms
-          await new Promise(resolve => setTimeout(resolve, 100 * Math.pow(2, attempts - 1)));
-          console.log(`Retrying job fetch, attempt ${attempts + 1}/${maxAttempts}`);
+          // Wait with longer delays: 200ms, 400ms, 800ms, 1600ms, 3200ms, etc.
+          const delay = 200 * Math.pow(2, attempts - 1);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          console.log(`Retrying job fetch, attempt ${attempts + 1}/${maxAttempts} (waiting ${delay}ms)`);
         }
       }
 
