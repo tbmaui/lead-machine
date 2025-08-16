@@ -1,4 +1,4 @@
-import LeadGenHeader from "@/components/LeadGenHeader";
+import { HeroSection } from "@/components/ui/hero-section";
 import OverviewSection from "@/components/OverviewSection";
 import UseCasesSection from "@/components/UseCasesSection";
 import FeaturesTable from "@/components/FeaturesTable";
@@ -8,8 +8,8 @@ import LeadGenForm from "@/components/LeadGenForm";
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      <HeroSection />
       <div className="container max-w-4xl mx-auto py-8 px-4">
-        <LeadGenHeader />
         <OverviewSection />
         <UseCasesSection />
         <FeaturesTable />
