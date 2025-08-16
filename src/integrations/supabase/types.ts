@@ -14,7 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      lead_gen_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          job_criteria: Json
+          n8n_execution_id: string | null
+          progress: number | null
+          status: string
+          total_leads_found: number | null
+          updated_at: string
+          user_id: string
+          webhook_url: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          job_criteria: Json
+          n8n_execution_id?: string | null
+          progress?: number | null
+          status?: string
+          total_leads_found?: number | null
+          updated_at?: string
+          user_id: string
+          webhook_url?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          job_criteria?: Json
+          n8n_execution_id?: string | null
+          progress?: number | null
+          status?: string
+          total_leads_found?: number | null
+          updated_at?: string
+          user_id?: string
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          additional_data: Json | null
+          company: string | null
+          company_size: string | null
+          created_at: string
+          email: string | null
+          id: string
+          industry: string | null
+          job_id: string
+          linkedin_url: string | null
+          location: string | null
+          name: string
+          phone: string | null
+          score: number | null
+          title: string | null
+        }
+        Insert: {
+          additional_data?: Json | null
+          company?: string | null
+          company_size?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          industry?: string | null
+          job_id: string
+          linkedin_url?: string | null
+          location?: string | null
+          name: string
+          phone?: string | null
+          score?: number | null
+          title?: string | null
+        }
+        Update: {
+          additional_data?: Json | null
+          company?: string | null
+          company_size?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          industry?: string | null
+          job_id?: string
+          linkedin_url?: string | null
+          location?: string | null
+          name?: string
+          phone?: string | null
+          score?: number | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "lead_gen_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
