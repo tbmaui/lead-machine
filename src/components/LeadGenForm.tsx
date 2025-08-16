@@ -6,9 +6,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useLeadGeneration } from "@/hooks/useLeadGeneration";
 import LeadGenResults from "./LeadGenResults";
 
 const LeadGenForm = () => {
+  const { user, signInAnonymously } = useAuth();
+  const { currentJob, leads, loading, startLeadGeneration, resetJob } = useLeadGeneration(user?.id);
+  
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
   const industryOptions = ["Healthcare", "Legal Services", "Construction"];
   const companySizeOptions = ["1-50", "51-200", "201-500", "501-1000"];
@@ -19,7 +24,6 @@ const LeadGenForm = () => {
   const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
   const [leadCount, setLeadCount] = useState([100]);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [showResults, setShowResults] = useState(false);
 
   const handleJobTitleToggle = (title: string) => {
     setSelectedJobTitles(prev => 
@@ -45,24 +49,28 @@ const LeadGenForm = () => {
     );
   };
 
-  const handleGenerate = () => {
-    // This will be connected to N8n webhook later
-    console.log("Generating leads with:", {
+  const handleGenerate = async () => {
+    if (!user) {
+      await signInAnonymously();
+    }
+
+    const jobCriteria = {
       targetLocation,
       industries: selectedIndustries,
       companySizes: selectedCompanySizes,
       jobTitles: selectedJobTitles,
       leadCount: leadCount[0]
-    });
-    setShowResults(true);
+    };
+
+    await startLeadGeneration(jobCriteria);
   };
 
   const handleNewSearch = () => {
-    setShowResults(false);
+    resetJob();
   };
 
-  if (showResults) {
-    return <LeadGenResults onNewSearch={handleNewSearch} />;
+  if (currentJob) {
+    return <LeadGenResults job={currentJob} leads={leads} onNewSearch={handleNewSearch} />;
   }
 
   return (
@@ -243,8 +251,9 @@ const LeadGenForm = () => {
           onClick={handleGenerate}
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3"
           size="lg"
+          disabled={loading}
         >
-          Generate Leads
+          {loading ? "Starting Generation..." : "Generate Leads"}
         </Button>
       </CardContent>
     </Card>

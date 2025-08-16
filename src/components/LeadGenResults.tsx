@@ -4,15 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Phone, Mail, Globe, Linkedin, ArrowLeft } from "lucide-react";
+import { LeadGenJob, Lead } from "@/hooks/useLeadGeneration";
 
 interface LeadGenResultsProps {
+  job: LeadGenJob;
+  leads: Lead[];
   onNewSearch: () => void;
 }
 
-const LeadGenResults = ({ onNewSearch }: LeadGenResultsProps) => {
+const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(true);
+  const isProcessing = job.status === 'pending' || job.status === 'processing';
 
   const steps = [
     "Initializing search parameters...",
@@ -26,36 +28,13 @@ const LeadGenResults = ({ onNewSearch }: LeadGenResultsProps) => {
 
   useEffect(() => {
     if (isProcessing) {
-      const progressSteps = steps.map(() => Math.random() * 15 + 5); // Random duration between 5-20%
-      let totalProgress = 0;
-      
-      const runStep = (stepIndex: number) => {
-        if (stepIndex >= steps.length) {
-          setProgress(100);
-          setTimeout(() => setIsProcessing(false), 500);
-          return;
-        }
-
-        setCurrentStep(stepIndex);
-        const stepDuration = progressSteps[stepIndex];
-        const stepTime = (stepDuration / 100) * 3000; // Convert to milliseconds
-        
-        const interval = setInterval(() => {
-          totalProgress += 1;
-          setProgress(Math.min(totalProgress, (stepIndex + 1) * (100 / steps.length)));
-        }, stepTime / stepDuration);
-
-        setTimeout(() => {
-          clearInterval(interval);
-          totalProgress = (stepIndex + 1) * (100 / steps.length);
-          setProgress(totalProgress);
-          setTimeout(() => runStep(stepIndex + 1), 300);
-        }, stepTime);
-      };
-
-      runStep(0);
+      const currentStepIndex = Math.min(
+        Math.floor((job.progress / 100) * steps.length), 
+        steps.length - 1
+      );
+      setCurrentStep(currentStepIndex);
     }
-  }, [isProcessing]);
+  }, [job.progress, isProcessing]);
 
   const mockLeads = [
     {
@@ -153,12 +132,12 @@ const LeadGenResults = ({ onNewSearch }: LeadGenResultsProps) => {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Overall Progress</span>
-                <span>{Math.round(progress)}%</span>
+                <span>{job.progress}%</span>
               </div>
-              <Progress value={progress} className="h-3" />
+              <Progress value={job.progress} className="h-3" />
             </div>
             <div className="text-sm text-muted-foreground">
-              {steps[currentStep]}
+              {job.status === 'failed' ? `Error: ${job.error_message}` : steps[currentStep]}
             </div>
           </CardContent>
         </Card>
@@ -188,7 +167,7 @@ const LeadGenResults = ({ onNewSearch }: LeadGenResultsProps) => {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-2xl font-bold">Generated Leads</CardTitle>
-            <p className="text-muted-foreground mt-1">Found 39 leads</p>
+            <p className="text-muted-foreground mt-1">Found {job.total_leads_found} leads</p>
           </div>
           <Button onClick={onNewSearch} className="bg-blue-600 hover:bg-blue-700">
             New Search
@@ -223,7 +202,9 @@ const LeadGenResults = ({ onNewSearch }: LeadGenResultsProps) => {
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-3xl font-bold">79</div>
+                    <div className="text-3xl font-bold">
+                      {leads.length > 0 ? Math.round(leads.reduce((sum, lead) => sum + (lead.score || 0), 0) / leads.length) : 0}
+                    </div>
                     <div className="text-sm text-muted-foreground">Avg Score</div>
                   </div>
                 </div>
@@ -231,26 +212,17 @@ const LeadGenResults = ({ onNewSearch }: LeadGenResultsProps) => {
             </div>
             
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <span className="text-sm">Score 5 (Owners/CEOs): 36</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                <span className="text-sm">Score 4 (CFOs/VPs/Presidents): 3</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                <span className="text-sm">Score 3 (Directors): 0</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                <span className="text-sm">Score 2 (Others): 0</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                <span className="text-sm">Score 1 (Entry Level): 0</span>
-              </div>
+              {[5, 4, 3, 2, 1].map(score => {
+                const count = leads.filter(lead => lead.score === score).length;
+                const colors = ['bg-green-500', 'bg-blue-500', 'bg-purple-500', 'bg-orange-500', 'bg-red-500'];
+                const labels = ['(Owners/CEOs)', '(CFOs/VPs/Presidents)', '(Directors)', '(Others)', '(Entry Level)'];
+                return (
+                  <div key={score} className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${colors[5 - score]}`}></div>
+                    <span className="text-sm">Score {score} {labels[5 - score]}: {count}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -267,45 +239,51 @@ const LeadGenResults = ({ onNewSearch }: LeadGenResultsProps) => {
                 </tr>
               </thead>
               <tbody>
-                {mockLeads.map((lead, index) => (
+                {leads.map((lead, index) => (
                   <tr key={index} className="border-b hover:bg-muted/50">
                     <td className="p-3">
                       <div className="font-medium">{lead.name}</div>
-                      <Badge variant="secondary" className="mt-1 text-xs">
-                        {lead.title}
-                      </Badge>
+                      {lead.title && (
+                        <Badge variant="secondary" className="mt-1 text-xs">
+                          {lead.title}
+                        </Badge>
+                      )}
                     </td>
                     <td className="p-3">
-                      <div className="font-medium">{lead.company}</div>
-                      <div className="text-sm text-muted-foreground">{lead.address}</div>
+                      <div className="font-medium">{lead.company || 'N/A'}</div>
+                      <div className="text-sm text-muted-foreground">{lead.location || 'N/A'}</div>
                     </td>
                     <td className="p-3">
                       <div className="space-y-1">
-                        <div className="flex items-center gap-1 text-sm">
-                          <Phone className="h-3 w-3" />
-                          <span className="text-blue-600">{lead.phone}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Mail className="h-3 w-3" />
-                          <span className="text-blue-600">{lead.email}</span>
-                        </div>
+                        {lead.phone && (
+                          <div className="flex items-center gap-1 text-sm">
+                            <Phone className="h-3 w-3" />
+                            <span className="text-blue-600">{lead.phone}</span>
+                          </div>
+                        )}
+                        {lead.email && (
+                          <div className="flex items-center gap-1 text-sm">
+                            <Mail className="h-3 w-3" />
+                            <span className="text-blue-600">{lead.email}</span>
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-1 text-blue-600 text-sm">
                         <Globe className="h-3 w-3" />
-                        {lead.website}
+                        Website
                       </div>
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-1 text-blue-600 text-sm">
                         <Linkedin className="h-3 w-3" />
-                        {lead.linkedin}
+                        {lead.linkedin_url ? 'LinkedIn' : 'N/A'}
                       </div>
                     </td>
                     <td className="p-3">
                       <Badge className="bg-green-100 text-green-800 border-green-200">
-                        Score {lead.score}<br/>(80)
+                        Score {lead.score || 0}
                       </Badge>
                     </td>
                   </tr>
