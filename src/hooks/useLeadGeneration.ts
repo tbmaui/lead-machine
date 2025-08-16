@@ -140,9 +140,12 @@ export const useLeadGeneration = (userId?: string) => {
         .from('lead_gen_jobs')
         .select('*')
         .eq('id', jobId)
-        .single();
+        .maybeSingle();
 
       if (jobError) throw jobError;
+      if (!job) {
+        throw new Error('Job was created but could not be retrieved immediately');
+      }
 
       setCurrentJob({
         ...job,
