@@ -40,7 +40,7 @@ serve(async (req) => {
     console.log('Created job:', job);
 
     // Trigger N8n workflow
-    const n8nResponse = await fetch('https://playground.automateanythingacademy.com/webhook/lead-intake', {
+    const n8nResponse = await fetch('https://playground.automateanythingacademy.com/webhook-test/lead-intake', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
