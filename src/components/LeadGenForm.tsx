@@ -12,6 +12,7 @@ const LeadGenForm = () => {
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
   const industryOptions = ["Healthcare", "Legal Services", "Construction"];
   const companySizeOptions = ["1-50", "51-200", "201-500", "501-1000"];
+  
   const [targetLocation, setTargetLocation] = useState("atlanta");
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedCompanySizes, setSelectedCompanySizes] = useState<string[]>(["1-50"]);
