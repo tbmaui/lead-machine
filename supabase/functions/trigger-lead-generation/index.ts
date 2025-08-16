@@ -20,6 +20,7 @@ serve(async (req) => {
 
     const { jobCriteria, userId } = await req.json();
     console.log('Triggering lead generation:', { jobCriteria, userId });
+    console.log('Lead count from jobCriteria:', jobCriteria.leadCount);
 
     // Create job record in database
     const { data: job, error: jobError } = await supabase
@@ -40,18 +41,22 @@ serve(async (req) => {
     console.log('Created job:', job);
 
     // Trigger N8n workflow
+    const n8nPayload = {
+      jobId: job.id,
+      userId: userId,
+      criteria: jobCriteria,
+      callbackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/n8n-callback`,
+      statusUpdateUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/n8n-status-update`
+    };
+    
+    console.log('Sending payload to N8n:', JSON.stringify(n8nPayload, null, 2));
+    
     const n8nResponse = await fetch('https://playground.automateanythingacademy.com/webhook-test/lead-intake', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        jobId: job.id,
-        userId: userId,
-        criteria: jobCriteria,
-        callbackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/n8n-callback`,
-        statusUpdateUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/n8n-status-update`
-      }),
+      body: JSON.stringify(n8nPayload),
     });
 
     if (!n8nResponse.ok) {
