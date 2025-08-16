@@ -37,10 +37,12 @@ export const useLeadGeneration = (userId?: string) => {
 
   // Subscribe to real-time updates for jobs
   useEffect(() => {
-    if (!userId || !currentJob) return;
+    if (!currentJob) return;
 
+    console.log('Setting up real-time subscription for job:', currentJob.id);
+    
     const jobChannel = supabase
-      .channel('job-updates')
+      .channel(`job-updates-${currentJob.id}`)
       .on(
         'postgres_changes',
         {
@@ -72,19 +74,24 @@ export const useLeadGeneration = (userId?: string) => {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Job subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up job subscription');
       supabase.removeChannel(jobChannel);
     };
-  }, [userId, currentJob?.id, toast]);
+  }, [currentJob?.id, toast]);
 
   // Subscribe to real-time updates for leads
   useEffect(() => {
     if (!currentJob) return;
 
+    console.log('Setting up real-time subscription for leads:', currentJob.id);
+    
     const leadsChannel = supabase
-      .channel('leads-updates')
+      .channel(`leads-updates-${currentJob.id}`)
       .on(
         'postgres_changes',
         {
@@ -98,9 +105,12 @@ export const useLeadGeneration = (userId?: string) => {
           setLeads(prev => [...prev, payload.new as Lead]);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Leads subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up leads subscription');
       supabase.removeChannel(leadsChannel);
     };
   }, [currentJob?.id]);
