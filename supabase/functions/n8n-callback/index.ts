@@ -25,16 +25,17 @@ serve(async (req) => {
     if (leads && leads.length > 0) {
       const leadsToInsert = leads.map((lead: any) => ({
         job_id: jobId,
-        name: lead.name || '',
-        title: lead.title,
-        company: lead.company,
-        email: lead.email,
-        phone: lead.phone,
-        linkedin_url: lead.linkedin_url,
-        location: lead.location,
-        industry: lead.industry,
-        company_size: lead.company_size,
-        score: lead.score || 0,
+        name: lead.Name || lead.name || '',
+        title: lead.Title || lead.title,
+        company: lead.Company || lead.company,
+        email: lead.Email || lead.email,
+        phone: lead['Phone Number'] || lead.phone,
+        linkedin_url: lead.LinkedInURL || lead.linkedin_url,
+        industry: lead.Industry || lead.industry,
+        company_size: lead['Company Size'] || lead.company_size,
+        organization_url: lead.OrganizationURL || lead.organization_url,
+        organization_linkedin_url: lead.OrganizationLinkedInURL || lead.organization_linkedin_url,
+        score: 0, // Score will be calculated on frontend
         additional_data: lead.additional_data || {}
       }));
 
