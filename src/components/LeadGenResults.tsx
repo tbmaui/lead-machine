@@ -139,6 +139,12 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
             <div className="text-sm text-muted-foreground">
               {job.status === 'failed' ? `Error: ${job.error_message}` : steps[currentStep]}
             </div>
+            <div className="flex gap-2 mt-4">
+              <Button variant="outline" onClick={onNewSearch} className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Cancel & New Search
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
