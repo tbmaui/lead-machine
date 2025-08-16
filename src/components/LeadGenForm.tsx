@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
@@ -13,7 +13,7 @@ const LeadGenForm = () => {
   const industryOptions = ["Healthcare", "Legal Services", "Construction"];
   const companySizeOptions = ["1-50", "51-200", "201-500", "501-1000"];
   
-  const [targetLocation, setTargetLocation] = useState("atlanta");
+  const [targetLocation, setTargetLocation] = useState("");
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedCompanySizes, setSelectedCompanySizes] = useState<string[]>(["1-50"]);
   const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
@@ -80,17 +80,12 @@ const LeadGenForm = () => {
               <span className="w-2 h-2 bg-red-500 rounded-full"></span>
               Target Location
             </label>
-            <Select value={targetLocation} onValueChange={setTargetLocation}>
-              <SelectTrigger>
-                <SelectValue placeholder="City-State, USA" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="atlanta">Atlanta, Georgia</SelectItem>
-                <SelectItem value="austin">Austin, Texas</SelectItem>
-                <SelectItem value="chicago">Chicago, Illinois</SelectItem>
-                <SelectItem value="miami">Miami, Florida</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              value={targetLocation}
+              onChange={(e) => setTargetLocation(e.target.value)}
+              placeholder="city, state, USA"
+              className="w-full"
+            />
           </div>
 
           <div className="space-y-2">
