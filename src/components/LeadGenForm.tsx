@@ -6,13 +6,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
 import { useLeadGeneration } from "@/hooks/useLeadGeneration";
 import LeadGenResults from "./LeadGenResults";
 
 const LeadGenForm = () => {
-  const { user, signInAnonymously } = useAuth();
-  const { currentJob, leads, loading, startLeadGeneration, resetJob } = useLeadGeneration(user?.id);
+  const { currentJob, leads, loading, startLeadGeneration, resetJob } = useLeadGeneration();
   
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
   const industryOptions = ["Healthcare", "Legal Services", "Construction"];
@@ -50,10 +48,6 @@ const LeadGenForm = () => {
   };
 
   const handleGenerate = async () => {
-    if (!user) {
-      await signInAnonymously();
-    }
-
     const jobCriteria = {
       targetLocation,
       industries: selectedIndustries,

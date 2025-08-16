@@ -106,14 +106,8 @@ export const useLeadGeneration = (userId?: string) => {
   }, [currentJob?.id]);
 
   const startLeadGeneration = async (jobCriteria: any) => {
-    if (!userId) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to generate leads",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Use provided userId or generate anonymous ID for now
+    const effectiveUserId = userId || 'anonymous-' + crypto.randomUUID();
 
     setLoading(true);
     setLeads([]); // Clear previous leads
@@ -124,7 +118,7 @@ export const useLeadGeneration = (userId?: string) => {
       const response = await supabase.functions.invoke('trigger-lead-generation', {
         body: {
           jobCriteria,
-          userId
+          userId: effectiveUserId
         }
       });
 
