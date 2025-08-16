@@ -13,7 +13,29 @@ const LeadGenForm = () => {
   const { currentJob, leads, loading, startLeadGeneration, resetJob } = useLeadGeneration();
   
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
-  const industryOptions = ["Healthcare", "Legal Services", "Construction"];
+  const industryOptions = [
+    "Agriculture", 
+    "Auto Repair & Maintenance", 
+    "Construction", 
+    "Construction & Artisans",
+    "Consumer Services", 
+    "Healthcare", 
+    "Household", 
+    "Legal Services",
+    "Manufacturing", 
+    "Mortgage & Finance", 
+    "Non-Profit", 
+    "Printing & Marketing", 
+    "Production & Entertainment", 
+    "Professional Services", 
+    "Property Mgmt & RE Invest", 
+    "Restaurant", 
+    "Retail & eCommerce", 
+    "Specialty Industries", 
+    "Moving & Storage", 
+    "Trucking & Logistics", 
+    "Trusts & Holding Co."
+  ];
   const companySizeOptions = ["1-50", "51-200", "201-500", "501-1000"];
   
   const [targetLocation, setTargetLocation] = useState("");
