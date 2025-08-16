@@ -11,10 +11,11 @@ import LeadGenResults from "./LeadGenResults";
 const LeadGenForm = () => {
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
   const industryOptions = ["Healthcare", "Legal Services", "Construction"];
+  const companySizeOptions = ["1-50", "51-200", "201-500", "501-1000"];
   const [targetLocation, setTargetLocation] = useState("atlanta");
-  const [selectedIndustries, setSelectedIndustries] = useState<string[]>(["Healthcare"]);
-  const [companySize, setCompanySize] = useState("1-50");
-  const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(["Owner", "CEO"]);
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  const [selectedCompanySizes, setSelectedCompanySizes] = useState<string[]>(["1-50"]);
+  const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
   const [leadCount, setLeadCount] = useState([100]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showResults, setShowResults] = useState(false);
@@ -35,12 +36,20 @@ const LeadGenForm = () => {
     );
   };
 
+  const handleCompanySizeToggle = (size: string) => {
+    setSelectedCompanySizes(prev => 
+      prev.includes(size) 
+        ? prev.filter(s => s !== size)
+        : [...prev, size]
+    );
+  };
+
   const handleGenerate = () => {
     // This will be connected to N8n webhook later
     console.log("Generating leads with:", {
       targetLocation,
       industries: selectedIndustries,
-      companySize,
+      companySizes: selectedCompanySizes,
       jobTitles: selectedJobTitles,
       leadCount: leadCount[0]
     });
@@ -72,7 +81,7 @@ const LeadGenForm = () => {
             </label>
             <Select value={targetLocation} onValueChange={setTargetLocation}>
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="City-State, USA" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="atlanta">Atlanta, Georgia</SelectItem>
@@ -96,7 +105,7 @@ const LeadGenForm = () => {
                 >
                   {selectedIndustries.length > 0 
                     ? `${selectedIndustries.length} sector${selectedIndustries.length > 1 ? 's' : ''} selected`
-                    : "Select industry sectors"
+                    : "Please choose 1 or all"
                   }
                   <ChevronDown className="h-4 w-4 opacity-50" />
                 </Button>
@@ -128,17 +137,39 @@ const LeadGenForm = () => {
               <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
               Company Size (SMB Focus)
             </label>
-            <Select value={companySize} onValueChange={setCompanySize}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1-50">1-50</SelectItem>
-                <SelectItem value="51-200">51-200</SelectItem>
-                <SelectItem value="201-500">201-500</SelectItem>
-                <SelectItem value="501-1000">501-1000</SelectItem>
-              </SelectContent>
-            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between text-left font-normal"
+                >
+                  {selectedCompanySizes.length > 0 
+                    ? `${selectedCompanySizes.length} size${selectedCompanySizes.length > 1 ? 's' : ''} selected`
+                    : "Select company sizes"
+                  }
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 bg-popover border border-border z-50" align="start">
+                <div className="p-4 space-y-2">
+                  {companySizeOptions.map((size) => (
+                    <div key={size} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={size}
+                        checked={selectedCompanySizes.includes(size)}
+                        onCheckedChange={() => handleCompanySizeToggle(size)}
+                      />
+                      <label
+                        htmlFor={size}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        {size}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
