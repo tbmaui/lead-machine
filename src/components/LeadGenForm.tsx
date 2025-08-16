@@ -10,7 +10,7 @@ import LeadGenResults from "./LeadGenResults";
 
 const LeadGenForm = () => {
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
-  const industryOptions = ["Healthcare", "Law Services", "Construction"];
+  const industryOptions = ["Healthcare", "Legal Services", "Construction"];
   const [targetLocation, setTargetLocation] = useState("atlanta");
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>(["Healthcare"]);
   const [companySize, setCompanySize] = useState("1-50");
@@ -86,7 +86,7 @@ const LeadGenForm = () => {
           <div className="space-y-2">
             <label className="text-sm font-medium flex items-center gap-1">
               <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-              Industry Sector
+              Industry
             </label>
             <Popover>
               <PopoverTrigger asChild>
