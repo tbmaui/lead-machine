@@ -10,8 +10,9 @@ import LeadGenResults from "./LeadGenResults";
 
 const LeadGenForm = () => {
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
+  const industryOptions = ["Healthcare", "Law Services", "Construction"];
   const [targetLocation, setTargetLocation] = useState("atlanta");
-  const [industry, setIndustry] = useState("all");
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>(["Healthcare"]);
   const [companySize, setCompanySize] = useState("1-50");
   const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(["Owner", "CEO"]);
   const [leadCount, setLeadCount] = useState([100]);
@@ -26,11 +27,19 @@ const LeadGenForm = () => {
     );
   };
 
+  const handleIndustryToggle = (industry: string) => {
+    setSelectedIndustries(prev => 
+      prev.includes(industry) 
+        ? prev.filter(i => i !== industry)
+        : [...prev, industry]
+    );
+  };
+
   const handleGenerate = () => {
     // This will be connected to N8n webhook later
     console.log("Generating leads with:", {
       targetLocation,
-      industry,
+      industries: selectedIndustries,
       companySize,
       jobTitles: selectedJobTitles,
       leadCount: leadCount[0]
@@ -79,19 +88,39 @@ const LeadGenForm = () => {
               <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
               Industry Sector
             </label>
-            <Select value={industry} onValueChange={setIndustry}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Industries</SelectItem>
-                <SelectItem value="technology">Technology</SelectItem>
-                <SelectItem value="healthcare">Healthcare</SelectItem>
-                <SelectItem value="finance">Finance</SelectItem>
-                <SelectItem value="retail">Retail</SelectItem>
-                <SelectItem value="manufacturing">Manufacturing</SelectItem>
-              </SelectContent>
-            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between text-left font-normal"
+                >
+                  {selectedIndustries.length > 0 
+                    ? `${selectedIndustries.length} sector${selectedIndustries.length > 1 ? 's' : ''} selected`
+                    : "Select industry sectors"
+                  }
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 bg-popover border border-border z-50" align="start">
+                <div className="p-4 space-y-2">
+                  {industryOptions.map((industry) => (
+                    <div key={industry} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={industry}
+                        checked={selectedIndustries.includes(industry)}
+                        onCheckedChange={() => handleIndustryToggle(industry)}
+                      />
+                      <label
+                        htmlFor={industry}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        {industry}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="space-y-2">
