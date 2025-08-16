@@ -21,6 +21,18 @@ serve(async (req) => {
     const { jobId, status, progress, totalLeadsFound, errorMessage, executionId } = await req.json();
     console.log('Received status update:', { jobId, status, progress, totalLeadsFound, errorMessage, executionId });
 
+    // Validate jobId is present and not empty
+    if (!jobId || jobId.trim() === '') {
+      console.log('Skipping update - empty or missing jobId');
+      return new Response(JSON.stringify({ 
+        success: false,
+        message: 'jobId is required and cannot be empty'
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const updateData: any = {
       status,
       updated_at: new Date().toISOString()
