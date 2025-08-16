@@ -129,16 +129,35 @@ export const useLeadGeneration = (userId?: string) => {
       const { jobId } = response.data;
       console.log('Lead generation job started:', jobId);
 
-      // Fetch the created job
-      const { data: job, error: jobError } = await supabase
-        .from('lead_gen_jobs')
-        .select('*')
-        .eq('id', jobId)
-        .maybeSingle();
+      // Fetch the created job with retry logic to handle timing issues
+      let job = null;
+      let attempts = 0;
+      const maxAttempts = 5;
+      
+      while (!job && attempts < maxAttempts) {
+        const { data, error: jobError } = await supabase
+          .from('lead_gen_jobs')
+          .select('*')
+          .eq('id', jobId)
+          .maybeSingle();
 
-      if (jobError) throw jobError;
+        if (jobError) throw jobError;
+        
+        if (data) {
+          job = data;
+          break;
+        }
+        
+        attempts++;
+        if (attempts < maxAttempts) {
+          // Wait with exponential backoff: 100ms, 200ms, 400ms, 800ms
+          await new Promise(resolve => setTimeout(resolve, 100 * Math.pow(2, attempts - 1)));
+          console.log(`Retrying job fetch, attempt ${attempts + 1}/${maxAttempts}`);
+        }
+      }
+
       if (!job) {
-        throw new Error('Job was created but could not be retrieved immediately');
+        throw new Error('Job was created but could not be retrieved after multiple attempts');
       }
 
       setCurrentJob({
