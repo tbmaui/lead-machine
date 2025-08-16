@@ -2,19 +2,29 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import LeadGenResults from "./LeadGenResults";
 
 const LeadGenForm = () => {
+  const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
   const [targetLocation, setTargetLocation] = useState("atlanta");
   const [industry, setIndustry] = useState("all");
   const [companySize, setCompanySize] = useState("1-50");
-  const [jobTitles, setJobTitles] = useState("Owner / CEO / President, CFO / VP Finance, Director");
+  const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(["Owner", "CEO"]);
   const [leadCount, setLeadCount] = useState([100]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showResults, setShowResults] = useState(false);
+
+  const handleJobTitleToggle = (title: string) => {
+    setSelectedJobTitles(prev => 
+      prev.includes(title) 
+        ? prev.filter(t => t !== title)
+        : [...prev, title]
+    );
+  };
 
   const handleGenerate = () => {
     // This will be connected to N8n webhook later
@@ -22,7 +32,7 @@ const LeadGenForm = () => {
       targetLocation,
       industry,
       companySize,
-      jobTitles,
+      jobTitles: selectedJobTitles,
       leadCount: leadCount[0]
     });
     setShowResults(true);
@@ -108,12 +118,39 @@ const LeadGenForm = () => {
             <span className="w-2 h-2 bg-green-500 rounded-full"></span>
             Target Job Titles
           </label>
-          <Textarea
-            value={jobTitles}
-            onChange={(e) => setJobTitles(e.target.value)}
-            placeholder="Enter target job titles, separated by commas"
-            className="min-h-[80px] resize-none"
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between text-left font-normal"
+              >
+                {selectedJobTitles.length > 0 
+                  ? `${selectedJobTitles.length} title${selectedJobTitles.length > 1 ? 's' : ''} selected`
+                  : "Select job titles"
+                }
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0 bg-popover border border-border z-50" align="start">
+              <div className="p-4 space-y-2">
+                {jobTitleOptions.map((title) => (
+                  <div key={title} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={title}
+                      checked={selectedJobTitles.includes(title)}
+                      onCheckedChange={() => handleJobTitleToggle(title)}
+                    />
+                    <label
+                      htmlFor={title}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      {title}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="space-y-4">
