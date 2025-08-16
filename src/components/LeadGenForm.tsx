@@ -69,7 +69,7 @@ const LeadGenForm = () => {
     <Card>
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Generate Your Leads</CardTitle>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground">{/* Force refresh */}
           Discover verified decision makers in your target market
         </p>
       </CardHeader>
