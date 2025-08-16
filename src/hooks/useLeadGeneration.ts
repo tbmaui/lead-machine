@@ -106,8 +106,8 @@ export const useLeadGeneration = (userId?: string) => {
   }, [currentJob?.id]);
 
   const startLeadGeneration = async (jobCriteria: any) => {
-    // Use provided userId or generate anonymous ID for now
-    const effectiveUserId = userId || 'anonymous-' + crypto.randomUUID();
+    // Use provided userId or generate proper UUID for anonymous user
+    const effectiveUserId = userId || crypto.randomUUID();
 
     setLoading(true);
     setLeads([]); // Clear previous leads
