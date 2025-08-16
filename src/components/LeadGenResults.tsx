@@ -246,18 +246,27 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
               </thead>
               <tbody>
                 {leads.map((lead, index) => (
-                  <tr key={index} className="border-b hover:bg-muted/50">
+                <tr key={index} className="border-b hover:bg-muted/50">
                     <td className="p-3">
-                      <div className="font-medium">{lead.name}</div>
+                      <div className="font-medium text-lg">{lead.name}</div>
                       {lead.title && (
-                        <Badge variant="secondary" className="mt-1 text-xs">
-                          {lead.title}
-                        </Badge>
+                        <div className="text-sm text-muted-foreground mt-1">{lead.title}</div>
                       )}
                     </td>
                     <td className="p-3">
-                      <div className="font-medium">{lead.company || 'N/A'}</div>
-                      <div className="text-sm text-muted-foreground">{lead.location || 'N/A'}</div>
+                      <div className="font-medium">
+                        {lead.company || 
+                         (lead.additional_data as any)?.company ||
+                         (lead.additional_data as any)?.Company ||
+                         'N/A'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {lead.location || 
+                         (lead.additional_data as any)?.location ||
+                         (lead.additional_data as any)?.city ||
+                         (lead.additional_data as any)?.state ||
+                         'N/A'}
+                      </div>
                     </td>
                     <td className="p-3">
                       <div className="space-y-1">
