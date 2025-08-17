@@ -31,6 +31,14 @@ const Logo = () => {
     };
     processLogo();
   }, []);
-  return;
+  return (
+    <div className="flex justify-center py-8">
+      <img 
+        src={processedLogoUrl} 
+        alt="Complete Controller Logo" 
+        className="h-36 w-auto"
+      />
+    </div>
+  );
 };
 export default Logo;
