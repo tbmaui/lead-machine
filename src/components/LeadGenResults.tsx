@@ -14,17 +14,24 @@ interface LeadGenResultsProps {
 
 const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const isProcessing = job.status === 'pending' || job.status === 'processing';
+  const isProcessing = job.status === 'pending' || job.status === 'processing' || job.status === 'searching' || job.status === 'enriching';
 
   const steps = [
     "Initializing search parameters...",
-    "Connecting to data sources...",
-    "Scanning company databases...",
-    "Verifying contact information...",
-    "Analyzing decision maker roles...",
+    "Searching for companies...", 
+    "Finding decision makers...",
+    "Enriching contact data...",
+    "Verifying information...",
     "Calculating lead scores...",
-    "Generating final results..."
+    "Finalizing results..."
   ];
+
+  const getStepFromStatus = (status: string, progress: number) => {
+    if (status === 'searching') return "Searching for companies and contacts...";
+    if (status === 'enriching') return "Enriching and verifying contact data...";
+    if (status === 'processing') return steps[Math.min(Math.floor((progress / 100) * steps.length), steps.length - 1)];
+    return steps[0];
+  };
 
   useEffect(() => {
     if (isProcessing) {
@@ -34,7 +41,7 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
       );
       setCurrentStep(currentStepIndex);
     }
-  }, [job.progress, isProcessing]);
+  }, [job.progress, job.status, isProcessing]);
 
   // Show actual leads from backend, not mock data
   const displayLeads = leads.length > 0 ? leads : [];
@@ -71,7 +78,7 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
               <Progress value={job.progress} className="h-3" />
             </div>
             <div className="text-sm text-muted-foreground">
-              {job.status === 'failed' ? `Error: ${job.error_message}` : steps[currentStep]}
+              {job.status === 'failed' ? `Error: ${job.error_message}` : getStepFromStatus(job.status, job.progress)}
             </div>
             <div className="flex gap-2 mt-4">
               <Button variant="outline" onClick={onNewSearch} className="flex items-center gap-2">

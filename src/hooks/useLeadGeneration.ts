@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export interface LeadGenJob {
   id: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: 'pending' | 'processing' | 'searching' | 'enriching' | 'completed' | 'failed';
   job_criteria: any;
   progress: number;
   total_leads_found: number;
@@ -56,7 +56,7 @@ export const useLeadGeneration = (userId?: string) => {
           const updatedJob = payload.new as any;
           setCurrentJob({
             ...updatedJob,
-            status: updatedJob.status as 'pending' | 'processing' | 'completed' | 'failed'
+            status: updatedJob.status as 'pending' | 'processing' | 'searching' | 'enriching' | 'completed' | 'failed'
           } as LeadGenJob);
           
           if (updatedJob.status === 'completed') {
@@ -177,7 +177,7 @@ export const useLeadGeneration = (userId?: string) => {
 
       setCurrentJob({
         ...job,
-        status: job.status as 'pending' | 'processing' | 'completed' | 'failed'
+        status: job.status as 'pending' | 'processing' | 'searching' | 'enriching' | 'completed' | 'failed'
       } as LeadGenJob);
       
       toast({
