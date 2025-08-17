@@ -36,74 +36,8 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
     }
   }, [job.progress, isProcessing]);
 
-  const mockLeads = [
-    {
-      name: "Israel Espinoza",
-      title: "Owner",
-      company: "Alamo Drywall, Inc",
-      address: "1749 Veterans Memorial Hwy, Austell, Georgia, 30106",
-      phone: "+1 770-739-9671",
-      email: "iespinoza@alamodrywall.com",
-      website: "Website",
-      linkedin: "LinkedIn",
-      score: 5
-    },
-    {
-      name: "Charlie Tobias", 
-      title: "Owner",
-      company: "Wildwood Development",
-      address: "Atlanta, Georgia",
-      phone: "+1 404-480-0819",
-      email: "charlie@wildwoodlandscaping.com",
-      website: "Website",
-      linkedin: "LinkedIn", 
-      score: 5
-    },
-    {
-      name: "Julie Poirier",
-      title: "Owner", 
-      company: "Poirier Law Firm",
-      address: "1100 Peachtree St NE, Atlanta, Georgia, 30309",
-      phone: "+1 404-730-2000",
-      email: "julie@poirierlawfirm.com",
-      website: "Website",
-      linkedin: "LinkedIn",
-      score: 5
-    },
-    {
-      name: "John Bellus",
-      title: "Owner",
-      company: "Stone & Bellus, P.C.",
-      address: "6849 Peachtree Dunwoody Rd, Atlanta, Georgia, 30328-1608", 
-      phone: "+1 770-390-9950",
-      email: "john@stonebellus.com",
-      website: "Website",
-      linkedin: "LinkedIn",
-      score: 5
-    },
-    {
-      name: "Peter Jaraysi",
-      title: "Owner",
-      company: "Slam Dunk Attorney | Injury Lawyers",
-      address: "2250 Satellite Blvd, Duluth, Georgia, 30097-4906",
-      phone: "+1 404-951-3513", 
-      email: "peter@jaraysislawfirm.com",
-      website: "Website",
-      linkedin: "LinkedIn",
-      score: 5
-    },
-    {
-      name: "Vicky Yarns",
-      title: "Owner/Chiropractor",
-      company: "Atlanta Spine Center", 
-      address: "1375 Peachtree St NE, Atlanta, Georgia, 30309",
-      phone: "+1 404-575-1300",
-      email: "dr.yarns@mindspring.com",
-      website: "Website", 
-      linkedin: "LinkedIn",
-      score: 5
-    }
-  ];
+  // Show actual leads from backend, not mock data
+  const displayLeads = leads.length > 0 ? leads : [];
 
   if (isProcessing) {
     return (
@@ -173,7 +107,7 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-2xl font-bold">Generated Leads</CardTitle>
-            <p className="text-muted-foreground mt-1">Found {job.total_leads_found} leads</p>
+            <p className="text-muted-foreground mt-1">Found {leads.length} leads</p>
           </div>
           <Button onClick={onNewSearch} className="bg-blue-600 hover:bg-blue-700">
             New Search
@@ -209,7 +143,7 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-3xl font-bold">
-                      {leads.length > 0 ? Math.round(leads.reduce((sum, lead) => sum + (lead.score || 0), 0) / leads.length) : 0}
+                      {displayLeads.length > 0 ? Math.round(displayLeads.reduce((sum, lead) => sum + (lead.score || 0), 0) / displayLeads.length) : 0}
                     </div>
                     <div className="text-sm text-muted-foreground">Avg Score</div>
                   </div>
@@ -219,7 +153,7 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
             
             <div className="space-y-3">
               {[5, 4, 3, 2, 1].map(score => {
-                const count = leads.filter(lead => lead.score === score).length;
+                const count = displayLeads.filter(lead => lead.score === score).length;
                 const colors = ['bg-green-500', 'bg-blue-500', 'bg-purple-500', 'bg-orange-500', 'bg-red-500'];
                 const labels = ['(Owners/CEOs)', '(CFOs/VPs/Presidents)', '(Directors)', '(Others)', '(Entry Level)'];
                 return (
@@ -245,7 +179,7 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
                 </tr>
               </thead>
               <tbody>
-                {leads.map((lead, index) => (
+                {displayLeads.map((lead, index) => (
                 <tr key={index} className="border-b hover:bg-muted/50">
                     <td className="p-3">
                       <div className="font-medium text-lg">{lead.name}</div>
