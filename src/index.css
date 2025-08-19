@@ -1,0 +1,267 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Neumorphism Design System - All colors MUST be HSL */
+
+@layer base {
+  :root {
+    /* Base colors for light theme */
+    --background: 220 14% 96%;
+    --foreground: 220 20% 25%;
+
+    --card: 220 15% 97%;
+    --card-foreground: 220 20% 25%;
+
+    --popover: 220 15% 97%;
+    --popover-foreground: 220 20% 25%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 94%;
+    --secondary-foreground: 220 20% 30%;
+
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 10% 50%;
+
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 220 15% 97%;
+
+    --border: 220 13% 91%;
+    --input: 220 15% 97%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.75rem;
+
+    /* Neumorphism-specific variables */
+    --neu-base: 220 14% 96%;
+    --neu-highlight: 0 0% 100%;
+    --neu-shadow: 220 20% 85%;
+    --neu-shadow-dark: 220 25% 80%;
+    --neu-inset-highlight: 0 0% 99%;
+    --neu-inset-shadow: 220 15% 88%;
+    
+    /* Soft shadow combinations */
+    --neu-shadow-light: 5px 5px 10px hsl(var(--neu-shadow)), -5px -5px 10px hsl(var(--neu-highlight));
+    --neu-shadow-medium: 8px 8px 16px hsl(var(--neu-shadow)), -8px -8px 16px hsl(var(--neu-highlight));
+    --neu-shadow-strong: 12px 12px 24px hsl(var(--neu-shadow-dark)), -12px -12px 24px hsl(var(--neu-highlight));
+    --neu-shadow-inset: inset 4px 4px 8px hsl(var(--neu-inset-shadow)), inset -4px -4px 8px hsl(var(--neu-inset-highlight));
+    --neu-shadow-pressed: inset 6px 6px 12px hsl(var(--neu-shadow)), inset -6px -6px 12px hsl(var(--neu-highlight));
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Base colors for dark theme */
+    --background: 220 15% 18%;
+    --foreground: 220 10% 88%;
+
+    --card: 220 15% 20%;
+    --card-foreground: 220 10% 88%;
+
+    --popover: 220 15% 20%;
+    --popover-foreground: 220 10% 88%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 220 15% 15%;
+
+    --secondary: 220 15% 22%;
+    --secondary-foreground: 220 10% 85%;
+
+    --muted: 220 15% 22%;
+    --muted-foreground: 220 8% 65%;
+
+    --accent: 217 91% 60%;
+    --accent-foreground: 220 15% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 220 15% 20%;
+
+    --border: 220 15% 25%;
+    --input: 220 15% 20%;
+    --ring: 217 91% 60%;
+
+    /* Neumorphism-specific variables for dark theme */
+    --neu-base: 220 15% 18%;
+    --neu-highlight: 220 12% 25%;
+    --neu-shadow: 220 20% 12%;
+    --neu-shadow-dark: 220 25% 8%;
+    --neu-inset-highlight: 220 12% 22%;
+    --neu-inset-shadow: 220 18% 15%;
+    
+    /* Soft shadow combinations for dark theme */
+    --neu-shadow-light: 5px 5px 10px hsl(var(--neu-shadow)), -5px -5px 10px hsl(var(--neu-highlight));
+    --neu-shadow-medium: 8px 8px 16px hsl(var(--neu-shadow)), -8px -8px 16px hsl(var(--neu-highlight));
+    --neu-shadow-strong: 12px 12px 24px hsl(var(--neu-shadow-dark)), -12px -12px 24px hsl(var(--neu-highlight));
+    --neu-shadow-inset: inset 4px 4px 8px hsl(var(--neu-inset-shadow)), inset -4px -4px 8px hsl(var(--neu-inset-highlight));
+    --neu-shadow-pressed: inset 6px 6px 12px hsl(var(--neu-shadow)), inset -6px -6px 12px hsl(var(--neu-highlight));
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Base Neumorphism styling */
+  .neu-base {
+    background: hsl(var(--neu-base));
+    border-radius: var(--radius);
+  }
+
+  /* Neumorphism shadow utilities */
+  .neu-flat {
+    @apply neu-base;
+    box-shadow: var(--neu-shadow-light);
+  }
+
+  .neu-raised {
+    @apply neu-base;
+    box-shadow: var(--neu-shadow-medium);
+  }
+
+  .neu-elevated {
+    @apply neu-base;
+    box-shadow: var(--neu-shadow-strong);
+  }
+
+  .neu-inset {
+    @apply neu-base;
+    box-shadow: var(--neu-shadow-inset);
+  }
+
+  .neu-pressed {
+    @apply neu-base;
+    box-shadow: var(--neu-shadow-pressed);
+  }
+
+  .neu-button {
+    @apply neu-flat transition-all duration-200 ease-in-out;
+  }
+
+  .neu-button:hover {
+    @apply neu-raised;
+  }
+
+  .neu-button:active {
+    @apply neu-pressed;
+  }
+
+  /* Component-specific Neumorphism styles */
+  .neu-card {
+    @apply neu-raised bg-card text-card-foreground;
+  }
+
+  .neu-input {
+    @apply neu-inset bg-input text-foreground;
+    transition: box-shadow 0.2s ease-in-out;
+  }
+
+  .neu-input:focus {
+    box-shadow: var(--neu-shadow-pressed), 0 0 0 2px hsl(var(--ring));
+  }
+
+  /* Prevent shadow conflicts on non-neumorphic elements */
+  .shadow-none {
+    box-shadow: none !important;
+  }
+
+  /* Form-specific Neumorphism styles */
+  .neu-form-section {
+    @apply neu-raised bg-card text-card-foreground p-6 mb-6;
+  }
+
+  .neu-popover {
+    @apply neu-raised bg-popover text-popover-foreground border-0;
+  }
+
+  .neu-checkbox {
+    @apply neu-flat transition-all duration-200;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .neu-checkbox:checked {
+    @apply neu-inset;
+  }
+
+  .neu-slider-track {
+    @apply neu-inset bg-secondary;
+    height: 0.5rem;
+  }
+
+  .neu-slider-thumb {
+    @apply neu-raised bg-primary;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: none;
+  }
+
+  .neu-slider-thumb:hover {
+    @apply neu-elevated;
+  }
+
+  .neu-label {
+    @apply text-sm font-medium text-foreground mb-2 flex items-center gap-2;
+  }
+
+  .neu-field-indicator {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+  }
+
+  .neu-progress-track {
+    @apply neu-inset bg-secondary;
+    height: 0.75rem;
+    border-radius: var(--radius);
+  }
+
+  .neu-button-primary {
+    @apply neu-elevated bg-primary text-primary-foreground transition-all duration-200 ease-in-out;
+  }
+
+  .neu-button-primary:hover:not(:disabled) {
+    @apply neu-raised;
+  }
+
+  .neu-button-primary:active:not(:disabled) {
+    @apply neu-pressed;
+  }
+
+  .neu-button-primary:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}

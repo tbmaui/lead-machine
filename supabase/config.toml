@@ -1,0 +1,10 @@
+project_id = "ooucjycpduxmnkxhjgtk"
+
+[functions.trigger-lead-generation]
+verify_jwt = false
+
+[functions.n8n-status-update]
+verify_jwt = false
+
+[functions.n8n-callback]
+verify_jwt = false

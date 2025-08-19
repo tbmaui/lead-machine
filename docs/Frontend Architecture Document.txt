@@ -1,0 +1,54 @@
+# Frontend Architecture Document
+
+## Template and Framework Selection
+
+This section documents the foundational choices for the frontend project and any constraints imposed by the existing codebase.
+
+I have reviewed the `README.md` file from your GitHub repository. It clearly states that the project is built with:
+* Vite
+* TypeScript
+* React
+* shadcn-ui
+* Tailwind CSS
+
+Since your project already has an existing codebase based on a starter template (`Lovable` which uses Vite and React), my architecture design will align with its established patterns, including the folder structure and styling approach. I will not suggest a new starter template or framework.
+
+**Change Log**
+
+| Change | Date | Version | Description | Author |
+| :--- | :--- | :--- | :--- | :--- |
+| Initial draft | 2025-08-18 | 1.0 | Initial architecture based on existing codebase analysis and PRD. | Winston |
+
+## Frontend Tech Stack
+
+This is the DEFINITIVE technology selection section. All development must use these exact versions to ensure consistency and prevent compatibility issues.
+
+**Technology Stack Table**
+
+| Category | Technology | Version | Purpose | Rationale |
+| :--- | :--- | :--- | :--- | :--- |
+| Framework | React | - | Primary UI development framework | Component-based architecture, wide ecosystem, and team familiarity. |
+| Language | TypeScript | - | Primary development language | Strong typing, excellent tooling, and improved code quality. |
+| UI Library | shadcn-ui | - | Reusable UI components | Provides pre-built, accessible, and customizable components that align with a modern design aesthetic. |
+| Styling | Tailwind CSS | - | Utility-first CSS framework | Enables rapid UI development and customization. |
+| Build Tool | Vite | - | Frontend build tool | Fast development server, hot module replacement, and efficient bundling. |
+
+## Project Structure
+
+```text
+project-root/
+├── public/                 # Static assets like images and fonts
+├── src/                    # Source code directory
+│   ├── assets/             # Images, icons, etc.
+│   ├── components/         # Reusable UI components
+│   │   ├── ui/             # shadcn-ui components
+│   │   └── custom/         # Project-specific custom components
+│   ├── hooks/              # Custom React hooks
+│   ├── lib/                # Utility functions
+│   ├── services/           # API client services
+│   ├── styles/             # Global styles and themes
+│   └── App.tsx             # Main application component
+├── .env.local              # Local environment variables
+├── package.json
+├── tailwind.config.js
+└── tsconfig.json
