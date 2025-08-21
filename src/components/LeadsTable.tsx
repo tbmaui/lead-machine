@@ -1,7 +1,8 @@
 import { Lead } from "@/hooks/useLeadGeneration";
-import { ExternalLink, Linkedin } from "lucide-react";
+import { ExternalLink, Linkedin, Copy } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/sonner";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -62,6 +63,30 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
       return `${city}, ${state}`;
     }
     return location || city || state || 'N/A';
+  };
+
+  const copyToClipboard = async (value: string, label: string) => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = value;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      // Emit a DOM event for tests and integrations to observe copy actions
+      document.dispatchEvent(new CustomEvent('lead-copy-success', { detail: { label, value } }));
+      toast.success(`${label} copied`);
+    } catch (err) {
+      document.dispatchEvent(new CustomEvent('lead-copy-error', { detail: { label, value } }));
+      toast.error(`Failed to copy ${label.toLowerCase()}`);
+    }
   };
 
   return (
@@ -156,6 +181,16 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${getPhoneStatusColor(lead.phone)}`}></div>
                       <span className="text-foreground/80 break-words">{lead.phone}</span>
+                      <button
+                        aria-label={`Copy phone ${lead.phone}`}
+                        onClick={(e) => { e.stopPropagation(); copyToClipboard(lead.phone as string, 'Phone'); }}
+                        className={cn(
+                          buttonVariants({ variant: "ghost", size: "sm" }),
+                          "p-1 h-7 w-7"
+                        )}
+                      >
+                        <Copy className="h-3 w-3" />
+                      </button>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
@@ -171,6 +206,16 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                       <a href={`mailto:${lead.email}`} className="text-primary hover:underline break-words">
                         {lead.email}
                       </a>
+                      <button
+                        aria-label={`Copy email ${lead.email}`}
+                        onClick={(e) => { e.stopPropagation(); copyToClipboard(lead.email as string, 'Email'); }}
+                        className={cn(
+                          buttonVariants({ variant: "ghost", size: "sm" }),
+                          "p-1 h-7 w-7"
+                        )}
+                      >
+                        <Copy className="h-3 w-3" />
+                      </button>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
