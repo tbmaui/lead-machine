@@ -1,5 +1,7 @@
 import { Lead } from "@/hooks/useLeadGeneration";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Linkedin } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -88,8 +90,18 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-foreground break-words">{lead.name}</span>
                     {contactLinkedIn && (
-                      <a href={contactLinkedIn} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                        <ExternalLink className="h-3 w-3" />
+                      <a
+                        href={contactLinkedIn}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Open LinkedIn profile for ${lead.name}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className={cn(
+                          buttonVariants({ variant: "ghost", size: "sm" }),
+                          "p-1 h-7 w-7"
+                        )}
+                      >
+                        <Linkedin className="h-3 w-3" />
                       </a>
                     )}
                   </div>
@@ -107,13 +119,33 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     </span>
                     <div className="flex gap-1">
                       {companyWebsite && (
-                        <a href={companyWebsite} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                        <a
+                          href={companyWebsite}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Open company website for ${lead.company || (lead.additional_data as any)?.company || 'this company'}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className={cn(
+                            buttonVariants({ variant: "ghost", size: "sm" }),
+                            "p-1 h-7 w-7"
+                          )}
+                        >
                           <ExternalLink className="h-3 w-3" />
                         </a>
                       )}
                       {companyLinkedIn && (
-                        <a href={companyLinkedIn} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                          <ExternalLink className="h-3 w-3" />
+                        <a
+                          href={companyLinkedIn}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Open company LinkedIn for ${lead.company || (lead.additional_data as any)?.company || 'this company'}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className={cn(
+                            buttonVariants({ variant: "ghost", size: "sm" }),
+                            "p-1 h-7 w-7"
+                          )}
+                        >
+                          <Linkedin className="h-3 w-3" />
                         </a>
                       )}
                     </div>

@@ -60,6 +60,22 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Leads Table Quick-Jump Links
+
+The `LeadsTable` renders conditional quick-jump links per row:
+
+- LinkedIn profile button for a contact when `additional_data.linkedin_url` exists.
+- Company Website button when a website URL is present in `additional_data`.
+- Company LinkedIn button when `additional_data.organization_linkedin_url` is present.
+
+All links open in a new tab with `target="_blank"` and `rel="noopener noreferrer"`, and use `onClick={(e) => e.stopPropagation()}` to avoid interfering with row interactions. Buttons use shadcn `buttonVariants` with the `ghost` variant and appropriate icons.
+
+Run tests:
+
+```sh
+npm run test
+```
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/cfcc9315-ef54-4f1f-bc8b-e4dbbeae2267) and click on Share -> Publish.
