@@ -24,5 +24,11 @@ export default defineConfig(({ mode }) => ({
     setupFiles: ['src/test/setup.ts'],
     globals: true,
     css: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      reportsDirectory: 'coverage',
+      include: ['src/components/LeadsTable.tsx'],
+    },
   },
 }));

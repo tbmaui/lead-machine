@@ -167,3 +167,51 @@ describe('LeadsTable copy-to-clipboard buttons', () => {
   });
 });
 
+describe('LeadsTable truncation and titles', () => {
+  it('applies truncate classes and title attributes to targeted cells', () => {
+    const longName = 'Jane Alexandra Doe the Third of Very Long Names';
+    const longTitle = 'Chief Technology Officer of International Research and Development Division';
+    const longCompany = 'Acme International Holdings and Subsidiaries Worldwide Corporation Unlimited';
+    const longEmail = 'jane.alexandra.doe.extremely.long.email.address@very-very-long-domain-example-company.com';
+    const city = 'San Francisco';
+    const state = 'California';
+
+    const lead = buildLead({
+      name: longName,
+      title: longTitle,
+      company: longCompany,
+      email: longEmail,
+      additional_data: { city, state },
+    });
+
+    render(<LeadsTable leads={[lead]} />);
+
+    // Name span
+    const nameEl = screen.getByText(longName);
+    expect(nameEl).toHaveAttribute('title', longName);
+    expect(nameEl.className).toMatch(/truncate/);
+
+    // Title span
+    const titleEl = screen.getByText(longTitle);
+    expect(titleEl).toHaveAttribute('title', longTitle);
+    expect(titleEl.className).toMatch(/truncate/);
+
+    // Company span
+    const companyEl = screen.getByText(longCompany);
+    expect(companyEl).toHaveAttribute('title', longCompany);
+    expect(companyEl.className).toMatch(/truncate/);
+
+    // Email anchor should still be a mailto link and truncated with title
+    const emailLink = screen.getByRole('link', { name: longEmail }) as HTMLAnchorElement;
+    expect(emailLink.href).toContain(`mailto:${longEmail}`);
+    expect(emailLink).toHaveAttribute('title', longEmail);
+    expect(emailLink.className).toMatch(/truncate/);
+
+    // Location span from city/state and truncated with title
+    const locationFull = `${city}, ${state}`;
+    const locationEl = screen.getByText(locationFull);
+    expect(locationEl).toHaveAttribute('title', locationFull);
+    expect(locationEl.className).toMatch(/truncate/);
+  });
+});
+

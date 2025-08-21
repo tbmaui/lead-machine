@@ -91,16 +91,16 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
 
   return (
     <div className="neu-card overflow-hidden">
-      <table className="w-full table-fixed border-collapse">
+      <table className="w-full table-auto border-collapse">
         <thead>
           <tr className="border-b border-border text-muted-foreground">
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide">Name</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide">Title</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide">Company</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide">Phone</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide">Email</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide">Location</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide">Score</th>
+            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[20%]">Name</th>
+            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[20%]">Title</th>
+            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[22%]">Company</th>
+            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[12%]">Phone</th>
+            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[18%]">Email</th>
+            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[12%]">Location</th>
+            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[8%]">Score</th>
           </tr>
         </thead>
         <tbody>
@@ -108,12 +108,22 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             const companyWebsite = getCompanyWebsite(lead);
             const companyLinkedIn = getCompanyLinkedIn(lead);
             const contactLinkedIn = getContactLinkedIn(lead);
+            const displayCompany =
+              lead.company ||
+              (lead.additional_data as any)?.company ||
+              (lead.additional_data as any)?.Company ||
+              'N/A';
             
             return (
               <tr key={index} className="border-b border-border transition-colors hover:bg-accent/30">
                 <td className="p-3">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-foreground break-words">{lead.name}</span>
+                  <div className="flex items-center gap-2 min-w-0 max-w-full">
+                    <span
+                      className="font-medium text-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[20ch] sm:max-w-[24ch] lg:max-w-[28ch]"
+                      title={lead.name}
+                    >
+                      {lead.name}
+                    </span>
                     {contactLinkedIn && (
                       <a
                         href={contactLinkedIn}
@@ -132,15 +142,22 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                   </div>
                 </td>
                 <td className="p-3">
-                  <div className="text-foreground/80 break-words">{lead.title || 'N/A'}</div>
+                  <div className="min-w-0 max-w-full">
+                    <span
+                      className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[24ch] sm:max-w-[28ch] lg:max-w-[32ch] inline-block"
+                      title={lead.title || 'N/A'}
+                    >
+                      {lead.title || 'N/A'}
+                    </span>
+                  </div>
                 </td>
                 <td className="p-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-foreground/80 break-words">
-                      {lead.company || 
-                       (lead.additional_data as any)?.company ||
-                       (lead.additional_data as any)?.Company ||
-                       'N/A'}
+                  <div className="flex items-center gap-2 min-w-0 max-w-full">
+                    <span
+                      className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[20ch] sm:max-w-[28ch] lg:max-w-[32ch]"
+                      title={displayCompany}
+                    >
+                      {displayCompany}
                     </span>
                     <div className="flex gap-1">
                       {companyWebsite && (
@@ -148,7 +165,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                           href={companyWebsite}
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label={`Open company website for ${lead.company || (lead.additional_data as any)?.company || 'this company'}`}
+                          aria-label={`Open company website for ${displayCompany}`}
                           onClick={(e) => e.stopPropagation()}
                           className={cn(
                             buttonVariants({ variant: "ghost", size: "sm" }),
@@ -163,7 +180,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                           href={companyLinkedIn}
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label={`Open company LinkedIn for ${lead.company || (lead.additional_data as any)?.company || 'this company'}`}
+                          aria-label={`Open company LinkedIn for ${displayCompany}`}
                           onClick={(e) => e.stopPropagation()}
                           className={cn(
                             buttonVariants({ variant: "ghost", size: "sm" }),
@@ -180,7 +197,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                   {lead.phone ? (
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${getPhoneStatusColor(lead.phone)}`}></div>
-                      <span className="text-foreground/80 break-words">{lead.phone}</span>
+                      <span className="text-foreground/80">{lead.phone}</span>
                       <button
                         aria-label={`Copy phone ${lead.phone}`}
                         onClick={(e) => { e.stopPropagation(); copyToClipboard(lead.phone as string, 'Phone'); }}
@@ -201,9 +218,13 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                 </td>
                 <td className="p-3">
                   {lead.email ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0 max-w-full">
                       <div className={`w-2 h-2 rounded-full ${getEmailStatusColor(lead.email)}`}></div>
-                      <a href={`mailto:${lead.email}`} className="text-primary hover:underline break-words">
+                      <a
+                        href={`mailto:${lead.email}`}
+                        className="text-primary hover:underline truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[28ch] sm:max-w-[32ch] lg:max-w-[40ch] min-w-0"
+                        title={lead.email}
+                      >
                         {lead.email}
                       </a>
                       <button
@@ -225,8 +246,13 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                   )}
                 </td>
                 <td className="p-3">
-                  <div className="text-foreground/80 break-words">
-                    {getLocation(lead)}
+                  <div className="min-w-0 max-w-full">
+                    <span
+                      className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[24ch] sm:max-w-[28ch] lg:max-w-[32ch] inline-block"
+                      title={getLocation(lead)}
+                    >
+                      {getLocation(lead)}
+                    </span>
                   </div>
                 </td>
                 <td className="p-3">
