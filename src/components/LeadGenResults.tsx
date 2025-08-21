@@ -7,6 +7,7 @@ import { LeadGenJob, Lead } from "@/hooks/useLeadGeneration";
 import LeadGenStats from "./LeadGenStats";
 import ExportButtons from "./ExportButtons";
 import LeadsTable from "./LeadsTable";
+import LeadsSummaryChart from "./LeadsSummaryChart";
 
 interface LeadGenResultsProps {
   job: LeadGenJob;
@@ -97,6 +98,7 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
         </CardHeader>
         <CardContent className="space-y-6">
           <LeadGenStats leads={displayLeads} />
+          <LeadsSummaryChart leads={displayLeads} />
           <LeadsTable leads={displayLeads} />
         </CardContent>
       </Card>
