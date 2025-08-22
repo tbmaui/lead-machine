@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { statusToProgress } from '@/lib/status';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -61,17 +62,9 @@ export const useLeadGeneration = (userId?: string) => {
           // Ensure type-safe status and provide fallback progress mapping for UI smoothness
           const status = (updatedJob.status as LeadGenJob['status']) || 'processing';
           const progressFromDb: number | undefined = updatedJob.progress;
-          const defaultProgressMap: Record<LeadGenJob['status'], number> = {
-            pending: 0,
-            processing: 10,
-            searching: 40,
-            enriching: 60,
-            validating: 70,
-            finalizing: 90,
-            completed: 100,
-            failed: 0,
-          };
-          const mergedProgress = typeof progressFromDb === 'number' ? progressFromDb : defaultProgressMap[status];
+          // Use centralized helper for mapping
+          // Import placed at top: statusToProgress
+          const mergedProgress = statusToProgress(status, progressFromDb);
 
           // Handle interactions with simulation when a real update arrives
           if (simulationActiveRef.current) {

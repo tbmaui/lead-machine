@@ -54,3 +54,9 @@ Based on my analysis of your existing project, I believe this enhancement should
     3. Users can dynamically sort the table data by any column.
     4. The table provides quick-jumping links to LinkedIn profiles and website URLs.
     5. The table's visual style is consistent with the new brand colors and overall page design.
+
+**Story 1.9: Status Vocabulary Alignment (+ Optional "finalizing" at 90%)**
+* **As a** user monitoring lead generation progress,
+* **I want** consistent status values across DB, edge, and frontend (optionally including `finalizing`),
+* **So that** realtime updates are reliable and no events are dropped due to schema constraints.
+* See `docs/stories/1.9.status-vocabulary-alignment-and-finalizing-step.md` for full AC and tasks.

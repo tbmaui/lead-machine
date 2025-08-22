@@ -39,6 +39,19 @@ serve(async (req) => {
       updated_at: new Date().toISOString()
     };
 
+    // Allow approved statuses (Option A)
+    const allowedStatuses = new Set(['pending','processing','searching','enriching','validating','finalizing','completed','failed']);
+    if (normalizedStatus && !allowedStatuses.has(normalizedStatus)) {
+      console.warn('Rejected unknown status', { normalizedStatus, jobId });
+      return new Response(JSON.stringify({
+        success: false,
+        message: `Unknown status: ${normalizedStatus}`
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Default progress mapping when not explicitly provided
     const defaultProgressByStatus: Record<string, number> = {
       processing: 10,

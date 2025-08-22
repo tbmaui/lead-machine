@@ -1,0 +1,39 @@
+status: PASS
+story:
+  epic: 1
+  number: 9
+  slug: status-vocabulary-alignment-and-finalizing-step
+  title: "Status Vocabulary Alignment (+ Optional 'finalizing' at 90%) — Brownfield Addition"
+review:
+  date: "2025-08-22"
+  reviewer: "QA (Test Architect)"
+summary:
+  - "Option A selected; 'finalizing' standardized across DB, edge, and frontend."
+  - "DB CHECK includes 'finalizing'; migration added and reversible."
+  - "Edge function accepts 'finalizing' and maps to progress 90 by default."
+  - "Frontend types/UI updated; centralized mapping helper used; labels verified."
+verification:
+  database:
+    migration: "supabase/migrations/20250817010100_add_finalizing_status.sql"
+    check_values:
+      - pending
+      - processing
+      - searching
+      - enriching
+      - validating
+      - finalizing
+      - completed
+      - failed
+  edge_functions:
+    - supabase/functions/n8n-status-update/index.ts
+    - supabase/functions/n8n-callback/index.ts
+  frontend:
+    - src/lib/status.ts
+    - src/hooks/useLeadGeneration.ts
+    - src/components/StatusBar.tsx
+    - src/components/LeadGenResults.tsx
+    - src/components/StatusBar.test.tsx
+    - src/lib/status.test.ts
+notes: "Consider optional safety auto-advance from 'finalizing' to 'completed' on timeout if backend callback is delayed."
+
+
