@@ -60,3 +60,15 @@ Based on my analysis of your existing project, I believe this enhancement should
 * **I want** consistent status values across DB, edge, and frontend (optionally including `finalizing`),
 * **So that** realtime updates are reliable and no events are dropped due to schema constraints.
 * See `docs/stories/1.9.status-vocabulary-alignment-and-finalizing-step.md` for full AC and tasks.
+
+**Story 1.10: Stuck Status Recovery and Auto-Advance Safeguard**
+* **As a** user monitoring lead generation,
+* **I want** the system to automatically recover from a stuck near-complete state (e.g., `finalizing` at 90%),
+* **So that** transient callback failures do not leave jobs indefinitely incomplete.
+* See `docs/stories/1.10.stuck-status-recovery-and-auto-advance.md` for full AC and tasks.
+
+**Story 1.11: Dynamic Sorting in Leads Table**
+* **As a** sales user,
+* **I want** to sort the leads table by any visible column,
+* **So that** I can quickly organize and analyze lead data without exporting.
+* See `docs/stories/1.11.dynamic-sorting-in-lead-table.md` for full AC and tasks.

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LeadsTable from './LeadsTable';
 import type { Lead } from '@/hooks/useLeadGeneration';
@@ -212,6 +212,132 @@ describe('LeadsTable truncation and titles', () => {
     const locationEl = screen.getByText(locationFull);
     expect(locationEl).toHaveAttribute('title', locationFull);
     expect(locationEl.className).toMatch(/truncate/);
+  });
+});
+
+describe('LeadsTable sorting', () => {
+  function leadsForSorting(): Lead[] {
+    return [
+      buildLead({ id: '1', name: 'Delta', title: 'Engineer', company: 'Beta Co', email: 'delta@beta.com', phone: '222', location: 'Dallas, TX', score: 2, additional_data: { city: 'Dallas', state: 'TX' } }),
+      buildLead({ id: '2', name: 'alpha', title: 'Manager', company: 'Acme', email: 'alpha@acme.com', phone: '111', location: 'Austin, TX', score: 5, additional_data: { city: 'Austin', state: 'TX' } }),
+      buildLead({ id: '3', name: 'Charlie', title: undefined, company: undefined, email: undefined, phone: undefined, location: undefined, score: 5, additional_data: {} }),
+      buildLead({ id: '4', name: 'bravo', title: 'Architect', company: 'N/A', email: 'bravo@na.com', phone: '333', location: 'N/A', score: 3, additional_data: {} }),
+    ];
+  }
+
+  const getTableRows = () => screen.getAllByRole('row').slice(1); // skip header
+  const getFirstCellText = (row: HTMLElement) => {
+    const firstCell = within(row).getAllByRole('cell')[0];
+    return (firstCell.textContent || '').trim();
+  };
+  const getNameOrder = () => getTableRows().map(r => getFirstCellText(r).split('\n')[0].trim());
+
+  it('cycles none→asc→desc→none on Name and sorts case-insensitively, stable', async () => {
+    const user = userEvent.setup();
+    const leads = leadsForSorting();
+    render(<LeadsTable leads={leads} />);
+
+    const nameTh = screen.getByRole('columnheader', { name: /Name/i });
+    const nameBtn = screen.getByRole('button', { name: /Sort by Name/i });
+
+    // initial: none, keep natural order
+    expect(nameTh).toHaveAttribute('aria-sort', 'none');
+    expect(getNameOrder()).toEqual(leads.map(l => l.name));
+
+    // asc
+    await user.click(nameBtn);
+    expect(nameTh).toHaveAttribute('aria-sort', 'ascending');
+    expect(getNameOrder()).toEqual(['alpha', 'bravo', 'Charlie', 'Delta']);
+
+    // desc
+    await user.click(nameBtn);
+    expect(nameTh).toHaveAttribute('aria-sort', 'descending');
+    expect(getNameOrder()).toEqual(['Delta', 'Charlie', 'bravo', 'alpha']);
+
+    // back to none
+    await user.click(nameBtn);
+    expect(nameTh).toHaveAttribute('aria-sort', 'none');
+    expect(getNameOrder()).toEqual(leads.map(l => l.name));
+  });
+
+  it('sorts by Score numerically asc and desc; missing last in asc', async () => {
+    const user = userEvent.setup();
+    const leads: Lead[] = [
+      buildLead({ id: '1', name: 'A', score: 2 }),
+      buildLead({ id: '2', name: 'B', score: 5 }),
+      buildLead({ id: '3', name: 'C', score: undefined }),
+      buildLead({ id: '4', name: 'D', score: 3 }),
+    ];
+    render(<LeadsTable leads={leads} />);
+
+    const scoreTh = screen.getByRole('columnheader', { name: /Score/i });
+    const scoreBtn = screen.getByRole('button', { name: /Sort by Score/i });
+
+    await user.click(scoreBtn); // asc
+    expect(scoreTh).toHaveAttribute('aria-sort', 'ascending');
+    expect(getNameOrder()).toEqual(['A', 'D', 'B', 'C']); // C (missing) last
+
+    await user.click(scoreBtn); // desc
+    expect(scoreTh).toHaveAttribute('aria-sort', 'descending');
+    expect(getNameOrder()).toEqual(['C', 'B', 'D', 'A']); // missing first in desc
+  });
+
+  it('sorts by Company using derived display company', async () => {
+    const user = userEvent.setup();
+    const leads: Lead[] = [
+      buildLead({ id: '1', name: 'A', company: undefined, additional_data: { company: 'Zulu' } }),
+      buildLead({ id: '2', name: 'B', company: 'Acme' }),
+      buildLead({ id: '3', name: 'C', additional_data: { Company: 'Beta' } }),
+      buildLead({ id: '4', name: 'D', company: undefined }), // N/A
+    ];
+    render(<LeadsTable leads={leads} />);
+
+    const companyBtn = screen.getByRole('button', { name: /Sort by Company/i });
+    await user.click(companyBtn); // asc
+    expect(getNameOrder()).toEqual(['B', 'C', 'A', 'D']); // Acme, Beta, Zulu, N/A
+  });
+
+  it('sorts by Location using derived city/state', async () => {
+    const user = userEvent.setup();
+    const leads: Lead[] = [
+      buildLead({ id: '1', name: 'A', additional_data: { city: 'Dallas', state: 'TX' } }),
+      buildLead({ id: '2', name: 'B', location: 'Boston, MA' }),
+      buildLead({ id: '3', name: 'C', additional_data: { city: 'Austin', state: 'TX' } }),
+      buildLead({ id: '4', name: 'D', location: undefined }), // N/A
+    ];
+    render(<LeadsTable leads={leads} />);
+
+    const locBtn = screen.getByRole('button', { name: /Sort by Location/i });
+    await user.click(locBtn); // asc
+    expect(getNameOrder()).toEqual(['C', 'B', 'A', 'D']); // Austin, Boston, Dallas, N/A
+  });
+
+  it('does not toggle sort when clicking quick-jump and copy controls', async () => {
+    const user = userEvent.setup();
+    const leads: Lead[] = [
+      buildLead({
+        id: '1',
+        name: 'Alice',
+        email: 'alice@example.com',
+        phone: '111',
+        additional_data: { linkedin_url: 'https://linkedin.com/in/alice' },
+      }),
+    ];
+    render(<LeadsTable leads={leads} />);
+
+    const nameTh = screen.getByRole('columnheader', { name: /Name/i });
+    const nameBtn = screen.getByRole('button', { name: /Sort by Name/i });
+
+    await user.click(nameBtn); // asc
+    expect(nameTh).toHaveAttribute('aria-sort', 'ascending');
+
+    const profileLink = screen.getByLabelText(/Open LinkedIn profile for Alice/i);
+    await user.click(profileLink);
+    expect(nameTh).toHaveAttribute('aria-sort', 'ascending');
+
+    const copyEmailBtn = screen.getByLabelText(/Copy email alice@example.com/i);
+    await user.click(copyEmailBtn);
+    expect(nameTh).toHaveAttribute('aria-sort', 'ascending');
   });
 });
 

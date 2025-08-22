@@ -1,14 +1,43 @@
 import { Lead } from "@/hooks/useLeadGeneration";
-import { ExternalLink, Linkedin, Copy } from "lucide-react";
+import { ExternalLink, Linkedin, Copy, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
+import { useMemo, useState } from "react";
 
 interface LeadsTableProps {
   leads: Lead[];
 }
 
+type SortKey = "name" | "title" | "company" | "phone" | "email" | "location" | "score";
+type SortDirection = "asc" | "desc";
+
 const LeadsTable = ({ leads }: LeadsTableProps) => {
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection | null>(null);
+
+  const cycleSort = (key: SortKey) => {
+    if (sortKey !== key) {
+      setSortKey(key);
+      setSortDirection("asc");
+      return;
+    }
+    if (sortDirection === "asc") {
+      setSortDirection("desc");
+      return;
+    }
+    if (sortDirection === "desc") {
+      setSortKey(null);
+      setSortDirection(null);
+      return;
+    }
+    setSortDirection("asc");
+  };
+
+  const normalizedString = (value?: string | null) => {
+    if (!value) return "";
+    return String(value).trim().toLowerCase();
+  };
   const getPhoneStatusColor = (phone?: string) => {
     if (!phone || phone.trim() === '') return 'bg-gray-300';
     // Simple verification logic - in real app this would come from backend
@@ -65,6 +94,72 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
     return location || city || state || 'N/A';
   };
 
+  const getDisplayCompany = (lead: Lead) => {
+    return (
+      lead.company ||
+      (lead.additional_data as any)?.company ||
+      (lead.additional_data as any)?.Company ||
+      'N/A'
+    );
+  };
+
+  const createComparator = (key: SortKey, direction: SortDirection) => {
+    const dir = direction === "asc" ? 1 : -1;
+    return (a: { lead: Lead; index: number }, b: { lead: Lead; index: number }) => {
+      const aVal = (() => {
+        switch (key) {
+          case "company":
+            return getDisplayCompany(a.lead);
+          case "location":
+            return getLocation(a.lead);
+          default:
+            return (a.lead as any)[key];
+        }
+      })();
+      const bVal = (() => {
+        switch (key) {
+          case "company":
+            return getDisplayCompany(b.lead);
+          case "location":
+            return getLocation(b.lead);
+          default:
+            return (b.lead as any)[key];
+        }
+      })();
+
+      const aMissing = aVal === undefined || aVal === null || aVal === '' || aVal === 'N/A';
+      const bMissing = bVal === undefined || bVal === null || bVal === '' || bVal === 'N/A';
+
+      // Missing values sort last in ascending, first in descending
+      if (aMissing !== bMissing) {
+        if (direction === "asc") return aMissing ? 1 : -1;
+        return aMissing ? -1 : 1;
+      }
+
+      if (key === "score") {
+        const aNum = typeof aVal === 'number' ? aVal : Number(aVal ?? 0);
+        const bNum = typeof bVal === 'number' ? bVal : Number(bVal ?? 0);
+        if (aNum < bNum) return -1 * dir;
+        if (aNum > bNum) return 1 * dir;
+        // stable
+        return a.index - b.index;
+      }
+
+      const aStr = normalizedString(String(aVal ?? ''));
+      const bStr = normalizedString(String(bVal ?? ''));
+      if (aStr < bStr) return -1 * dir;
+      if (aStr > bStr) return 1 * dir;
+      return a.index - b.index;
+    };
+  };
+
+  const sortedLeads = useMemo(() => {
+    const decorated = leads.map((lead, index) => ({ lead, index }));
+    if (!sortKey || !sortDirection) return decorated.map(d => d.lead);
+    const comparator = createComparator(sortKey, sortDirection);
+    return [...decorated].sort(comparator).map(d => d.lead);
+  }, [leads, sortKey, sortDirection]);
+
   const copyToClipboard = async (value: string, label: string) => {
     try {
       if (navigator?.clipboard?.writeText) {
@@ -94,25 +189,105 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
       <table className="w-full table-auto border-collapse">
         <thead>
           <tr className="border-b border-border text-muted-foreground">
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[20%]">Name</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[20%]">Title</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[22%]">Company</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[12%]">Phone</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[18%]">Email</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[12%]">Location</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[8%]">Score</th>
+            <th
+              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[20%]"
+              aria-sort={sortKey === 'name' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+            >
+              <button
+                type="button"
+                aria-label="Sort by Name"
+                onClick={() => cycleSort('name')}
+                className="inline-flex items-center gap-1 hover:text-foreground"
+              >
+                Name {sortKey === 'name' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
+              </button>
+            </th>
+            <th
+              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[20%]"
+              aria-sort={sortKey === 'title' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+            >
+              <button
+                type="button"
+                aria-label="Sort by Title"
+                onClick={() => cycleSort('title')}
+                className="inline-flex items-center gap-1 hover:text-foreground"
+              >
+                Title {sortKey === 'title' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
+              </button>
+            </th>
+            <th
+              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[22%]"
+              aria-sort={sortKey === 'company' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+            >
+              <button
+                type="button"
+                aria-label="Sort by Company"
+                onClick={() => cycleSort('company')}
+                className="inline-flex items-center gap-1 hover:text-foreground"
+              >
+                Company {sortKey === 'company' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
+              </button>
+            </th>
+            <th
+              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[12%]"
+              aria-sort={sortKey === 'phone' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+            >
+              <button
+                type="button"
+                aria-label="Sort by Phone"
+                onClick={() => cycleSort('phone')}
+                className="inline-flex items-center gap-1 hover:text-foreground"
+              >
+                Phone {sortKey === 'phone' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
+              </button>
+            </th>
+            <th
+              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[18%]"
+              aria-sort={sortKey === 'email' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+            >
+              <button
+                type="button"
+                aria-label="Sort by Email"
+                onClick={() => cycleSort('email')}
+                className="inline-flex items-center gap-1 hover:text-foreground"
+              >
+                Email {sortKey === 'email' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
+              </button>
+            </th>
+            <th
+              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[12%]"
+              aria-sort={sortKey === 'location' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+            >
+              <button
+                type="button"
+                aria-label="Sort by Location"
+                onClick={() => cycleSort('location')}
+                className="inline-flex items-center gap-1 hover:text-foreground"
+              >
+                Location {sortKey === 'location' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
+              </button>
+            </th>
+            <th
+              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[8%]"
+              aria-sort={sortKey === 'score' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+            >
+              <button
+                type="button"
+                aria-label="Sort by Score"
+                onClick={() => cycleSort('score')}
+                className="inline-flex items-center gap-1 hover:text-foreground"
+              >
+                Score {sortKey === 'score' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
+              </button>
+            </th>
           </tr>
         </thead>
         <tbody>
-          {leads.map((lead, index) => {
+          {sortedLeads.map((lead, index) => {
             const companyWebsite = getCompanyWebsite(lead);
             const companyLinkedIn = getCompanyLinkedIn(lead);
             const contactLinkedIn = getContactLinkedIn(lead);
-            const displayCompany =
-              lead.company ||
-              (lead.additional_data as any)?.company ||
-              (lead.additional_data as any)?.Company ||
-              'N/A';
+            const displayCompany = getDisplayCompany(lead);
             
             return (
               <tr key={index} className="border-b border-border transition-colors hover:bg-accent/30">

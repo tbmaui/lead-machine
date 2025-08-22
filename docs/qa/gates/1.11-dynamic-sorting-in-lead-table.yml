@@ -1,0 +1,42 @@
+status: PASS
+story:
+  epic: 1
+  number: 11
+  slug: dynamic-sorting-in-lead-table
+  title: "Dynamic Sorting in Leads Table — Brownfield Addition"
+review:
+  date: "2025-08-22"
+  reviewer: "QA (Test Architect)"
+summary:
+  - "Sorting added to all visible columns with cycle none→asc→desc→none."
+  - "Active column shows chevron and exposes aria-sort for a11y."
+  - "Comparator stable; handles missing gracefully (last in asc, first in desc)."
+  - "Quick-jump and copy controls do not affect sorting."
+verification:
+  frontend:
+    components:
+      - src/components/LeadsTable.tsx
+    tests:
+      - src/components/LeadsTable.test.tsx
+  behavior:
+    - "Clicking header button toggles sort and updates aria-sort."
+    - "Strings compared case-insensitively; numeric score handled correctly."
+    - "Derived fields used for company and location."
+    - "Only header button clicks toggle sort; links/buttons within cells are safe."
+evidence:
+  test_results:
+    total: 23
+    passed: 23
+    suites_passed:
+      - src/components/LeadsTable.test.tsx
+      - src/components/LeadsSummaryChart.test.tsx
+      - src/components/StatusBar.test.tsx
+      - src/lib/status.test.ts
+concerns: []
+actions_required: []
+exit_criteria:
+  - "All acceptance criteria met for sorting behavior and a11y."
+  - "All unit tests pass without regression."
+notes: "Recommend manual check with ~5,000 rows to validate UX performance; algorithmic complexity and memoization are appropriate."
+
+
