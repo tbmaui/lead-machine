@@ -17,7 +17,7 @@ interface LeadGenResultsProps {
 
 const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const isProcessing = job.status === 'pending' || job.status === 'processing' || job.status === 'searching' || job.status === 'enriching';
+  const isProcessing = job.status === 'pending' || job.status === 'processing' || job.status === 'searching' || job.status === 'enriching' || job.status === 'validating' || job.status === 'finalizing';
 
   const steps = [
     "Initializing search parameters...",
@@ -32,6 +32,8 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
   const getStepFromStatus = (status: string, progress: number) => {
     if (status === 'searching') return "Searching for companies and contacts...";
     if (status === 'enriching') return "Enriching and verifying contact data...";
+    if (status === 'validating') return "Validating results and de-duplicating...";
+    if (status === 'finalizing') return "Finalizing results and preparing output...";
     if (status === 'processing') return steps[Math.min(Math.floor((progress / 100) * steps.length), steps.length - 1)];
     return steps[0];
   };
@@ -88,6 +90,18 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
 
   return (
     <div className="space-y-6">
+      {/* Persist StatusBar post-completion */}
+      {job.status !== 'processing' && job.status !== 'pending' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Progress</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <StatusBar status={job.status} progress={job.progress} steps={steps} />
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">

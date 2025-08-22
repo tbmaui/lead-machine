@@ -19,7 +19,8 @@ serve(async (req) => {
     );
 
     const { jobId, status, progress, totalLeadsFound, errorMessage, executionId } = await req.json();
-    console.log('Received status update:', { jobId, status, progress, totalLeadsFound, errorMessage, executionId });
+    const normalizedStatus = typeof status === 'string' ? status.toLowerCase() : status;
+    console.log('Received status update:', { jobId, status: normalizedStatus, progress, totalLeadsFound, errorMessage, executionId });
 
     // Validate jobId is present and not empty
     if (!jobId || jobId.trim() === '') {
@@ -34,11 +35,50 @@ serve(async (req) => {
     }
 
     const updateData: any = {
-      status,
+      status: normalizedStatus,
       updated_at: new Date().toISOString()
     };
 
-    if (progress !== undefined) updateData.progress = progress;
+    // Default progress mapping when not explicitly provided
+    const defaultProgressByStatus: Record<string, number> = {
+      processing: 10,
+      searching: 40,
+      enriching: 60,
+      validating: 70,
+      finalizing: 90,
+      completed: 100,
+    };
+
+    // Determine intended progress
+    let intendedProgress: number | undefined = undefined;
+    if (progress !== undefined) {
+      intendedProgress = progress;
+    } else if (normalizedStatus && defaultProgressByStatus[normalizedStatus] !== undefined) {
+      intendedProgress = defaultProgressByStatus[normalizedStatus];
+    }
+
+    // If this looks like the first mid update (e.g., enriching@60) and prior progress <=10,
+    // coerce to 20% so the frontend can simulate 30/40/50 without being overwritten.
+    if (intendedProgress !== undefined) {
+      try {
+        const { data: existing, error: readErr } = await supabase
+          .from('lead_gen_jobs')
+          .select('progress')
+          .eq('id', jobId)
+          .single();
+        if (readErr) {
+          console.warn('Read existing job failed (continuing):', readErr.message);
+        }
+        const prior = existing?.progress ?? 0;
+        const isFirstMidUpdate = prior <= 10 && intendedProgress >= 60;
+        if (isFirstMidUpdate) {
+          intendedProgress = 20;
+        }
+      } catch (e) {
+        console.warn('Error checking prior progress (continuing):', (e as any)?.message);
+      }
+      updateData.progress = intendedProgress;
+    }
     if (totalLeadsFound !== undefined) updateData.total_leads_found = totalLeadsFound;
     if (errorMessage) updateData.error_message = errorMessage;
     if (executionId) updateData.n8n_execution_id = executionId;
@@ -62,10 +102,13 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in n8n-status-update:', error);
     return new Response(JSON.stringify({ 
-      error: error.message 
+      error: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

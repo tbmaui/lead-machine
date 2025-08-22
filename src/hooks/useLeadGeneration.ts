@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export interface LeadGenJob {
   id: string;
-  status: 'pending' | 'processing' | 'searching' | 'enriching' | 'completed' | 'failed';
+  status: 'pending' | 'processing' | 'searching' | 'enriching' | 'validating' | 'finalizing' | 'completed' | 'failed';
   job_criteria: any;
   progress: number;
   total_leads_found: number;
@@ -33,38 +33,116 @@ export const useLeadGeneration = (userId?: string) => {
   const [currentJob, setCurrentJob] = useState<LeadGenJob | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
+  const [jobIdForSubscription, setJobIdForSubscription] = useState<string | null>(null);
+  const simulationTimeoutsRef = useRef<number[]>([]);
+  const simulationActiveRef = useRef<boolean>(false);
+  const pendingUpdateRef = useRef<{ job: any; status: LeadGenJob['status']; progress: number } | null>(null);
   const { toast } = useToast();
 
-  // Subscribe to real-time updates for jobs
+  // Subscribe to real-time updates for jobs as soon as we have a jobId
   useEffect(() => {
-    if (!currentJob) return;
+    if (!jobIdForSubscription) return;
 
-    console.log('Setting up real-time subscription for job:', currentJob.id);
+    console.log('Setting up real-time subscription for job:', jobIdForSubscription);
     
     const jobChannel = supabase
-      .channel(`job-updates-${currentJob.id}`)
+      .channel(`job-updates-${jobIdForSubscription}`)
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
           table: 'lead_gen_jobs',
-          filter: `id=eq.${currentJob.id}`
+          filter: `id=eq.${jobIdForSubscription}`
         },
         (payload) => {
           console.log('Job update received:', payload.new);
           const updatedJob = payload.new as any;
+          // Ensure type-safe status and provide fallback progress mapping for UI smoothness
+          const status = (updatedJob.status as LeadGenJob['status']) || 'processing';
+          const progressFromDb: number | undefined = updatedJob.progress;
+          const defaultProgressMap: Record<LeadGenJob['status'], number> = {
+            pending: 0,
+            processing: 10,
+            searching: 40,
+            enriching: 60,
+            validating: 70,
+            finalizing: 90,
+            completed: 100,
+            failed: 0,
+          };
+          const mergedProgress = typeof progressFromDb === 'number' ? progressFromDb : defaultProgressMap[status];
+
+          // Handle interactions with simulation when a real update arrives
+          if (simulationActiveRef.current) {
+            // If we are still simulating early steps and a >=70% real update arrives, cancel and apply immediately
+            if (mergedProgress >= 70) {
+              simulationTimeoutsRef.current.forEach((id) => clearTimeout(id));
+              simulationTimeoutsRef.current = [];
+              simulationActiveRef.current = false;
+            } else if (mergedProgress >= 60) {
+              // If it's the first real 60% update during simulation, defer it until simulation completes
+              pendingUpdateRef.current = { job: updatedJob, status, progress: mergedProgress };
+              return; // keep simulated 20/30/50 visible; do not overwrite
+            }
+          }
+
+          // If early updates were missed and first real update arrives at ~60 (enriching),
+          // simulate intermediate waypoints: 20 -> 30 -> 50 (10s apart), then apply real
+          const isFirstMeaningful = !currentJob || (currentJob && currentJob.progress <= 10);
+          // We now expect the first mid update to arrive as 20% (coerced by backend),
+          // so trigger simulation when we see exactly 20% and no job yet.
+          const shouldSimulateFromTwenty = isFirstMeaningful && mergedProgress === 20;
+
+          if (shouldSimulateFromTwenty && !simulationActiveRef.current) {
+            simulationActiveRef.current = true;
+
+            // Ensure we lock in 20% as the starting point
+            setCurrentJob({
+              ...(updatedJob as LeadGenJob),
+              status,
+              progress: 20,
+            });
+
+            const t1 = window.setTimeout(() => {
+              setCurrentJob((prev) => (prev ? { ...prev, progress: 30 } as LeadGenJob : prev));
+            }, 10_000);
+
+            const t2 = window.setTimeout(() => {
+              setCurrentJob((prev) => (prev ? { ...prev, progress: 50 } as LeadGenJob : prev));
+            }, 20_000);
+
+            const t3 = window.setTimeout(() => {
+              // After 50%, if a queued real update exists (e.g., the original 60%), apply it now.
+              const pending = pendingUpdateRef.current;
+              if (pending) {
+                setCurrentJob({
+                  ...(pending.job as LeadGenJob),
+                  status: pending.status,
+                  progress: pending.progress,
+                });
+              }
+              pendingUpdateRef.current = null;
+              simulationActiveRef.current = false;
+              simulationTimeoutsRef.current = [];
+            }, 30_000);
+
+            simulationTimeoutsRef.current = [t1 as unknown as number, t2 as unknown as number, t3 as unknown as number];
+            return; // Defer applying the real update immediately; simulation will catch up
+          }
+
           setCurrentJob({
-            ...updatedJob,
-            status: updatedJob.status as 'pending' | 'processing' | 'searching' | 'enriching' | 'completed' | 'failed'
-          } as LeadGenJob);
+            ...(updatedJob as LeadGenJob),
+            status,
+            progress: mergedProgress,
+          });
           
           if (updatedJob.status === 'completed') {
             toast({
               title: "Lead generation completed!",
               description: `Found ${updatedJob.total_leads_found} leads`,
             });
-            fetchLeads(currentJob.id);
+            fetchLeads(updatedJob.id);
           } else if (updatedJob.status === 'failed') {
             toast({
               title: "Lead generation failed",
@@ -82,23 +160,23 @@ export const useLeadGeneration = (userId?: string) => {
       console.log('Cleaning up job subscription');
       supabase.removeChannel(jobChannel);
     };
-  }, [currentJob?.id, toast]);
+  }, [jobIdForSubscription, toast]);
 
-  // Subscribe to real-time updates for leads
+  // Subscribe to real-time updates for leads as soon as we have a jobId
   useEffect(() => {
-    if (!currentJob) return;
+    if (!jobIdForSubscription) return;
 
-    console.log('Setting up real-time subscription for leads:', currentJob.id);
+    console.log('Setting up real-time subscription for leads:', jobIdForSubscription);
     
     const leadsChannel = supabase
-      .channel(`leads-updates-${currentJob.id}`)
+      .channel(`leads-updates-${jobIdForSubscription}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'leads',
-          filter: `job_id=eq.${currentJob.id}`
+          filter: `job_id=eq.${jobIdForSubscription}`
         },
         (payload) => {
           console.log('New lead received:', payload.new);
@@ -113,7 +191,7 @@ export const useLeadGeneration = (userId?: string) => {
       console.log('Cleaning up leads subscription');
       supabase.removeChannel(leadsChannel);
     };
-  }, [currentJob?.id]);
+  }, [jobIdForSubscription]);
 
   const startLeadGeneration = async (jobCriteria: any) => {
     // Use provided userId or generate proper UUID for anonymous user
@@ -138,6 +216,8 @@ export const useLeadGeneration = (userId?: string) => {
 
       const { jobId } = response.data;
       console.log('Lead generation job started:', jobId);
+      // Immediately subscribe to job updates to avoid missing early updates
+      setJobIdForSubscription(jobId);
 
       // Fetch the created job with retry logic to handle timing and RLS issues
       let job = null;
@@ -176,9 +256,9 @@ export const useLeadGeneration = (userId?: string) => {
       }
 
       setCurrentJob({
-        ...job,
-        status: job.status as 'pending' | 'processing' | 'searching' | 'enriching' | 'completed' | 'failed'
-      } as LeadGenJob);
+        ...(job as LeadGenJob),
+        status: (job.status as LeadGenJob['status']) || 'processing',
+      });
       
       toast({
         title: "Lead generation started",
@@ -220,6 +300,7 @@ export const useLeadGeneration = (userId?: string) => {
   const resetJob = () => {
     setCurrentJob(null);
     setLeads([]);
+    setJobIdForSubscription(null);
   };
 
   return {

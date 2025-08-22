@@ -5,7 +5,7 @@ import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { Check } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-type Status = 'pending' | 'processing' | 'searching' | 'enriching' | 'completed' | 'failed';
+type Status = 'pending' | 'processing' | 'searching' | 'enriching' | 'validating' | 'finalizing' | 'completed' | 'failed';
 
 interface StatusBarProps {
   status: Status;
@@ -21,8 +21,11 @@ export function StatusBar({ status, progress, steps }: StatusBarProps) {
   const currentLabel = useMemo(() => {
     if (status === 'failed') return 'Error encountered';
     if (status === 'completed') return 'Completed';
-    if (status === 'searching') return 'Searching for companies and contacts...';
-    if (status === 'enriching') return 'Enriching and verifying contact data...';
+    if (status === 'searching' || (progress >= 20 && progress < 30)) return 'Searching for companies...';
+    if (status === 'enriching' || (progress >= 50 && progress < 60)) return 'Enriching contact data...';
+    if (progress >= 30 && progress < 50) return 'Finding decision makers...';
+    if (status === 'validating') return 'Validating results and de-duplicating...';
+    if (status === 'finalizing') return 'Finalizing results and preparing output...';
     if (status === 'processing') return 'Processing...';
     return 'Initializing search parameters...';
   }, [status]);
@@ -32,6 +35,8 @@ export function StatusBar({ status, progress, steps }: StatusBarProps) {
     const idx = Math.min(Math.floor((safeProgress / 100) * steps.length), steps.length - 1);
     return idx;
   }, [safeProgress, steps]);
+
+  const allStepsDone = status === 'completed' || safeProgress >= 100;
 
   return (
     <div className="space-y-4">
@@ -54,8 +59,8 @@ export function StatusBar({ status, progress, steps }: StatusBarProps) {
       {steps && steps.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
           {steps.map((label, idx) => {
-            const isDone = idx < currentStepIndex;
-            const isActive = idx === currentStepIndex && status !== 'completed' && status !== 'failed';
+            const isDone = allStepsDone || idx < currentStepIndex;
+            const isActive = !allStepsDone && idx === currentStepIndex && status !== 'completed' && status !== 'failed';
             const isFuture = idx > currentStepIndex;
 
             const stepSize = 100 / steps.length;
@@ -103,6 +108,22 @@ export function StatusBar({ status, progress, steps }: StatusBarProps) {
               </div>
             );
           })}
+          {allStepsDone && (
+            <div
+              className={cn(
+                "relative p-3 rounded-md neu-flat opacity-95",
+              )}
+            >
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-2.5 h-2.5 rounded-full bg-green-500" aria-hidden />
+                <span className="transition-colors">Completed</span>
+                <Check className="ml-auto h-4 w-4 text-green-600 opacity-90" />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 h-1 rounded-b-md overflow-hidden" aria-hidden>
+                <div className="h-full bg-green-500/70" style={{ width: '100%' }} />
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

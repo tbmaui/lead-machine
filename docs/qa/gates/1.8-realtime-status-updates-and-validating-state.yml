@@ -1,0 +1,48 @@
+status: CONCERNS
+story:
+  epic: 1
+  number: 8
+  slug: realtime-status-updates-and-validating-state
+  title: "Realtime Status Updates + New 'Validating' State (70%) — Brownfield Addition"
+review:
+  date: "2025-08-22"
+  reviewer: "QA (Test Architect)"
+summary:
+  - "DB CHECK expanded to include searching, enriching, validating."
+  - "Edge function accepts 'validating' and maps to progress 70; timestamps updated."
+  - "Frontend hook supports new statuses; default mapping and realtime subscription in place."
+  - "UI shows 'Validating' label at 70% (test present)."
+verification:
+  database:
+    migration: "supabase/migrations/20250817010000_add_validating_status.sql"
+    check_values:
+      - pending
+      - processing
+      - searching
+      - enriching
+      - validating
+      - completed
+      - failed
+  edge_functions:
+    - supabase/functions/n8n-status-update/index.ts
+    - supabase/functions/n8n-callback/index.ts
+  frontend:
+    - src/hooks/useLeadGeneration.ts
+    - src/components/StatusBar.test.tsx
+concerns:
+  - key: status_vocabulary_drift
+    description: "'finalizing' is present in frontend types, tests, and edge mapping (90%) but missing from DB CHECK. Emitting 'finalizing' would violate the constraint."
+    impact: "Potential runtime DB constraint errors; dropped updates; user-visible stalls at ~90%."
+    recommendation: "Either add 'finalizing' to DB CHECK, or remove it from code/tests/mapping to keep stack consistent."
+  - key: limited_automation
+    description: "Limited automated tests for hook status→progress mapping and ordered realtime updates."
+    impact: "Risk of regressions in progress display and state transitions."
+    recommendation: "Add unit/integration tests to cover mapping for all statuses and ordered update delivery."
+actions_required:
+  - "Decide on 'finalizing' support; align DB, edge functions, and frontend accordingly."
+  - "Add tests for mapping (10/40/60/70/100) and realtime sequence handling in useLeadGeneration."
+exit_criteria:
+  - "Status vocabulary aligned; no DB constraint violations under expected updates."
+  - "Tests added and passing for mapping and sequence reception."
+notes: "Overall functionality meets core acceptance criteria; passing with concerns pending alignment and tests."
+
