@@ -4,6 +4,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
 import { useMemo, useState } from "react";
+import { applyFilters, type Filters } from "@/lib/filters";
+import { Input } from "@/components/ui/input";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -15,6 +18,15 @@ type SortDirection = "asc" | "desc";
 const LeadsTable = ({ leads }: LeadsTableProps) => {
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection | null>(null);
+  const [filters, setFilters] = useState<Filters>({
+    text: { name: "", title: "", company: "", email: "", location: "" },
+    hasEmail: true,
+    hasPhone: true,
+    scoreMin: null,
+    scoreMax: null,
+  });
+  const [showFilters, setShowFilters] = useState<boolean>(false);
+  const debouncedText = useDebouncedValue(filters.text, 200);
 
   const cycleSort = (key: SortKey) => {
     if (sortKey !== key) {
@@ -68,19 +80,32 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
   };
 
   const getCompanyWebsite = (lead: Lead) => {
-    return (lead.additional_data as any)?.organization_url ||
+    return (lead as any)?.organization_url ||
+           (lead.additional_data as any)?.organization_url ||
            (lead.additional_data as any)?.company_website ||
-           (lead.additional_data as any)?.website;
+           (lead.additional_data as any)?.website ||
+           (lead.additional_data as any)?.companyWebsite;
+  };
+  const getDisplayPhone = (lead: Lead): string | undefined => {
+    const ad = (lead.additional_data as any) || {};
+    return lead.phone ||
+      ad['Phone Number'] || ad['Phone'] || ad['Mobile'] || ad['Mobile Phone'] ||
+      ad['mobile'] || ad['mobile_phone'] || ad['Work Phone'] || ad['work_phone'] ||
+      ad['Direct Dial'] || ad['direct_dial'] || ad['directDial'];
   };
 
   const getCompanyLinkedIn = (lead: Lead) => {
-    return (lead.additional_data as any)?.organization_linkedin_url ||
-           (lead.additional_data as any)?.company_linkedin;
+    return (lead as any)?.organization_linkedin_url ||
+           (lead.additional_data as any)?.organization_linkedin_url ||
+           (lead.additional_data as any)?.company_linkedin ||
+           (lead.additional_data as any)?.companyLinkedIn;
   };
 
   const getContactLinkedIn = (lead: Lead) => {
-    return (lead.additional_data as any)?.linkedin_url ||
-           (lead.additional_data as any)?.profile_url;
+    return lead.linkedin_url ||
+           (lead.additional_data as any)?.linkedin_url ||
+           (lead.additional_data as any)?.profile_url ||
+           (lead.additional_data as any)?.LinkedIn;
   };
 
   const getLocation = (lead: Lead) => {
@@ -95,12 +120,24 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
   };
 
   const getDisplayCompany = (lead: Lead) => {
+    const ad = (lead.additional_data as any) || {};
     return (
       lead.company ||
-      (lead.additional_data as any)?.company ||
-      (lead.additional_data as any)?.Company ||
+      ad.company || ad.Company || ad['Company Name'] || ad.company_name || ad.companyName ||
+      ad.Organization || ad.organization || ad['Organization Name'] || ad.organization_name ||
+      ad.Employer || ad.employer || ad['Employer Name'] || ad.employer_name ||
       'N/A'
     );
+  };
+
+  const formatUrlLabel = (url?: string) => {
+    if (!url) return '';
+    try {
+      const u = new URL(url);
+      return u.hostname.replace(/^www\./, '');
+    } catch {
+      return url;
+    }
   };
 
   const createComparator = (key: SortKey, direction: SortDirection) => {
@@ -153,12 +190,16 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
     };
   };
 
+  const filteredLeads = useMemo(() => {
+    return applyFilters(leads, { ...filters, text: debouncedText });
+  }, [leads, filters, debouncedText]);
+
   const sortedLeads = useMemo(() => {
-    const decorated = leads.map((lead, index) => ({ lead, index }));
+    const decorated = filteredLeads.map((lead, index) => ({ lead, index }));
     if (!sortKey || !sortDirection) return decorated.map(d => d.lead);
     const comparator = createComparator(sortKey, sortDirection);
     return [...decorated].sort(comparator).map(d => d.lead);
-  }, [leads, sortKey, sortDirection]);
+  }, [filteredLeads, sortKey, sortDirection]);
 
   const copyToClipboard = async (value: string, label: string) => {
     try {
@@ -186,6 +227,155 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
 
   return (
     <div className="neu-card overflow-hidden">
+      <div className="flex items-center justify-between p-3 border-b border-border">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="text-xs text-muted-foreground mr-2">
+            {filteredLeads.length !== leads.length ? `Showing ${filteredLeads.length} of ${leads.length} leads` : `Showing ${leads.length} leads`}
+          </div>
+          {/* Active filter chips */}
+          {filters.text.name && (
+            <button
+              type="button"
+              className="neu-badge text-xs px-2 py-1"
+              aria-label={`Remove Name filter ${filters.text.name}`}
+              onClick={() => setFilters(f => ({ ...f, text: { ...f.text, name: "" } }))}
+            >
+              Name: {filters.text.name} ×
+            </button>
+          )}
+          {filters.text.title && (
+            <button
+              type="button"
+              className="neu-badge text-xs px-2 py-1"
+              aria-label={`Remove Title filter ${filters.text.title}`}
+              onClick={() => setFilters(f => ({ ...f, text: { ...f.text, title: "" } }))}
+            >
+              Title: {filters.text.title} ×
+            </button>
+          )}
+          {filters.text.company && (
+            <button
+              type="button"
+              className="neu-badge text-xs px-2 py-1"
+              aria-label={`Remove Company filter ${filters.text.company}`}
+              onClick={() => setFilters(f => ({ ...f, text: { ...f.text, company: "" } }))}
+            >
+              Company: {filters.text.company} ×
+            </button>
+          )}
+          {filters.text.email && (
+            <button
+              type="button"
+              className="neu-badge text-xs px-2 py-1"
+              aria-label={`Remove Email filter ${filters.text.email}`}
+              onClick={() => setFilters(f => ({ ...f, text: { ...f.text, email: "" } }))}
+            >
+              Email: {filters.text.email} ×
+            </button>
+          )}
+          {filters.text.location && (
+            <button
+              type="button"
+              className="neu-badge text-xs px-2 py-1"
+              aria-label={`Remove Location filter ${filters.text.location}`}
+              onClick={() => setFilters(f => ({ ...f, text: { ...f.text, location: "" } }))}
+            >
+              Location: {filters.text.location} ×
+            </button>
+          )}
+          {filters.hasEmail === true && (
+            <button
+              type="button"
+              className="neu-badge text-xs px-2 py-1"
+              aria-label="Remove Has Email filter"
+              onClick={() => setFilters(f => ({ ...f, hasEmail: undefined }))}
+            >
+              Has Email ×
+            </button>
+          )}
+          {filters.hasPhone === true && (
+            <button
+              type="button"
+              className="neu-badge text-xs px-2 py-1"
+              aria-label="Remove Has Phone filter"
+              onClick={() => setFilters(f => ({ ...f, hasPhone: undefined }))}
+            >
+              Has Phone ×
+            </button>
+          )}
+          {(filters.scoreMin !== null && filters.scoreMin !== undefined) && (
+            <button
+              type="button"
+              className="neu-badge text-xs px-2 py-1"
+              aria-label={`Remove Min Score filter ${filters.scoreMin}`}
+              onClick={() => setFilters(f => ({ ...f, scoreMin: null }))}
+            >
+              Min: {filters.scoreMin} ×
+            </button>
+          )}
+          {(filters.scoreMax !== null && filters.scoreMax !== undefined) && (
+            <button
+              type="button"
+              className="neu-badge text-xs px-2 py-1"
+              aria-label={`Remove Max Score filter ${filters.scoreMax}`}
+              onClick={() => setFilters(f => ({ ...f, scoreMax: null }))}
+            >
+              Max: {filters.scoreMax} ×
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
+            onClick={() => setShowFilters((s) => !s)}
+            aria-expanded={showFilters}
+            aria-controls="filters-panel"
+          >
+            {showFilters ? 'Hide Filters' : 'Show Filters'}
+          </button>
+          <button
+            type="button"
+            className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
+            onClick={() => setFilters({ text: { name: "", title: "", company: "", email: "", location: "" }, hasEmail: true, hasPhone: true, scoreMin: null, scoreMax: null })}
+            aria-label="Clear all filters"
+          >
+            Clear all
+          </button>
+        </div>
+      </div>
+      {showFilters && (
+        <div id="filters-panel" className="flex items-center gap-2 p-3 border-b border-border">
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-6 gap-2">
+            <label className="sr-only" htmlFor="filter-name">Filter Name</label>
+            <Input id="filter-name" placeholder="Filter Name" value={filters.text.name || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, name: e.target.value } }))} />
+            <label className="sr-only" htmlFor="filter-title">Filter Title</label>
+            <Input id="filter-title" placeholder="Filter Title" value={filters.text.title || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, title: e.target.value } }))} />
+            <label className="sr-only" htmlFor="filter-company">Filter Company</label>
+            <Input id="filter-company" placeholder="Filter Company" value={filters.text.company || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, company: e.target.value } }))} />
+            <label className="sr-only" htmlFor="filter-email">Filter Email</label>
+            <Input id="filter-email" placeholder="Filter Email" value={filters.text.email || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, email: e.target.value } }))} />
+            <label className="sr-only" htmlFor="filter-location">Filter Location</label>
+            <Input id="filter-location" placeholder="Filter Location" value={filters.text.location || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, location: e.target.value } }))} />
+            <div className="flex items-center gap-2">
+              <label htmlFor="filter-has-email" className="text-xs text-muted-foreground">Has Email</label>
+              <input id="filter-has-email" aria-label="Filter Has Email" type="checkbox" checked={!!filters.hasEmail} onChange={(e) => setFilters(f => ({ ...f, hasEmail: e.target.checked ? true : undefined }))} />
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="filter-has-phone" className="text-xs text-muted-foreground">Has Phone</label>
+              <input id="filter-has-phone" aria-label="Filter Has Phone" type="checkbox" checked={!!filters.hasPhone} onChange={(e) => setFilters(f => ({ ...f, hasPhone: e.target.checked ? true : undefined }))} />
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="filter-score-min" className="text-xs text-muted-foreground">Min Score</label>
+              <Input id="filter-score-min" inputMode="numeric" placeholder="Min" value={filters.scoreMin ?? ""} onChange={(e) => setFilters(f => ({ ...f, scoreMin: e.target.value === "" ? null : Number(e.target.value) }))} />
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="filter-score-max" className="text-xs text-muted-foreground">Max Score</label>
+              <Input id="filter-score-max" inputMode="numeric" placeholder="Max" value={filters.scoreMax ?? ""} onChange={(e) => setFilters(f => ({ ...f, scoreMax: e.target.value === "" ? null : Number(e.target.value) }))} />
+            </div>
+          </div>
+        </div>
+      )}
       <table className="w-full table-auto border-collapse">
         <thead>
           <tr className="border-b border-border text-muted-foreground">
@@ -280,6 +470,9 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                 Score {sortKey === 'score' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
               </button>
             </th>
+            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[12%]">LinkedIn</th>
+            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[14%]">Company Website</th>
+            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[14%]">Company LinkedIn</th>
           </tr>
         </thead>
         <tbody>
@@ -369,13 +562,13 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                   </div>
                 </td>
                 <td className="p-3">
-                  {lead.phone ? (
+                  {getDisplayPhone(lead) ? (
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${getPhoneStatusColor(lead.phone)}`}></div>
-                      <span className="text-foreground/80">{lead.phone}</span>
+                      <div className={`w-2 h-2 rounded-full ${getPhoneStatusColor(getDisplayPhone(lead))}`}></div>
+                      <span className="text-foreground/80">{getDisplayPhone(lead)}</span>
                       <button
-                        aria-label={`Copy phone ${lead.phone}`}
-                        onClick={(e) => { e.stopPropagation(); copyToClipboard(lead.phone as string, 'Phone'); }}
+                        aria-label={`Copy phone ${getDisplayPhone(lead)}`}
+                        onClick={(e) => { e.stopPropagation(); copyToClipboard(getDisplayPhone(lead) as string, 'Phone'); }}
                         className={cn(
                           buttonVariants({ variant: "ghost", size: "sm" }),
                           "p-1 h-7 w-7"
@@ -434,6 +627,54 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                   <div className="flex">
                     {renderStars(lead.score || 3)}
                   </div>
+                </td>
+                <td className="p-3">
+                  {contactLinkedIn ? (
+                    <a
+                      href={contactLinkedIn}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                      aria-label={`Open LinkedIn profile for ${lead.name}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {formatUrlLabel(contactLinkedIn)}
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground">N/A</span>
+                  )}
+                </td>
+                <td className="p-3">
+                  {companyWebsite ? (
+                    <a
+                      href={companyWebsite}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                      aria-label={`Open company website for ${displayCompany}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {formatUrlLabel(companyWebsite)}
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground">N/A</span>
+                  )}
+                </td>
+                <td className="p-3">
+                  {companyLinkedIn ? (
+                    <a
+                      href={companyLinkedIn}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                      aria-label={`Open company LinkedIn for ${displayCompany}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {formatUrlLabel(companyLinkedIn)}
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground">N/A</span>
+                  )}
                 </td>
               </tr>
             );

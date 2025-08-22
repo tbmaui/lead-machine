@@ -1,0 +1,52 @@
+status: PARTIAL
+story:
+  epic: 1
+  number: 12
+  slug: column-filtering-and-search-in-leads-table
+  title: "Column Filtering and Inline Search in Leads Table — Brownfield Addition"
+review:
+  date: "2025-08-22"
+  reviewer: "QA (Test Architect)"
+summary:
+  - "Per-column filters (name, title, company, email, location) implemented with case-insensitive trim and AND composition."
+  - "Boolean toggles Has Email/Has Phone default ON; Clear all restores defaults."
+  - "Score min/max range respected; empty/non-numeric ignored."
+  - "200ms debounce for text inputs; filtering precedes sorting; indicator shows X of Y."
+  - "A11y: labeled inputs, aria on sort buttons; filters toggle panel hides controls by default."
+  - "Three URL columns added: LinkedIn, Company Website, Company LinkedIn."
+verification:
+  frontend:
+    components:
+      - src/components/LeadsTable.tsx
+      - src/lib/filters.ts
+    tests:
+      - src/components/LeadsTable.test.tsx
+      - src/lib/filters.test.ts
+  behavior:
+    - "Typing into filters narrows results after debounce; multiple filters AND."
+    - "Has Email/Has Phone ON by default; turning off widens results."
+    - "Score min/max combine with other filters; invalid input ignored."
+    - "Sorting operates on filtered set; quick-jump/copy do not affect sort/filters."
+    - "URL columns render links with target=_blank and rel noopener,noreferrer."
+evidence:
+  test_results:
+    total: 33
+    passed: 33
+    suites_passed:
+      - src/components/LeadsTable.test.tsx
+      - src/lib/filters.test.ts
+      - src/components/LeadsSummaryChart.test.tsx
+      - src/components/StatusBar.test.tsx
+      - src/lib/status.test.ts
+concerns:
+  - "Active-filter chips not implemented; story calls for chips in toolbar."
+  - "Performance on ~5,000 rows not empirically load-tested in browser."
+actions_required:
+  - "Add active-filter chips with remove actions for each active filter and Clear all."
+  - "Manual perf QA with ~5,000 rows to confirm responsiveness meets NFR."
+exit_criteria:
+  - "All acceptance criteria met including active-filter chips."
+  - "All unit/integration tests pass and manual perf QA validated."
+notes: "Backfill migration added for older rows to populate phone/company; ingestion expanded for variants (companyName, phoneNumber, companyWebsite, companyLinkedIn, LinkedIn)."
+
+

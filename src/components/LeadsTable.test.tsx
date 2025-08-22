@@ -25,11 +25,11 @@ describe('LeadsTable quick-jump links', () => {
   it('renders contact LinkedIn button when linkedin_url exists', () => {
     const leads = [buildLead({ additional_data: { linkedin_url: 'https://linkedin.com/in/janedoe' } })];
     render(<LeadsTable leads={leads} />);
-    expect(screen.getByLabelText(/Open LinkedIn profile for Jane Doe/i)).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/Open LinkedIn profile for Jane Doe/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('does not render contact LinkedIn button when linkedin_url missing', () => {
-    const leads = [buildLead({ additional_data: {} })];
+    const leads = [buildLead({ additional_data: {}, linkedin_url: undefined })];
     render(<LeadsTable leads={leads} />);
     expect(screen.queryByLabelText(/Open LinkedIn profile for Jane Doe/i)).not.toBeInTheDocument();
   });
@@ -39,8 +39,8 @@ describe('LeadsTable quick-jump links', () => {
       buildLead({ additional_data: { company: 'Acme Inc', organization_url: 'https://acme.com', organization_linkedin_url: 'https://linkedin.com/company/acme' } }),
     ];
     render(<LeadsTable leads={leads} />);
-    expect(screen.getByLabelText(/Open company website for Acme Inc/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Open company LinkedIn for Acme Inc/i)).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/Open company website for Acme Inc/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByLabelText(/Open company LinkedIn for Acme Inc/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('links open in new tab with proper rel attrs', () => {
@@ -48,8 +48,8 @@ describe('LeadsTable quick-jump links', () => {
       buildLead({ additional_data: { linkedin_url: 'https://linkedin.com/in/janedoe', organization_url: 'https://acme.com' } }),
     ];
     render(<LeadsTable leads={leads} />);
-    const profile = screen.getByLabelText(/Open LinkedIn profile/i) as HTMLAnchorElement;
-    const website = screen.getByLabelText(/Open company website/i) as HTMLAnchorElement;
+    const profile = screen.getAllByLabelText(/Open LinkedIn profile/i)[0] as HTMLAnchorElement;
+    const website = screen.getAllByLabelText(/Open company website/i)[0] as HTMLAnchorElement;
     expect(profile.target).toBe('_blank');
     expect(profile.rel).toContain('noopener');
     expect(profile.rel).toContain('noreferrer');
@@ -64,7 +64,7 @@ describe('LeadsTable quick-jump links', () => {
       buildLead({ additional_data: { linkedin_url: 'https://linkedin.com/in/janedoe' } }),
     ];
     render(<LeadsTable leads={leads} />);
-    const link = screen.getByLabelText(/Open LinkedIn profile/i);
+    const link = screen.getAllByLabelText(/Open LinkedIn profile/i)[0];
     // We cannot directly assert stopPropagation; ensure no errors and element is clickable
     await user.click(link);
     expect(link).toBeInTheDocument();
@@ -220,7 +220,7 @@ describe('LeadsTable sorting', () => {
     return [
       buildLead({ id: '1', name: 'Delta', title: 'Engineer', company: 'Beta Co', email: 'delta@beta.com', phone: '222', location: 'Dallas, TX', score: 2, additional_data: { city: 'Dallas', state: 'TX' } }),
       buildLead({ id: '2', name: 'alpha', title: 'Manager', company: 'Acme', email: 'alpha@acme.com', phone: '111', location: 'Austin, TX', score: 5, additional_data: { city: 'Austin', state: 'TX' } }),
-      buildLead({ id: '3', name: 'Charlie', title: undefined, company: undefined, email: undefined, phone: undefined, location: undefined, score: 5, additional_data: {} }),
+      buildLead({ id: '3', name: 'Charlie', title: undefined, company: undefined, email: 'charlie@example.com', phone: '444', location: undefined, score: 5, additional_data: {} }),
       buildLead({ id: '4', name: 'bravo', title: 'Architect', company: 'N/A', email: 'bravo@na.com', phone: '333', location: 'N/A', score: 3, additional_data: {} }),
     ];
   }
@@ -331,7 +331,7 @@ describe('LeadsTable sorting', () => {
     await user.click(nameBtn); // asc
     expect(nameTh).toHaveAttribute('aria-sort', 'ascending');
 
-    const profileLink = screen.getByLabelText(/Open LinkedIn profile for Alice/i);
+    const profileLink = screen.getAllByLabelText(/Open LinkedIn profile for Alice/i)[0];
     await user.click(profileLink);
     expect(nameTh).toHaveAttribute('aria-sort', 'ascending');
 
@@ -340,4 +340,116 @@ describe('LeadsTable sorting', () => {
     expect(nameTh).toHaveAttribute('aria-sort', 'ascending');
   });
 });
+
+describe('LeadsTable filtering and sorting integration', () => {
+  function buildLead(partial: Partial<Lead> = {}): Lead {
+    return {
+      id: 'x',
+      name: 'Name',
+      title: 'Title',
+      company: 'Company',
+      email: 'e@x.com',
+      phone: '1',
+      linkedin_url: undefined,
+      location: 'Austin, TX',
+      score: 3,
+      additional_data: {},
+      ...partial,
+    };
+  }
+
+  it('filters by text inputs (debounced) and shows count indicator', async () => {
+    const user = userEvent.setup();
+    const leads: Lead[] = [
+      buildLead({ id: '1', name: 'Alice', company: 'Acme' }),
+      buildLead({ id: '2', name: 'Bob', company: 'Beta' }),
+      buildLead({ id: '3', name: 'Charlie', company: 'Acme' }),
+    ];
+    render(<LeadsTable leads={leads} />);
+
+    // Initially shows all
+    expect(screen.getByText(/Showing 3 leads/i)).toBeInTheDocument();
+
+    // Open filters panel
+    const toggle = screen.getByRole('button', { name: /Show Filters/i });
+    await user.click(toggle);
+    // Type in company filter (debounced)
+    const companyInput = screen.getByPlaceholderText(/Filter Company/i);
+    await user.clear(companyInput);
+    await user.type(companyInput, 'acm');
+
+    // Wait for debounce to apply
+    await waitFor(() => {
+      expect(screen.getByText(/Showing 2 of 3 leads/i)).toBeInTheDocument();
+    });
+  });
+
+  it('applies boolean and score filters and Clear all resets', async () => {
+    const user = userEvent.setup();
+    const leads: Lead[] = [
+      buildLead({ id: '1', name: 'A', email: 'a@x.com', phone: '', score: 2 }),
+      buildLead({ id: '2', name: 'B', email: '', phone: '9', score: 4 }),
+      buildLead({ id: '3', name: 'C', email: 'c@x.com', phone: '8', score: 5 }),
+    ];
+    render(<LeadsTable leads={leads} />);
+
+    // Open filters panel (defaults ON for hasEmail and hasPhone)
+    const toggle = screen.getByRole('button', { name: /Show Filters/i });
+    await user.click(toggle);
+    await waitFor(() => expect(screen.getByText(/Showing 1 of 3 leads/i)).toBeInTheDocument());
+
+    // Min score 4
+    const minScore = screen.getByLabelText(/Min Score/i).closest('div')!.querySelector('input')!;
+    await user.clear(minScore);
+    await user.type(minScore, '4');
+    await waitFor(() => expect(screen.getByText(/Showing 1 of 3 leads/i)).toBeInTheDocument());
+
+    // Disable both toggles
+    const hasEmail = screen.getByLabelText(/Filter Has Email/i);
+    await user.click(hasEmail);
+    const hasPhone = screen.getByLabelText(/Filter Has Phone/i);
+    await user.click(hasPhone);
+    await waitFor(() => expect(screen.getByText(/Showing 2 of 3 leads/i)).toBeInTheDocument());
+
+    // Set max 4 to narrow to B only
+    const maxScore = screen.getByLabelText(/Max Score/i).closest('div')!.querySelector('input')!;
+    await user.clear(maxScore);
+    await user.type(maxScore, '4');
+    await waitFor(() => expect(screen.getByText(/Showing 1 of 3 leads/i)).toBeInTheDocument());
+
+    // Clear all
+    const clear = screen.getByRole('button', { name: /Clear all filters/i });
+    await user.click(clear);
+    // Defaults restored: both toggles ON -> only C
+    expect(screen.getByText(/Showing 1 of 3 leads/i)).toBeInTheDocument();
+  });
+
+  it('sorting applies after filtering (filter then sort)', async () => {
+    const user = userEvent.setup();
+    const leads: Lead[] = [
+      buildLead({ id: '1', name: 'Delta', company: 'Acme' }),
+      buildLead({ id: '2', name: 'alpha', company: 'Acme' }),
+      buildLead({ id: '3', name: 'Charlie', company: 'Beta' }),
+    ];
+    render(<LeadsTable leads={leads} />);
+
+    // Open filters panel
+    const toggle = screen.getByRole('button', { name: /Show Filters/i });
+    await user.click(toggle);
+    // Filter company to Acme
+    const companyInput = screen.getByPlaceholderText(/Filter Company/i);
+    await user.clear(companyInput);
+    await user.type(companyInput, 'Acme');
+
+    await waitFor(() => expect(screen.getByText(/Showing 2 of 3 leads/i)).toBeInTheDocument());
+
+    const nameBtn = screen.getByRole('button', { name: /Sort by Name/i });
+    await user.click(nameBtn); // asc
+
+    const rows = screen.getAllByRole('row').slice(1);
+    const firstNames = rows.map(r => within(r).getAllByRole('cell')[0].textContent!.trim().split('\n')[0].trim());
+    expect(firstNames).toEqual(['alpha', 'Delta']);
+  });
+});
+
 
