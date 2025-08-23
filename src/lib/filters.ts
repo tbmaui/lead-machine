@@ -4,6 +4,7 @@ export type TextFilterFields = {
   company?: string;
   email?: string;
   location?: string;
+  industry?: string;
 };
 
 export type Filters = {
@@ -38,6 +39,18 @@ function getLocation(lead: LeadLike): string {
   return location || city || state || "";
 }
 
+function getIndustry(lead: LeadLike): string {
+  const ad = (lead.additional_data as any) || {};
+  return (
+    (lead as any)?.industry ||
+    ad.industry ||
+    ad.company_industry ||
+    ad.sector ||
+    ad.naics ||
+    ""
+  );
+}
+
 function getDisplayCompany(lead: LeadLike): string {
   return (
     lead.company ||
@@ -67,7 +80,7 @@ function tokenizeQuery(value: string): string[] {
 
 export function applyFilters<T extends LeadLike>(leads: T[], filters: Filters): T[] {
   const {
-    text: { name = "", title = "", company = "", email = "", location = "" } = {},
+    text: { name = "", title = "", company = "", email = "", location = "", industry = "" } = {},
     hasEmail,
     hasPhone,
     scoreMin,
@@ -79,8 +92,9 @@ export function applyFilters<T extends LeadLike>(leads: T[], filters: Filters): 
   const nCompany = normalizeString(company);
   const nEmail = normalizeString(email);
   const nLocation = normalizeString(location);
+  const nIndustry = normalizeString(industry);
 
-  const hasTextFilters = !!(nName || nTitle || nCompany || nEmail || nLocation);
+  const hasTextFilters = !!(nName || nTitle || nCompany || nEmail || nLocation || nIndustry);
   const hasBooleanFilters = hasEmail !== undefined || hasPhone !== undefined;
   const hasScoreFilters = (scoreMin ?? null) !== null || (scoreMax ?? null) !== null;
 
@@ -100,6 +114,7 @@ export function applyFilters<T extends LeadLike>(leads: T[], filters: Filters): 
     if (nCompany && !normalizeString(getDisplayCompany(lead)).includes(nCompany)) return false;
     if (nEmail && !normalizeString(lead.email).includes(nEmail)) return false;
     if (nLocation && !normalizeString(getLocation(lead)).includes(nLocation)) return false;
+    if (nIndustry && !normalizeString(getIndustry(lead)).includes(nIndustry)) return false;
 
     // boolean filters
     if (hasEmail !== undefined) {

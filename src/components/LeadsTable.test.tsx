@@ -452,4 +452,28 @@ describe('LeadsTable filtering and sorting integration', () => {
   });
 });
 
+describe('LeadsTable Industry column and URL normalization', () => {
+  it('displays Industry when present via additional_data keys', () => {
+    const leads: Lead[] = [
+      buildLead({ name: 'A', additional_data: { industry: 'Healthcare' } }),
+      buildLead({ name: 'B', additional_data: { sector: 'Retail' } }),
+      buildLead({ name: 'C', additional_data: {} }),
+    ];
+    render(<LeadsTable leads={leads} />);
+    const rows = screen.getAllByRole('row').slice(1);
+    expect(rows[0]).toHaveTextContent('Healthcare');
+    expect(rows[1]).toHaveTextContent('Retail');
+    expect(rows[2]).toHaveTextContent('N/A');
+  });
+
+  it('normalizes website without scheme by prefixing https://', () => {
+    const leads: Lead[] = [
+      buildLead({ company: 'Acme', additional_data: { company_website: 'acme.com' } }),
+    ];
+    render(<LeadsTable leads={leads} />);
+    const websiteBtn = screen.getAllByLabelText(/Open company website for Acme/i)[0] as HTMLAnchorElement;
+    expect(websiteBtn.getAttribute('href')).toBe('https://acme.com');
+  });
+});
+
 

@@ -72,3 +72,9 @@ Based on my analysis of your existing project, I believe this enhancement should
 * **I want** to sort the leads table by any visible column,
 * **So that** I can quickly organize and analyze lead data without exporting.
 * See `docs/stories/1.11.dynamic-sorting-in-lead-table.md` for full AC and tasks.
+
+**Story 1.13: Leads Table Column Completeness and Layout Fix — Hotfix**
+* **As a** sales user,
+* **I want** all fields from NNN (company, phone, location, website, personal/company LinkedIn) visible and correctly mapped with a compact table layout,
+* **So that** I can rely on the table without exporting.
+* See `docs/stories/1.13.leads-table-column-completeness-and-layout-fix.md` for full AC and tasks.

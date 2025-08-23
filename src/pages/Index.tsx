@@ -15,7 +15,7 @@ const Index = () => {
         <ThemeToggle />
       </div>
       <HeroSection />
-      <div className="mx-auto w-full max-w-7xl py-8 px-4 md:px-6">
+      <div className="mx-auto w-full max-w-[1600px] py-8 px-3 md:px-4">
         <OverviewSection />
         <UseCasesSection />
         <FeaturesTable />

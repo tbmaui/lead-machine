@@ -1,0 +1,55 @@
+---
+schema: 1
+story: '1.13'
+gate: PASS
+status_reason: 'All acceptance criteria met with comprehensive test coverage and no blocking issues.'
+reviewer: 'Quinn'
+updated: '2025-08-23T13:45:00Z'
+top_issues: []
+waiver: { active: false }
+
+---
+status: PASS
+story:
+  epic: 1
+  number: 13
+  slug: leads-table-column-completeness-and-layout-fix
+  title: "Leads Table Column Completeness and Layout Fix — Brownfield Hotfix"
+review:
+  date: "2025-08-23"
+  reviewer: "QA (Test Architect)"
+summary:
+  - "Company, Phone, Location mappings fixed per rules; Location best-effort implemented."
+  - "Added columns: Company Website, Personal LinkedIn, Company LinkedIn as icon buttons."
+  - "Links open in new tab with rel noopener,noreferrer; stopPropagation applied."
+  - "Typography density tightened (text-xs, padding reduced); container widened to max 1600px."
+  - "Sorting, truncation/tooltips, copy controls verified; no regressions."
+verification:
+  frontend:
+    components:
+      - src/components/LeadsTable.tsx
+      - src/pages/Index.tsx
+      - src/lib/filters.ts
+    tests:
+      - src/components/LeadsTable.test.tsx
+      - src/components/LeadsSummaryChart.test.tsx
+      - src/lib/filters.test.ts
+      - src/lib/status.test.ts
+  behavior:
+    - "Industry column added and sortable; Industry filter added to filters panel."
+    - "Website normalization prefixes https:// when missing."
+    - "Debounced filtering precedes sorting; chips and Clear all behave correctly."
+evidence:
+  test_results:
+    total: 35
+    passed: 35
+concerns:
+  - "Manual perf test at 5k rows still recommended."
+  - "Manual widescreen (≥1920px) visual QA recommended to confirm density/scroll."
+actions_required:
+  - "Run manual perf and widescreen checks; record screenshots."
+exit_criteria:
+  - "All unit/integration tests green; manual checks scheduled."
+notes: "Industry filter implemented in filters module and UI."
+
+

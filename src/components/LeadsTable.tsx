@@ -12,14 +12,14 @@ interface LeadsTableProps {
   leads: Lead[];
 }
 
-type SortKey = "name" | "title" | "company" | "phone" | "email" | "location" | "score";
+type SortKey = "name" | "title" | "company" | "industry" | "phone" | "email" | "location" | "score";
 type SortDirection = "asc" | "desc";
 
 const LeadsTable = ({ leads }: LeadsTableProps) => {
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection | null>(null);
   const [filters, setFilters] = useState<Filters>({
-    text: { name: "", title: "", company: "", email: "", location: "" },
+    text: { name: "", title: "", company: "", email: "", location: "", industry: "" },
     hasEmail: true,
     hasPhone: true,
     scoreMin: null,
@@ -80,11 +80,18 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
   };
 
   const getCompanyWebsite = (lead: Lead) => {
-    return (lead as any)?.organization_url ||
-           (lead.additional_data as any)?.organization_url ||
-           (lead.additional_data as any)?.company_website ||
-           (lead.additional_data as any)?.website ||
-           (lead.additional_data as any)?.companyWebsite;
+    const ad = (lead.additional_data as any) || {};
+    const raw = (lead as any)?.company_website_url ||
+                ad.company_website_url ||
+                ad.company_website ||
+                ad.organization_url ||
+                ad.website ||
+                ad.domain ||
+                (lead as any)?.organization_url;
+    if (!raw || String(raw).trim() === '') return undefined;
+    const str = String(raw).trim();
+    if (/^https?:\/\//i.test(str)) return str;
+    return `https://${str}`;
   };
   const getDisplayPhone = (lead: Lead): string | undefined => {
     const ad = (lead.additional_data as any) || {};
@@ -95,28 +102,45 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
   };
 
   const getCompanyLinkedIn = (lead: Lead) => {
-    return (lead as any)?.organization_linkedin_url ||
-           (lead.additional_data as any)?.organization_linkedin_url ||
-           (lead.additional_data as any)?.company_linkedin ||
-           (lead.additional_data as any)?.companyLinkedIn;
+    const ad = (lead.additional_data as any) || {};
+    return (lead as any)?.company_linkedin_url ||
+           ad.company_linkedin_url ||
+           ad.linkedin_company_url ||
+           ad.organization_linkedin_url ||
+           ad.company_linkedin ||
+           ad.companyLinkedIn;
   };
 
   const getContactLinkedIn = (lead: Lead) => {
+    const ad = (lead.additional_data as any) || {};
     return lead.linkedin_url ||
-           (lead.additional_data as any)?.linkedin_url ||
-           (lead.additional_data as any)?.profile_url ||
-           (lead.additional_data as any)?.LinkedIn;
+           ad.linkedin_url ||
+           ad.personal_linkedin_url ||
+           ad.profile_url ||
+           ad.LinkedIn;
   };
 
   const getLocation = (lead: Lead) => {
-    const city = (lead.additional_data as any)?.city || '';
-    const state = (lead.additional_data as any)?.state || '';
+    const ad = (lead.additional_data as any) || {};
+    const city = ad.city || '';
+    const state = ad.state || '';
+    const region = ad.region || '';
+    const country = ad.country || '';
     const location = lead.location || '';
-    
-    if (city && state) {
-      return `${city}, ${state}`;
-    }
-    return location || city || state || 'N/A';
+    if (city && state) return `${city}, ${state}`;
+    return state || region || country || location || 'N/A';
+  };
+
+  const getIndustry = (lead: Lead) => {
+    const ad = (lead.additional_data as any) || {};
+    return (
+      (lead.industry && String(lead.industry).trim()) ||
+      ad.industry ||
+      ad.company_industry ||
+      ad.sector ||
+      ad.naics ||
+      ''
+    );
   };
 
   const getDisplayCompany = (lead: Lead) => {
@@ -147,6 +171,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
         switch (key) {
           case "company":
             return getDisplayCompany(a.lead);
+          case "industry":
+            return getIndustry(a.lead);
           case "location":
             return getLocation(a.lead);
           default:
@@ -157,6 +183,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
         switch (key) {
           case "company":
             return getDisplayCompany(b.lead);
+          case "industry":
+            return getIndustry(b.lead);
           case "location":
             return getLocation(b.lead);
           default:
@@ -226,7 +254,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
   };
 
   return (
-    <div className="neu-card overflow-hidden">
+    <div className="neu-card overflow-hidden text-xs">
       <div className="flex items-center justify-between p-3 border-b border-border">
         <div className="flex items-center gap-2 flex-wrap">
           <div className="text-xs text-muted-foreground mr-2">
@@ -283,6 +311,16 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               Location: {filters.text.location} ×
             </button>
           )}
+          {filters.text.industry && (
+            <button
+              type="button"
+              className="neu-badge text-xs px-2 py-1"
+              aria-label={`Remove Industry filter ${filters.text.industry}`}
+              onClick={() => setFilters(f => ({ ...f, text: { ...f.text, industry: "" } }))}
+            >
+              Industry: {filters.text.industry} ×
+            </button>
+          )}
           {filters.hasEmail === true && (
             <button
               type="button"
@@ -337,7 +375,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
           <button
             type="button"
             className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
-            onClick={() => setFilters({ text: { name: "", title: "", company: "", email: "", location: "" }, hasEmail: true, hasPhone: true, scoreMin: null, scoreMax: null })}
+            onClick={() => setFilters({ text: { name: "", title: "", company: "", email: "", location: "", industry: "" }, hasEmail: true, hasPhone: true, scoreMin: null, scoreMax: null })}
             aria-label="Clear all filters"
           >
             Clear all
@@ -346,7 +384,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
       </div>
       {showFilters && (
         <div id="filters-panel" className="flex items-center gap-2 p-3 border-b border-border">
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-6 gap-2">
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-7 gap-2">
             <label className="sr-only" htmlFor="filter-name">Filter Name</label>
             <Input id="filter-name" placeholder="Filter Name" value={filters.text.name || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, name: e.target.value } }))} />
             <label className="sr-only" htmlFor="filter-title">Filter Title</label>
@@ -357,6 +395,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             <Input id="filter-email" placeholder="Filter Email" value={filters.text.email || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, email: e.target.value } }))} />
             <label className="sr-only" htmlFor="filter-location">Filter Location</label>
             <Input id="filter-location" placeholder="Filter Location" value={filters.text.location || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, location: e.target.value } }))} />
+            <label className="sr-only" htmlFor="filter-industry">Filter Industry</label>
+            <Input id="filter-industry" placeholder="Filter Industry" value={filters.text.industry || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, industry: e.target.value } }))} />
             <div className="flex items-center gap-2">
               <label htmlFor="filter-has-email" className="text-xs text-muted-foreground">Has Email</label>
               <input id="filter-has-email" aria-label="Filter Has Email" type="checkbox" checked={!!filters.hasEmail} onChange={(e) => setFilters(f => ({ ...f, hasEmail: e.target.checked ? true : undefined }))} />
@@ -380,7 +420,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
         <thead>
           <tr className="border-b border-border text-muted-foreground">
             <th
-              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[20%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[16%]"
               aria-sort={sortKey === 'name' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -393,7 +433,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[20%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[16%]"
               aria-sort={sortKey === 'title' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -406,7 +446,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[22%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[18%]"
               aria-sort={sortKey === 'company' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -419,7 +459,20 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[12%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[12%]"
+              aria-sort={sortKey === 'industry' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+            >
+              <button
+                type="button"
+                aria-label="Sort by Industry"
+                onClick={() => cycleSort('industry')}
+                className="inline-flex items-center gap-1 hover:text-foreground"
+              >
+                Industry {sortKey === 'industry' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
+              </button>
+            </th>
+            <th
+              className="text-left p-2 font-medium uppercase tracking-wide w-[12%]"
               aria-sort={sortKey === 'phone' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -432,7 +485,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[18%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[16%]"
               aria-sort={sortKey === 'email' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -445,7 +498,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[12%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[12%]"
               aria-sort={sortKey === 'location' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -458,7 +511,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[8%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[8%]"
               aria-sort={sortKey === 'score' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -470,9 +523,9 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                 Score {sortKey === 'score' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
               </button>
             </th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[12%]">LinkedIn</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[14%]">Company Website</th>
-            <th className="text-left p-3 font-medium text-xs uppercase tracking-wide w-[14%]">Company LinkedIn</th>
+            <th className="text-left p-2 font-medium uppercase tracking-wide w-[8%]">LinkedIn</th>
+            <th className="text-left p-2 font-medium uppercase tracking-wide w-[8%]">Company Website</th>
+            <th className="text-left p-2 font-medium uppercase tracking-wide w-[8%]">Company LinkedIn</th>
           </tr>
         </thead>
         <tbody>
@@ -481,10 +534,11 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             const companyLinkedIn = getCompanyLinkedIn(lead);
             const contactLinkedIn = getContactLinkedIn(lead);
             const displayCompany = getDisplayCompany(lead);
+            const industry = getIndustry(lead);
             
             return (
               <tr key={index} className="border-b border-border transition-colors hover:bg-accent/30">
-                <td className="p-3">
+                <td className="p-2">
                   <div className="flex items-center gap-2 min-w-0 max-w-full">
                     <span
                       className="font-medium text-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[20ch] sm:max-w-[24ch] lg:max-w-[28ch]"
@@ -509,7 +563,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     )}
                   </div>
                 </td>
-                <td className="p-3">
+                <td className="p-2">
                   <div className="min-w-0 max-w-full">
                     <span
                       className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[24ch] sm:max-w-[28ch] lg:max-w-[32ch] inline-block"
@@ -519,7 +573,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-3">
+                <td className="p-2">
                   <div className="flex items-center gap-2 min-w-0 max-w-full">
                     <span
                       className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[20ch] sm:max-w-[28ch] lg:max-w-[32ch]"
@@ -561,7 +615,15 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     </div>
                   </div>
                 </td>
-                <td className="p-3">
+                <td className="p-2">
+                  <span
+                    className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[20ch] sm:max-w-[24ch] lg:max-w-[28ch]"
+                    title={industry || 'N/A'}
+                  >
+                    {industry || 'N/A'}
+                  </span>
+                </td>
+                <td className="p-2">
                   {getDisplayPhone(lead) ? (
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${getPhoneStatusColor(getDisplayPhone(lead))}`}></div>
@@ -584,7 +646,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     </div>
                   )}
                 </td>
-                <td className="p-3">
+                <td className="p-2">
                   {lead.email ? (
                     <div className="flex items-center gap-2 min-w-0 max-w-full">
                       <div className={`w-2 h-2 rounded-full ${getEmailStatusColor(lead.email)}`}></div>
@@ -613,7 +675,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     </div>
                   )}
                 </td>
-                <td className="p-3">
+                <td className="p-2">
                   <div className="min-w-0 max-w-full">
                     <span
                       className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[24ch] sm:max-w-[28ch] lg:max-w-[32ch] inline-block"
@@ -623,54 +685,54 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-3">
+                <td className="p-2">
                   <div className="flex">
                     {renderStars(lead.score || 3)}
                   </div>
                 </td>
-                <td className="p-3">
+                <td className="p-2">
                   {contactLinkedIn ? (
                     <a
                       href={contactLinkedIn}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-primary hover:underline"
                       aria-label={`Open LinkedIn profile for ${lead.name}`}
                       onClick={(e) => e.stopPropagation()}
+                      className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "p-1 h-7 w-7")}
                     >
-                      {formatUrlLabel(contactLinkedIn)}
+                      <Linkedin className="h-3 w-3" />
                     </a>
                   ) : (
                     <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
-                <td className="p-3">
+                <td className="p-2">
                   {companyWebsite ? (
                     <a
                       href={companyWebsite}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-primary hover:underline"
                       aria-label={`Open company website for ${displayCompany}`}
                       onClick={(e) => e.stopPropagation()}
+                      className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "p-1 h-7 w-7")}
                     >
-                      {formatUrlLabel(companyWebsite)}
+                      <ExternalLink className="h-3 w-3" />
                     </a>
                   ) : (
                     <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
-                <td className="p-3">
+                <td className="p-2">
                   {companyLinkedIn ? (
                     <a
                       href={companyLinkedIn}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-primary hover:underline"
                       aria-label={`Open company LinkedIn for ${displayCompany}`}
                       onClick={(e) => e.stopPropagation()}
+                      className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "p-1 h-7 w-7")}
                     >
-                      {formatUrlLabel(companyLinkedIn)}
+                      <Linkedin className="h-3 w-3" />
                     </a>
                   ) : (
                     <span className="text-muted-foreground">N/A</span>
