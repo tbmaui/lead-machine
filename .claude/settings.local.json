@@ -9,7 +9,8 @@
       "Read(/c:\\Users\\thadb\\Desktop\\Lead Gen Demo/**)",
       "Read(/c:\\Users\\thadb\\Desktop\\Lead Machine Project\\.bmad-core\\agents/**)",
       "Read(/c:\\Users\\thadb\\Desktop\\Lead Machine Project\\.bmad-core\\tasks/**)",
-      "Read(/c:\\Users\\thadb\\Desktop\\Lead Machine Project\\.bmad-core\\agents/**)"
+      "Read(/c:\\Users\\thadb\\Desktop\\Lead Machine Project\\.bmad-core\\agents/**)",
+      "Bash(npm test)"
     ],
     "deny": [],
     "ask": []

@@ -90,11 +90,11 @@ const LeadGenForm = () => {
   }
 
   return (
-    <div className="neu-form-section">
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-foreground mb-2">Generate Your Leads</h2>
-        <p className="text-sm text-muted-foreground">
-          Discover verified decision makers in your target market
+    <div className="neu-form-section neu-gradient-stroke-thick">
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-foreground mb-3 bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">Generate Your Leads</h2>
+        <p className="text-base text-muted-foreground">
+          Discover verified decision makers in your target market with precision targeting
         </p>
       </div>
       <div className="space-y-8">
@@ -109,7 +109,7 @@ const LeadGenForm = () => {
               value={targetLocation}
               onChange={(e) => setTargetLocation(e.target.value)}
               placeholder="Enter city, state, USA"
-              className="w-full text-base"
+              className="neu-input w-full text-base border-0"
               aria-required="true"
               aria-describedby="target-location-hint"
             />
@@ -127,7 +127,7 @@ const LeadGenForm = () => {
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-between text-left font-normal"
+                  className="neu-button w-full justify-between text-left font-normal border-0"
                   aria-labelledby="industry-label"
                   aria-describedby="industry-description"
                   aria-expanded="false"
@@ -139,7 +139,7 @@ const LeadGenForm = () => {
                   <ChevronDown className="h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 z-50" align="start">
+              <PopoverContent className="neu-popover w-full p-0 z-50" align="start">
                 <div className="p-4 space-y-3">
                   {industryOptions.map((industry) => (
                     <div key={industry} className="flex items-center space-x-3">
@@ -173,7 +173,7 @@ const LeadGenForm = () => {
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-between text-left font-normal"
+                  className="neu-button w-full justify-between text-left font-normal border-0"
                 >
                   {selectedCompanySizes.length > 0 
                     ? `${selectedCompanySizes.length} size${selectedCompanySizes.length > 1 ? 's' : ''} selected`
@@ -182,7 +182,7 @@ const LeadGenForm = () => {
                   <ChevronDown className="h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 z-50" align="start">
+              <PopoverContent className="neu-popover w-full p-0 z-50" align="start">
                 <div className="p-4 space-y-3">
                   {companySizeOptions.map((size) => (
                     <div key={size} className="flex items-center space-x-3">
@@ -214,7 +214,7 @@ const LeadGenForm = () => {
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full justify-between text-left font-normal"
+                className="neu-button w-full justify-between text-left font-normal border-0"
               >
                 {selectedJobTitles.length > 0 
                   ? `${selectedJobTitles.length} title${selectedJobTitles.length > 1 ? 's' : ''} selected`

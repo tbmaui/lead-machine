@@ -10,18 +10,40 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      <div className="flex justify-between items-center p-4">
-        <Logo />
-        <ThemeToggle />
-      </div>
+      {/* Enhanced header with gradient stroke */}
+      <header className="neu-flat neu-gradient-stroke mx-4 mt-4 rounded-lg">
+        <div className="flex justify-between items-center p-6">
+          <Logo />
+          <ThemeToggle />
+        </div>
+      </header>
+
+      {/* Hero section with improved spacing */}
       <HeroSection />
-      <div className="mx-auto w-full max-w-[1600px] py-8 px-3 md:px-4">
-        <OverviewSection />
-        <UseCasesSection />
-        <FeaturesTable />
-        <QualityLeadsInfo />
-        <LeadGenForm />
-      </div>
+      
+      {/* Main content area with enhanced layout */}
+      <main className="mx-auto w-full max-w-[1600px] py-12 px-4 md:px-6 space-y-16">
+        <section className="neu-card neu-gradient-stroke p-8">
+          <OverviewSection />
+        </section>
+        
+        <section className="neu-card neu-gradient-stroke p-8">
+          <UseCasesSection />
+        </section>
+        
+        <section className="neu-card neu-gradient-stroke p-8">
+          <FeaturesTable />
+        </section>
+        
+        <section className="neu-card neu-gradient-stroke p-8">
+          <QualityLeadsInfo />
+        </section>
+        
+        {/* Lead generation form as the focal point */}
+        <section className="mx-auto max-w-4xl">
+          <LeadGenForm />
+        </section>
+      </main>
     </div>
   );
 };

@@ -1,39 +1,57 @@
-import { MoveRight, PhoneCall } from "lucide-react";
+import { MoveRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 function HeroSection() {
   return (
-    <div className="w-full">
-      <div className="container mx-auto">
-        <div className="flex gap-8 py-20 lg:py-40 items-center justify-center flex-col">
-          <div>
-            <Button variant="secondary" size="sm" className="gap-4">
-              AMERICA'S BOOKKEEPING EXPERTS - LEAD DISCOVERY PLATFORM <MoveRight className="w-4 h-4" />
+    <div className="w-full bg-background">
+      <div className="container mx-auto px-4">
+        <div className="flex gap-12 py-16 lg:py-32 items-center justify-center flex-col max-w-6xl mx-auto">
+          {/* Enhanced hero badge */}
+          <div className="neu-hero-card p-4">
+            <Button variant="secondary" size="sm" className="neu-hero-button gap-3 font-semibold tracking-wide">
+              <Sparkles className="w-4 h-4" />
+              AMERICA'S PREMIER LEAD DISCOVERY PLATFORM
+              <MoveRight className="w-4 h-4" />
             </Button>
           </div>
-          <div className="flex gap-4 flex-col">
-            <h1 className="text-5xl md:text-7xl max-w-4xl tracking-tighter text-center font-regular">
+          
+          {/* Enhanced typography hierarchy */}
+          <div className="flex gap-6 flex-col text-center">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl max-w-5xl mx-auto tracking-tight font-bold bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent leading-tight">
               Welcome to the Lead Machine
             </h1>
-            <h2 className="text-xl md:text-2xl leading-relaxed tracking-tight text-muted-foreground max-w-4xl text-center font-medium">
-              High-efficiency, enhanced prospecting with customizable filters across geography, industry, title, and company size.
-            </h2>
-            <h3 className="text-lg md:text-xl leading-relaxed tracking-tight text-foreground max-w-3xl text-center">
-              Generate 1-1000 verified and enriched SMB decision maker contacts in minutes.
-            </h3>
+            <div className="space-y-4 max-w-4xl mx-auto">
+              <h2 className="text-xl md:text-2xl lg:text-3xl leading-relaxed tracking-tight text-muted-foreground font-medium">
+                High-efficiency, enhanced prospecting with customizable filters across geography, industry, title, and company size.
+              </h2>
+              <h3 className="text-lg md:text-xl lg:text-2xl leading-relaxed tracking-tight text-foreground font-normal">
+                Generate 1-1000 verified and enriched SMB decision maker contacts in minutes.
+              </h3>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
-              <div className="w-2 h-2 bg-accent rounded-full flex-shrink-0"></div>
-              <span className="text-sm">Cross-platform verification (email, phone, LinkedIn)</span>
+          
+          {/* Enhanced feature cards with gradient stroke outlines */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full">
+            <div className="neu-hero-feature flex items-start gap-4 p-6 transition-all duration-300 hover:neu-raised">
+              <div className="w-3 h-3 bg-gradient-to-br from-primary to-accent rounded-full flex-shrink-0 mt-1"></div>
+              <div className="space-y-2">
+                <h4 className="font-semibold text-foreground">Cross-Platform Verification</h4>
+                <p className="text-sm text-muted-foreground">Email, phone, and LinkedIn verification for maximum accuracy</p>
+              </div>
             </div>
-            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
-              <div className="w-2 h-2 bg-accent rounded-full flex-shrink-0"></div>
-              <span className="text-sm">Real-time LinkedIn enrichment</span>
+            <div className="neu-hero-feature flex items-start gap-4 p-6 transition-all duration-300 hover:neu-raised">
+              <div className="w-3 h-3 bg-gradient-to-br from-primary to-accent rounded-full flex-shrink-0 mt-1"></div>
+              <div className="space-y-2">
+                <h4 className="font-semibold text-foreground">Real-Time Enrichment</h4>
+                <p className="text-sm text-muted-foreground">Live LinkedIn data integration and profile enhancement</p>
+              </div>
             </div>
-            <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card">
-              <div className="w-2 h-2 bg-accent rounded-full flex-shrink-0"></div>
-              <span className="text-sm">CRM-ready export, built for daily volume</span>
+            <div className="neu-hero-feature flex items-start gap-4 p-6 transition-all duration-300 hover:neu-raised">
+              <div className="w-3 h-3 bg-gradient-to-br from-primary to-accent rounded-full flex-shrink-0 mt-1"></div>
+              <div className="space-y-2">
+                <h4 className="font-semibold text-foreground">CRM-Ready Export</h4>
+                <p className="text-sm text-muted-foreground">Built for daily volume with seamless CRM integration</p>
+              </div>
             </div>
           </div>
         </div>

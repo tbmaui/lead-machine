@@ -51,6 +51,10 @@
     --neu-shadow-strong: 12px 12px 24px hsl(var(--neu-shadow-dark)), -12px -12px 24px hsl(var(--neu-highlight));
     --neu-shadow-inset: inset 4px 4px 8px hsl(var(--neu-inset-shadow)), inset -4px -4px 8px hsl(var(--neu-inset-highlight));
     --neu-shadow-pressed: inset 6px 6px 12px hsl(var(--neu-shadow)), inset -6px -6px 12px hsl(var(--neu-highlight));
+    
+    /* Gradient stroke outline system - light theme */
+    --gradient-stroke-light: 0 0% 100%;
+    --gradient-stroke-dark: 220 25% 80%;
 
     --sidebar-background: 0 0% 98%;
 
@@ -113,6 +117,10 @@
     --neu-shadow-strong: 12px 12px 24px hsl(var(--neu-shadow-dark)), -12px -12px 24px hsl(var(--neu-highlight));
     --neu-shadow-inset: inset 4px 4px 8px hsl(var(--neu-inset-shadow)), inset -4px -4px 8px hsl(var(--neu-inset-highlight));
     --neu-shadow-pressed: inset 6px 6px 12px hsl(var(--neu-shadow)), inset -6px -6px 12px hsl(var(--neu-highlight));
+    
+    /* Gradient stroke outline system - dark theme */
+    --gradient-stroke-light: 220 12% 25%;
+    --gradient-stroke-dark: 220 25% 8%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -263,5 +271,70 @@
 
   .neu-button-primary:disabled {
     @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Gradient Stroke Outline System */
+  .neu-gradient-stroke {
+    position: relative;
+  }
+
+  .neu-gradient-stroke::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, 
+      hsl(var(--gradient-stroke-light)) 0%, 
+      hsl(var(--gradient-stroke-dark)) 100%
+    );
+    z-index: -1;
+    border-radius: calc(var(--radius) + 2px);
+  }
+
+  .neu-gradient-stroke-thick {
+    position: relative;
+  }
+
+  .neu-gradient-stroke-thick::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, 
+      hsl(var(--gradient-stroke-light)) 0%, 
+      hsl(var(--gradient-stroke-dark)) 100%
+    );
+    z-index: -1;
+    border-radius: calc(var(--radius) + 3px);
+  }
+
+  .neu-gradient-stroke-hero {
+    position: relative;
+  }
+
+  .neu-gradient-stroke-hero::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, 
+      hsl(var(--gradient-stroke-light)) 0%, 
+      hsl(var(--gradient-stroke-dark)) 100%
+    );
+    z-index: -1;
+    border-radius: calc(var(--radius) + 4px);
+  }
+
+  /* Enhanced hero section styling */
+  .neu-hero-card {
+    @apply neu-raised neu-gradient-stroke bg-card text-card-foreground;
+  }
+
+  .neu-hero-button {
+    @apply neu-button neu-gradient-stroke;
+  }
+
+  .neu-hero-feature {
+    @apply neu-flat neu-gradient-stroke bg-card text-card-foreground;
   }
 }

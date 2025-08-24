@@ -149,27 +149,27 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
   };
 
   return (
-    <div className="neu-card p-4" role="img" aria-label={mode === "quality" ? "Lead quality summary donut chart" : "Title distribution donut chart"}>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-foreground">Summary</h3>
-        <ToggleGroup type="single" value={mode} onValueChange={(v) => v && setMode(v as any)}>
-          <ToggleGroupItem value="quality" aria-label="Show quality breakdown">Quality</ToggleGroupItem>
-          <ToggleGroupItem value="titles" aria-label="Show titles breakdown">Titles</ToggleGroupItem>
+    <div className="neu-card neu-gradient-stroke p-6 max-w-sm mx-auto" role="img" aria-label={mode === "quality" ? "Lead quality summary donut chart" : "Title distribution donut chart"}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-foreground">Lead Summary</h3>
+        <ToggleGroup type="single" value={mode} onValueChange={(v) => v && setMode(v as any)} className="neu-flat">
+          <ToggleGroupItem value="quality" aria-label="Show quality breakdown" className="neu-button text-xs">Quality</ToggleGroupItem>
+          <ToggleGroupItem value="titles" aria-label="Show titles breakdown" className="neu-button text-xs">Titles</ToggleGroupItem>
         </ToggleGroup>
       </div>
 
       {!hasData ? (
-        <div className="text-muted-foreground text-sm">No data to display.</div>
+        <div className="text-muted-foreground text-sm text-center py-8">No data to display.</div>
       ) : (
-        <ChartContainer className="w-full" config={chartConfig as any}>
-          <PieChart>
+        <ChartContainer className="w-full aspect-square max-w-[280px] mx-auto" config={chartConfig as any}>
+          <PieChart width={280} height={280}>
             <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
             <Pie
               data={(mode === "quality" ? qualityData : titleData) as any}
               dataKey="value"
               nameKey="name"
-              innerRadius="55%"
-              outerRadius="80%"
+              innerRadius={60}
+              outerRadius={100}
               paddingAngle={2}
               isAnimationActive={false}
               label={renderSliceLabel}
@@ -186,7 +186,7 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
               <Label
                 position="center"
                 content={() => (
-                  <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground">
+                  <text x={140} y={140} textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-xl font-bold">
                     {total.toLocaleString()}
                   </text>
                 )}
