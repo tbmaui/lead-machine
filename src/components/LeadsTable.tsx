@@ -103,12 +103,29 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
 
   const getCompanyLinkedIn = (lead: Lead) => {
     const ad = (lead.additional_data as any) || {};
-    return (lead as any)?.company_linkedin_url ||
-           ad.company_linkedin_url ||
+    // Debug: log the data structure to understand what's available
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Lead data for LinkedIn debugging:', {
+        leadId: lead.id,
+        organization_linkedin_url: lead.organization_linkedin_url,
+        additional_data_keys: ad ? Object.keys(ad) : 'no additional_data',
+        additional_data_sample: ad
+      });
+    }
+    
+    // First check the direct database field
+    const orgLinkedIn = lead.organization_linkedin_url;
+    if (orgLinkedIn && String(orgLinkedIn).trim()) return String(orgLinkedIn).trim();
+    
+    // Then check additional_data for various field names
+    return ad.company_linkedin_url ||
            ad.linkedin_company_url ||
            ad.organization_linkedin_url ||
            ad.company_linkedin ||
-           ad.companyLinkedIn;
+           ad.companyLinkedIn ||
+           ad['Company LinkedIn'] ||
+           ad['Organization LinkedIn'] ||
+           (lead as any)?.company_linkedin_url;
   };
 
   const getContactLinkedIn = (lead: Lead) => {
@@ -122,25 +139,91 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
 
   const getLocation = (lead: Lead) => {
     const ad = (lead.additional_data as any) || {};
+    
+    // First check direct database fields
+    if (lead.location && lead.location.trim()) {
+      return lead.location.trim();
+    }
+    
+    // Check structured data in additional_data
     const city = ad.city || '';
     const state = ad.state || '';
     const region = ad.region || '';
     const country = ad.country || '';
-    const location = lead.location || '';
     if (city && state) return `${city}, ${state}`;
-    return state || region || country || location || 'N/A';
+    if (state || region || country) return state || region || country;
+    
+    // Extract location from additional_data text summary
+    if (typeof ad === 'string') {
+      const locationMatch = ad.match(/based in ([^,.]+(?:, [^,.]+)?)/i) || 
+                           ad.match(/located in ([^,.]+(?:, [^,.]+)?)/i) ||
+                           ad.match(/from ([^,.]+(?:, [^,.]+)?)/i);
+      if (locationMatch) {
+        return locationMatch[1].trim();
+      }
+    }
+    
+    return 'N/A';
+  };
+
+  const splitLocation = (location: string) => {
+    if (!location || location === 'N/A') return { city: location, state: '' };
+    
+    // Split on comma - assuming format like "San Diego, California"
+    const parts = location.split(',').map(part => part.trim());
+    if (parts.length >= 2) {
+      return {
+        city: parts[0],
+        state: parts[1]
+      };
+    }
+    
+    // If no comma, treat as single location
+    return {
+      city: location,
+      state: ''
+    };
   };
 
   const getIndustry = (lead: Lead) => {
     const ad = (lead.additional_data as any) || {};
-    return (
-      (lead.industry && String(lead.industry).trim()) ||
-      ad.industry ||
-      ad.company_industry ||
-      ad.sector ||
-      ad.naics ||
-      ''
-    );
+    
+    // First check direct database field
+    if (lead.industry && String(lead.industry).trim()) {
+      return String(lead.industry).trim();
+    }
+    
+    // Check structured data in additional_data
+    if (ad.industry || ad.company_industry || ad.sector || ad.naics) {
+      return ad.industry || ad.company_industry || ad.sector || ad.naics;
+    }
+    
+    // Extract industry from additional_data text summary
+    if (typeof ad === 'string') {
+      // Look for common industry patterns
+      const industryPatterns = [
+        /specializes in ([^,.]+)/i,
+        /specializing in ([^,.]+)/i,
+        /in the ([^,.\s]+ industry)/i,
+        /([^,.\s]+ industry)/i,
+        /company (?:which |that )?(?:specializes in |focuses on )([^,.]+)/i,
+        /focusing on ([^,.]+) services/i,
+        /([^,.\s]+ services)/i
+      ];
+      
+      for (const pattern of industryPatterns) {
+        const match = ad.match(pattern);
+        if (match) {
+          const industry = match[1].trim();
+          // Filter out generic words
+          if (!industry.match(/^(services|company|business|organization|group|inc|solutions)$/i)) {
+            return industry.charAt(0).toUpperCase() + industry.slice(1);
+          }
+        }
+      }
+    }
+    
+    return 'N/A';
   };
 
   const getDisplayCompany = (lead: Lead) => {
@@ -162,6 +245,46 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
     } catch {
       return url;
     }
+  };
+
+  const getSummary = (lead: Lead) => {
+    const ad = lead.additional_data;
+    if (!ad) return 'N/A';
+    
+    // If additional_data is already a string summary, return it
+    if (typeof ad === 'string') {
+      return ad.trim() || 'N/A';
+    }
+    
+    // If it's an object, look for common summary field names
+    if (typeof ad === 'object') {
+      const summaryFields = [
+        'summary', 'Summary', 'SUMMARY',
+        'description', 'Description', 'DESCRIPTION',
+        'bio', 'Bio', 'BIO',
+        'about', 'About', 'ABOUT',
+        'profile', 'Profile', 'PROFILE'
+      ];
+      
+      for (const field of summaryFields) {
+        if ((ad as any)[field] && typeof (ad as any)[field] === 'string') {
+          return (ad as any)[field].trim();
+        }
+      }
+      
+      // If no specific summary field, try to create a brief summary from available data
+      const obj = ad as any;
+      const parts = [];
+      
+      if (obj.title) parts.push(`Title: ${obj.title}`);
+      if (obj.company || obj.Company) parts.push(`Company: ${obj.company || obj.Company}`);
+      if (obj.industry) parts.push(`Industry: ${obj.industry}`);
+      if (obj.location) parts.push(`Location: ${obj.location}`);
+      
+      return parts.length > 0 ? parts.join('; ') : 'Additional data available';
+    }
+    
+    return 'N/A';
   };
 
   const createComparator = (key: SortKey, direction: SortDirection) => {
@@ -416,11 +539,11 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
           </div>
         </div>
       )}
-      <table className="w-full table-auto border-collapse">
+      <table className="w-full table-fixed border-collapse">
         <thead>
           <tr className="border-b border-border text-muted-foreground">
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[16%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[12%]"
               aria-sort={sortKey === 'name' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -433,7 +556,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[16%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[10%]"
               aria-sort={sortKey === 'title' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -446,7 +569,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[18%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[14%]"
               aria-sort={sortKey === 'company' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -472,7 +595,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[12%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[14%]"
               aria-sort={sortKey === 'phone' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -498,7 +621,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[12%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[8%]"
               aria-sort={sortKey === 'location' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -511,7 +634,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[8%]"
+              className="text-left p-2 font-medium uppercase tracking-wide w-[5%]"
               aria-sort={sortKey === 'score' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -523,9 +646,10 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                 Score {sortKey === 'score' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
               </button>
             </th>
-            <th className="text-left p-2 font-medium uppercase tracking-wide w-[8%]">LinkedIn</th>
-            <th className="text-left p-2 font-medium uppercase tracking-wide w-[8%]">Company Website</th>
-            <th className="text-left p-2 font-medium uppercase tracking-wide w-[8%]">Company LinkedIn</th>
+            <th className="text-left p-2 font-medium tracking-wide w-[5%]">LinkedIn</th>
+            <th className="text-left p-2 font-medium tracking-wide w-[5%]">Company Website</th>
+            <th className="text-left p-2 font-medium tracking-wide w-[5%]">Company LinkedIn</th>
+            <th className="text-left p-2 font-medium tracking-wide w-[14%]">Summary</th>
           </tr>
         </thead>
         <tbody>
@@ -546,21 +670,6 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     >
                       {lead.name}
                     </span>
-                    {contactLinkedIn && (
-                      <a
-                        href={contactLinkedIn}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`Open LinkedIn profile for ${lead.name}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className={cn(
-                          buttonVariants({ variant: "ghost", size: "sm" }),
-                          "p-1 h-7 w-7"
-                        )}
-                      >
-                        <Linkedin className="h-3 w-3" />
-                      </a>
-                    )}
                   </div>
                 </td>
                 <td className="p-2">
@@ -581,59 +690,29 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     >
                       {displayCompany}
                     </span>
-                    <div className="flex gap-1">
-                      {companyWebsite && (
-                        <a
-                          href={companyWebsite}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Open company website for ${displayCompany}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className={cn(
-                            buttonVariants({ variant: "ghost", size: "sm" }),
-                            "p-1 h-7 w-7"
-                          )}
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      )}
-                      {companyLinkedIn && (
-                        <a
-                          href={companyLinkedIn}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Open company LinkedIn for ${displayCompany}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className={cn(
-                            buttonVariants({ variant: "ghost", size: "sm" }),
-                            "p-1 h-7 w-7"
-                          )}
-                        >
-                          <Linkedin className="h-3 w-3" />
-                        </a>
-                      )}
-                    </div>
                   </div>
                 </td>
                 <td className="p-2">
-                  <span
-                    className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[20ch] sm:max-w-[24ch] lg:max-w-[28ch]"
-                    title={industry || 'N/A'}
-                  >
-                    {industry || 'N/A'}
-                  </span>
+                  <div className="min-w-0 max-w-full">
+                    <span
+                      className="text-foreground/80 text-xs leading-tight break-words block"
+                      title={industry || 'N/A'}
+                    >
+                      {industry || 'N/A'}
+                    </span>
+                  </div>
                 </td>
                 <td className="p-2">
                   {getDisplayPhone(lead) ? (
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${getPhoneStatusColor(getDisplayPhone(lead))}`}></div>
-                      <span className="text-foreground/80">{getDisplayPhone(lead)}</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${getPhoneStatusColor(getDisplayPhone(lead))}`}></div>
+                      <span className="text-foreground/80 whitespace-nowrap text-xs">{getDisplayPhone(lead)}</span>
                       <button
                         aria-label={`Copy phone ${getDisplayPhone(lead)}`}
                         onClick={(e) => { e.stopPropagation(); copyToClipboard(getDisplayPhone(lead) as string, 'Phone'); }}
                         className={cn(
                           buttonVariants({ variant: "ghost", size: "sm" }),
-                          "p-1 h-7 w-7"
+                          "p-1 h-7 w-7 flex-shrink-0"
                         )}
                       >
                         <Copy className="h-3 w-3" />
@@ -677,12 +756,16 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                 </td>
                 <td className="p-2">
                   <div className="min-w-0 max-w-full">
-                    <span
-                      className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[24ch] sm:max-w-[28ch] lg:max-w-[32ch] inline-block"
-                      title={getLocation(lead)}
-                    >
-                      {getLocation(lead)}
-                    </span>
+                    {(() => {
+                      const location = getLocation(lead);
+                      const { city, state } = splitLocation(location);
+                      return (
+                        <div className="text-foreground/80 text-xs leading-tight">
+                          <div className="font-medium">{city}</div>
+                          {state && <div className="text-muted-foreground">{state}</div>}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </td>
                 <td className="p-2">
@@ -737,6 +820,16 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                   ) : (
                     <span className="text-muted-foreground">N/A</span>
                   )}
+                </td>
+                <td className="p-2">
+                  <div className="min-w-0 max-w-full">
+                    <span
+                      className="text-foreground/80 text-xs leading-relaxed line-clamp-3 overflow-hidden"
+                      title={getSummary(lead)}
+                    >
+                      {getSummary(lead)}
+                    </span>
+                  </div>
                 </td>
               </tr>
             );

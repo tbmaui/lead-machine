@@ -28,6 +28,8 @@ export interface Lead {
   company_size?: string;
   score?: number;
   additional_data?: any;
+  organization_linkedin_url?: string;
+  organization_url?: string;
 }
 
 export const useLeadGeneration = (userId?: string) => {
@@ -173,6 +175,11 @@ export const useLeadGeneration = (userId?: string) => {
         },
         (payload) => {
           console.log('New lead received:', payload.new);
+          console.log('Lead LinkedIn URLs:', {
+            linkedin_url: payload.new.linkedin_url,
+            organization_linkedin_url: payload.new.organization_linkedin_url,
+            organization_url: payload.new.organization_url
+          });
           setLeads(prev => [...prev, payload.new as Lead]);
         }
       )
@@ -279,6 +286,14 @@ export const useLeadGeneration = (userId?: string) => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
+      console.log('Fetched leads with LinkedIn data:', data?.map(lead => ({
+        id: lead.id,
+        name: lead.name,
+        linkedin_url: lead.linkedin_url,
+        organization_linkedin_url: lead.organization_linkedin_url,
+        organization_url: lead.organization_url,
+        additional_data_type: typeof lead.additional_data
+      })));
       setLeads(data || []);
     } catch (error) {
       console.error('Error fetching leads:', error);
