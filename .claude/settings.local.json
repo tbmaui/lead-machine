@@ -6,7 +6,10 @@
       "Bash(npm run dev:*)",
       "Bash(curl:*)",
       "Read(/c:\\Users\\thadb\\Desktop\\Lead Gen Demo/**)",
-      "Read(/c:\\Users\\thadb\\Desktop\\Lead Gen Demo/**)"
+      "Read(/c:\\Users\\thadb\\Desktop\\Lead Gen Demo/**)",
+      "Read(/c:\\Users\\thadb\\Desktop\\Lead Machine Project\\.bmad-core\\agents/**)",
+      "Read(/c:\\Users\\thadb\\Desktop\\Lead Machine Project\\.bmad-core\\tasks/**)",
+      "Read(/c:\\Users\\thadb\\Desktop\\Lead Machine Project\\.bmad-core\\agents/**)"
     ],
     "deny": [],
     "ask": []
