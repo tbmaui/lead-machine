@@ -39,8 +39,8 @@ const Index = () => {
           <QualityLeadsInfo />
         </section>
         
-        {/* Lead generation form as the focal point */}
-        <section className="mx-auto max-w-4xl">
+        {/* Lead generation section with responsive width */}
+        <section className="w-full">
           <LeadGenForm />
         </section>
       </main>

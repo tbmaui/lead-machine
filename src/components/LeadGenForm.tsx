@@ -90,7 +90,8 @@ const LeadGenForm = () => {
   }
 
   return (
-    <div className="neu-form-section neu-gradient-stroke-thick">
+    <div className="mx-auto max-w-4xl">
+      <div className="neu-form-section neu-gradient-stroke-thick">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-foreground mb-3 bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">Generate Your Leads</h2>
         <p className="text-base text-muted-foreground">
@@ -290,6 +291,7 @@ const LeadGenForm = () => {
           {loading ? "Starting Generation..." : "🚀 Generate Leads"}
         </Button>
       </div>
+    </div>
     </div>
   );
 };

@@ -10,6 +10,26 @@ import {
 } from "@/components/ui/chart";
 import { Pie, PieChart, Cell, Label, LabelList, Sector } from "recharts";
 
+// Type definitions for proper type safety
+interface AdditionalData {
+  Title?: string;
+  title?: string;
+  [key: string]: unknown;
+}
+
+interface SliceLabelProps {
+  value?: number;
+  percent?: number;
+}
+
+interface SectorProps {
+  index: number;
+  name: string;
+  value: number;
+  percent: number;
+  [key: string]: unknown;
+}
+
 type QualitySlice = {
   name: string;
   value: number;
@@ -20,6 +40,10 @@ type TitleSlice = {
   name: string;
   value: number;
 };
+
+type ChartData = QualitySlice | TitleSlice;
+
+type ChartMode = "quality" | "titles";
 
 export function computeQualityBreakdown(leads: Lead[]): QualitySlice[] {
   let both = 0;
@@ -57,7 +81,8 @@ function normalizeTitle(raw?: string): string {
 export function computeTitlesBreakdown(leads: Lead[]): TitleSlice[] {
   const counts = new Map<string, number>();
   for (const lead of leads) {
-    const normalized = normalizeTitle(lead.title || (lead.additional_data as any)?.Title || (lead.additional_data as any)?.title);
+    const additionalData = lead.additional_data as AdditionalData | undefined;
+    const normalized = normalizeTitle(lead.title || additionalData?.Title || additionalData?.title);
     counts.set(normalized, (counts.get(normalized) || 0) + 1);
   }
   const entries = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
@@ -89,12 +114,18 @@ const TITLE_COLORS = [
 ];
 
 const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
-  const [mode, setMode] = useState<"quality" | "titles">("quality");
+  const [mode, setMode] = useState<ChartMode>("quality");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  const qualityData = useMemo(() => computeQualityBreakdown(leads), [leads]);
-  const titleData = useMemo(() => computeTitlesBreakdown(leads), [leads]);
-  const hasData = (mode === "quality" ? qualityData : titleData).some((s) => s.value > 0);
+  // Move all hooks before any early returns to fix React Hook Rules violation
+  const qualityData = useMemo(() => computeQualityBreakdown(leads || []), [leads]);
+  const titleData = useMemo(() => computeTitlesBreakdown(leads || []), [leads]);
+  const total = useMemo(() => leads?.length || 0, [leads]);
+  
+  const hasData = useMemo(() => {
+    const data = mode === "quality" ? qualityData : titleData;
+    return data.some((s) => s.value > 0);
+  }, [mode, qualityData, titleData]);
 
   const chartConfig = useMemo(() => {
     if (mode === "quality") {
@@ -106,25 +137,24 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
       } as const;
     }
     const config: Record<string, { label: string; color: string }> = {};
-    (titleData as TitleSlice[]).forEach((slice, idx) => {
+    titleData.forEach((slice, idx) => {
       config[slice.name] = { label: slice.name, color: TITLE_COLORS[idx % TITLE_COLORS.length] };
     });
     return config;
   }, [mode, titleData]);
 
+  // Early return after all hooks are called
   if (!leads || leads.length === 0) return null;
 
-  const total = useMemo(() => leads.length, [leads]);
-
-  const renderSliceLabel = (props: any) => {
-    const value = props?.value as number | undefined;
+  const renderSliceLabel = (props: SliceLabelProps) => {
+    const value = props?.value;
     const percent = typeof props?.percent === "number" ? Math.round(props.percent * 100) : undefined;
     if (!value) return "";
     return percent !== undefined ? `${value} (${percent}%)` : String(value);
   };
 
-  const renderSector = (props: any) => {
-    const { index, name, value, percent } = props;
+  const renderSector = (props: SectorProps) => {
+    const { index, name, value, percent, ...otherProps } = props;
     const pct = typeof percent === "number" ? Math.round(percent * 100) : 0;
     const isActive = activeIndex === index;
     const label = `${name}: ${value} (${pct}%)`;
@@ -143,7 +173,7 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
         }}
       >
         <title>{label}</title>
-        <Sector {...props} stroke={isActive ? "#0ea5e9" : undefined} strokeWidth={isActive ? 2 : undefined} />
+        <Sector {...otherProps} stroke={isActive ? "#0ea5e9" : undefined} strokeWidth={isActive ? 2 : undefined} />
       </g>
     );
   };
@@ -152,7 +182,7 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
     <div className="neu-card neu-gradient-stroke p-6 max-w-sm mx-auto" role="img" aria-label={mode === "quality" ? "Lead quality summary donut chart" : "Title distribution donut chart"}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-foreground">Lead Summary</h3>
-        <ToggleGroup type="single" value={mode} onValueChange={(v) => v && setMode(v as any)} className="neu-flat">
+        <ToggleGroup type="single" value={mode} onValueChange={(v) => v && setMode(v as ChartMode)} className="neu-flat">
           <ToggleGroupItem value="quality" aria-label="Show quality breakdown" className="neu-button text-xs">Quality</ToggleGroupItem>
           <ToggleGroupItem value="titles" aria-label="Show titles breakdown" className="neu-button text-xs">Titles</ToggleGroupItem>
         </ToggleGroup>
@@ -161,11 +191,11 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
       {!hasData ? (
         <div className="text-muted-foreground text-sm text-center py-8">No data to display.</div>
       ) : (
-        <ChartContainer className="w-full aspect-square max-w-[280px] mx-auto" config={chartConfig as any}>
+        <ChartContainer className="w-full aspect-square max-w-[280px] mx-auto" config={chartConfig}>
           <PieChart width={280} height={280}>
             <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
             <Pie
-              data={(mode === "quality" ? qualityData : titleData) as any}
+              data={mode === "quality" ? qualityData : titleData}
               dataKey="value"
               nameKey="name"
               innerRadius={60}
@@ -177,7 +207,7 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
               shape={renderSector}
               activeIndex={activeIndex === null ? undefined : activeIndex}
             >
-              {(mode === "quality" ? (qualityData as QualitySlice[]) : (titleData as TitleSlice[])).map((entry, index) => {
+              {(mode === "quality" ? qualityData : titleData).map((entry, index) => {
                 const color = mode === "quality"
                   ? QUALITY_COLORS[(entry as QualitySlice).key]
                   : TITLE_COLORS[index % TITLE_COLORS.length];

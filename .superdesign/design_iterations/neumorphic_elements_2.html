@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neumorphic Elements</title>
+    <link rel="stylesheet" href="neumorphic_theme.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            background-color: var(--background);
+            font-family: var(--font-sans);
+            color: var(--foreground);
+        }
+
+        .neu-element {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--neu-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neu-element::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius);
+            padding: 1px;
+            background: var(--stroke-gradient);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Tab Bar */
+        .tab-bar {
+            display: flex;
+            gap: 1rem;
+            padding: 0.75rem;
+            width: fit-content;
+        }
+
+        .tab-icon {
+            padding: 0.75rem;
+            color: var(--foreground);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tab-icon:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        /* Select Item */
+        .select-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .select-item .location-icon {
+            color: var(--primary);
+        }
+
+        /* List Item */
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        .list-item img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        /* Progress Circle */
+        .progress-circle {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .progress-circle svg {
+            transform: rotate(-90deg);
+            overflow: visible;
+        }
+
+        .progress-circle circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+        }
+
+        .progress-bg {
+            stroke: var(--progress-bg);
+        }
+
+        .progress-value {
+            stroke: var(--primary);
+            transition: stroke-dashoffset 0.3s ease;
+            filter: drop-shadow(0px 0px 2px var(--primary));
+        }
+
+        /* Switch */
+        .switch {
+            width: 200px;
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .switch-toggle {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--switch-inactive);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .switch-toggle::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+            box-shadow: var(--neu-shadow-small);
+        }
+
+        .switch-toggle.active {
+            background: var(--switch-active);
+        }
+
+        .switch-toggle.active::before {
+            transform: translateX(24px);
+        }
+
+        /* Enhanced visibility */
+        .section-title {
+            color: var(--foreground);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .component-wrapper {
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <div class="max-w-4xl mx-auto space-y-8">
+        <h2 class="text-2xl font-semibold mb-8 text-[var(--foreground)]">Elements</h2>
+        
+        <!-- Tab Bar -->
+        <div class="component-wrapper">
+            <p class="section-title">Tab bar</p>
+            <div class="neu-element tab-bar">
+                <i class="tab-icon" data-lucide="calendar"></i>
+                <i class="tab-icon" data-lucide="phone"></i>
+                <i class="tab-icon" data-lucide="bookmark"></i>
+                <i class="tab-icon" data-lucide="settings"></i>
+            </div>
+        </div>
+
+        <!-- Select Item -->
+        <div class="component-wrapper">
+            <p class="section-title">Select item</p>
+            <div class="neu-element select-item">
+                <i class="location-icon" data-lucide="map-pin"></i>
+                <div class="flex-1">
+                    <div class="font-medium">1164 San Lorenzo 43</div>
+                    <div class="text-sm opacity-60">View in Google Maps</div>
+                </div>
+                <i data-lucide="chevron-right" class="opacity-50"></i>
+            </div>
+        </div>
+
+        <!-- List Item -->
+        <div class="component-wrapper">
+            <p class="section-title">List item</p>
+            <div class="neu-element list-item">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg" alt="Amazon logo">
+                <div class="flex-1">
+                    <div class="font-medium">Amazon</div>
+                    <div class="text-sm opacity-60">$125.00</div>
+                </div>
+                <div class="text-red-500 font-medium">$-125.0</div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="component-wrapper">
+            <p class="section-title">Progress</p>
+            <div class="neu-element p-8 inline-block">
+                <div class="progress-circle">
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <circle class="progress-bg" cx="60" cy="60" r="54" />
+                        <circle class="progress-value" cx="60" cy="60" r="54" 
+                                stroke-dasharray="339.292" 
+                                stroke-dashoffset="74.64424" />
+                    </svg>
+                    <div class="absolute flex flex-col items-center">
+                        <span class="text-2xl font-semibold">78%</span>
+                        <span class="text-sm opacity-60">Request</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Switch -->
+        <div class="component-wrapper">
+            <p class="section-title">Switch</p>
+            <div class="neu-element switch">
+                <span>Revert this transaction</span>
+                <div class="switch-toggle"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Switch toggle functionality
+        document.querySelector('.switch-toggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
