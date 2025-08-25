@@ -174,7 +174,7 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
               isAnimationActive={false}
               label={renderSliceLabel}
               labelLine={false}
-              shape={renderSector}
+              
               activeIndex={activeIndex === null ? undefined : activeIndex}
             >
               {(mode === "quality" ? (qualityData as QualitySlice[]) : (titleData as TitleSlice[])).map((entry, index) => {

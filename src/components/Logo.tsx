@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import logoLong from '@/assets/logo-long.png';
+import logoLong from '@/assets/logo-long-new.png';
 import { removeBackground, loadImage } from '@/utils/backgroundRemoval';
 const Logo = () => {
   const [processedLogoUrl, setProcessedLogoUrl] = useState<string>(logoLong);

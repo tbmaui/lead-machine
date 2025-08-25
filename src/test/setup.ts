@@ -6,6 +6,5 @@ class ResizeObserverMock {
   unobserve() {}
   disconnect() {}
 }
-// @ts-expect-error test environment global
 global.ResizeObserver = global.ResizeObserver || ResizeObserverMock;
 
