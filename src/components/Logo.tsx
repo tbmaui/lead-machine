@@ -1,44 +1,15 @@
-import { useState, useEffect } from 'react';
-import logoLong from '@/assets/logo-long.png';
-import { removeBackground, loadImage } from '@/utils/backgroundRemoval';
+import logoLong from '@/assets/logo-long-new.png';
+
 const Logo = () => {
-  const [processedLogoUrl, setProcessedLogoUrl] = useState<string>(logoLong);
-  const [isProcessing, setIsProcessing] = useState(false);
-  useEffect(() => {
-    const processLogo = async () => {
-      try {
-        setIsProcessing(true);
-
-        // Fetch the original logo
-        const response = await fetch(logoLong);
-        const blob = await response.blob();
-
-        // Load as image element
-        const imgElement = await loadImage(blob);
-
-        // Remove background
-        const processedBlob = await removeBackground(imgElement);
-
-        // Create URL for the processed image
-        const processedUrl = URL.createObjectURL(processedBlob);
-        setProcessedLogoUrl(processedUrl);
-        setIsProcessing(false);
-      } catch (error) {
-        console.error('Failed to process logo:', error);
-        setIsProcessing(false);
-        // Keep original logo on error
-      }
-    };
-    processLogo();
-  }, []);
   return (
     <div className="flex justify-center py-8">
       <img 
-        src={processedLogoUrl} 
+        src="/lovable-uploads/b40f9955-0f5f-4796-8475-522588f71752.png" 
         alt="Complete Controller Logo" 
         className="h-36 w-auto"
       />
     </div>
   );
 };
+
 export default Logo;

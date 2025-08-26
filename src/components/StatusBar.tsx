@@ -60,7 +60,7 @@ export function StatusBar({ status, progress, steps }: StatusBarProps) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
           {steps.map((label, idx) => {
             const isDone = allStepsDone || idx < currentStepIndex;
-            const isActive = !allStepsDone && idx === currentStepIndex && status !== 'completed' && status !== 'failed';
+            const isActive = !allStepsDone && idx === currentStepIndex && status !== 'failed';
             const isFuture = idx > currentStepIndex;
 
             const stepSize = 100 / steps.length;
