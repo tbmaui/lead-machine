@@ -10,7 +10,17 @@
       "Read(/c:\\Users\\thadb\\Desktop\\Lead Machine Project\\.bmad-core\\agents/**)",
       "Read(/c:\\Users\\thadb\\Desktop\\Lead Machine Project\\.bmad-core\\tasks/**)",
       "Read(/c:\\Users\\thadb\\Desktop\\Lead Machine Project\\.bmad-core\\agents/**)",
-      "Bash(npm test)"
+      "Bash(npm test)",
+      "Bash(npm run lint)",
+      "Bash(npm install:*)",
+      "Bash(echo $APPDATA)",
+      "Read(/C:\\Users\\thadb\\AppData\\Roaming/**)",
+      "Read(/C:\\Users\\thadb\\AppData\\Roaming\\Code\\User/**)",
+      "Read(/C:\\Users\\thadb\\AppData\\Roaming\\Code\\User/**)",
+      "Bash(code:*)",
+      "Bash(timeout:*)",
+      "Bash(node:*)",
+      "Bash(npx playwright:*)"
     ],
     "deny": [],
     "ask": []
