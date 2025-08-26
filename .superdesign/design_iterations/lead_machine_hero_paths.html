@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lead Machine — Hero with Background Paths</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+/* =========================
+   Brand Tokens (CSS Vars)
+   ========================= */
+:root{
+  /* Brand */
+  --cc-tomato: #f36334;
+  --cc-dim-1: #566e67;  /* cooler dim gray (site header vibe) */
+  --cc-sea:   #91bfa5;
+  --cc-dim-2: #5d5d5f;  /* warmer dim gray (body text) */
+  --cc-gray:  #7c797c;
+
+  /* Light theme base */
+  --bg: #f8f8f9;
+  --bg-hero-high: #ffffff;
+  --text: #2b2c2e;
+  --text-muted: #67666b;
+  --card: #ffffff;
+  --stroke: rgba(20,20,22,0.08);
+  --shadow: 0 10px 30px rgba(32,36,38,0.08);
+  --focus: var(--cc-tomato);
+}
+
+body[data-theme="dark"]{
+  --bg: #1e1e1f;
+  --bg-hero-high: #232325;
+  --text: #f0f0f2;
+  --text-muted: #b5b5b8;
+  --card: #2a2a2c;
+  --stroke: rgba(255,255,255,0.08);
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --focus: #ff895f; /* slightly brighter tomato for dark focus */
+}
+
+/* ============ Base ============ */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:"Source Sans 3", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  line-height:1.5;
+}
+
+/* Utility */
+.container{
+  width:min(1120px, 92vw);
+  margin-inline:auto;
+}
+
+/* ======= Hero ======= */
+.hero{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  text-align: center;
+}
+
+/* Background Paths */
+.floating-paths {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.floating-paths svg {
+  width: 100%;
+  height: 100%;
+  color: var(--text);
+}
+
+.floating-paths.paths-1 {
+  opacity: 0.6;
+}
+
+.floating-paths.paths-2 {
+  opacity: 0.4;
+  transform: scaleX(-1);
+}
+
+/* Path animations */
+.animated-path {
+  stroke: currentColor;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: pathFlow 25s linear infinite;
+}
+
+.animated-path:nth-child(odd) {
+  animation-delay: -5s;
+}
+
+.animated-path:nth-child(3n) {
+  animation-delay: -10s;
+}
+
+.animated-path:nth-child(4n) {
+  animation-delay: -15s;
+}
+
+@keyframes pathFlow {
+  0% {
+    stroke-dasharray: 0 1000;
+    stroke-dashoffset: 0;
+    opacity: 0.3;
+  }
+  50% {
+    stroke-dasharray: 100 1000;
+    stroke-dashoffset: -200;
+    opacity: 0.8;
+  }
+  100% {
+    stroke-dasharray: 0 1000;
+    stroke-dashoffset: -1000;
+    opacity: 0.3;
+  }
+}
+
+/* subtle diamond mesh overlay inspired by Complete Controller patterns */
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0 22px,
+      rgba(90,92,94,0.06) 22px 23px),
+    repeating-linear-gradient(-45deg,
+      transparent 0 22px,
+      rgba(90,92,94,0.06) 22px 23px);
+  filter: contrast(105%) saturate(105%);
+  pointer-events:none;
+  z-index:0;
+  mask-image: radial-gradient(80% 80% at 50% 50%, #000 0, #000 60%, transparent 100%);
+}
+body[data-theme="dark"] .hero::before{
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0 22px,
+      rgba(255,255,255,0.05) 22px 23px),
+    repeating-linear-gradient(-45deg,
+      transparent 0 22px,
+      rgba(255,255,255,0.05) 22px 23px);
+  mask-image: radial-gradient(85% 85% at 50% 50%, #000 0, #000 58%, transparent 100%);
+}
+
+/* Hero Content */
+.hero-content{
+  position: relative;
+  z-index: 10;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Kicker */
+.kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 16px;
+  border-radius:999px;
+  background: color-mix(in oklab, var(--cc-sea) 16%, transparent);
+  color: color-mix(in oklab, var(--cc-dim-1) 65%, var(--text) 35%);
+  font-weight:600;
+  font-size:14px;
+  letter-spacing:.25px;
+  border:1px solid color-mix(in oklab, var(--cc-sea) 25%, var(--stroke));
+  margin-bottom: 24px;
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow);
+}
+.kicker .dot{
+  width:8px;height:8px;border-radius:50%;
+  background: var(--cc-tomato);
+  box-shadow:0 0 0 4px color-mix(in oklab, var(--cc-tomato) 22%, transparent);
+}
+
+/* Animated Title */
+h1.hero-title{
+  margin: 24px 0 32px;
+  font-family:"Montserrat", system-ui, sans-serif;
+  font-weight:700;
+  font-size: clamp(42px, 6vw, 72px);
+  line-height:1.05;
+  letter-spacing:-1px;
+  color: var(--text);
+  background: linear-gradient(135deg, var(--text) 0%, color-mix(in oklab, var(--text) 80%, var(--cc-sea) 20%) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-title .word {
+  display: inline-block;
+  margin-right: 0.3em;
+}
+
+.hero-title .word:last-child {
+  margin-right: 0;
+}
+
+.hero-title .letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(100px);
+  animation: letterReveal 0.8s ease-out forwards;
+}
+
+.hero-title .accent {
+  background: linear-gradient(135deg, var(--cc-tomato) 0%, var(--cc-sea) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+}
+
+.hero-title .accent::after {
+  content: '';
+  position: absolute;
+  bottom: -0.1em;
+  left: 0;
+  right: 0;
+  height: 0.15em;
+  background: linear-gradient(90deg, var(--cc-tomato), var(--cc-sea));
+  opacity: 0.3;
+  border-radius: 2px;
+}
+
+@keyframes letterReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero Description */
+.hero-sub{
+  max-width: 65ch;
+  margin: 0 auto 40px;
+  color: var(--text-muted);
+  font-size: clamp(16px, 1.5vw, 20px);
+  line-height: 1.6;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 1s ease-out 1.5s forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* CTAs */
+.cta-container {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 1s ease-out 2s forwards;
+}
+
+.cta-row{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  justify-content: center;
+}
+
+.btn{
+  --_bg: var(--card);
+  --_fg: var(--text);
+  --_bd: var(--stroke);
+  appearance:none;
+  border-radius:12px;
+  border:1px solid var(--_bd);
+  background: var(--_bg);
+  color: var(--_fg);
+  padding:14px 28px;
+  font-weight:600;
+  font-size: 16px;
+  letter-spacing:.2px;
+  box-shadow: var(--shadow);
+  transform: translateZ(0);
+  transition: all .3s ease;
+  cursor:pointer;
+  backdrop-filter: blur(8px);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:focus-visible{ outline: 3px solid var(--focus); outline-offset:2px; }
+
+.btn-primary{
+  --_bg: linear-gradient(135deg, var(--cc-tomato), var(--cc-sea));
+  --_fg: #fff;
+  --_bd: var(--cc-tomato);
+  background: var(--_bg);
+}
+.btn-primary:hover{ 
+  transform: translateY(-3px); 
+  box-shadow: 0 20px 40px rgba(243, 99, 52, .25);
+}
+
+.btn-secondary{
+  --_bg: color-mix(in oklab, var(--card) 90%, transparent);
+  --_fg: var(--cc-sea);
+  --_bd: color-mix(in oklab, var(--cc-sea) 60%, var(--stroke));
+}
+.btn-secondary:hover{ 
+  background: color-mix(in oklab, var(--cc-sea) 14%, transparent);
+  transform: translateY(-2px);
+}
+
+/* Demo Controls */
+.demo-controls {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+}
+
+.demo-btn {
+  padding: 8px 12px;
+  border: 1px solid var(--stroke);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.demo-btn:hover {
+  background: var(--cc-sea);
+  color: white;
+  border-color: var(--cc-sea);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero { min-height: 100vh; padding: 40px 0; }
+  .hero-title { font-size: clamp(32px, 8vw, 48px); }
+  .demo-controls { 
+    position: relative; 
+    bottom: auto; 
+    right: auto; 
+    margin-top: 40px;
+    justify-content: center;
+  }
+}
+</style>
+</head>
+
+<body data-theme="light"><!-- change to "dark" to preview dark mode -->
+
+  <section class="hero">
+    <!-- Background Paths Layer 1 -->
+    <div class="floating-paths paths-1">
+      <svg viewBox="0 0 696 316" fill="none">
+        <title>Background Paths Layer 1</title>
+        <path class="animated-path" d="M-380 -189C-380 -189 -312 216 152 343C616 470 684 875 684 875" stroke="currentColor" stroke-width="0.5" stroke-opacity="0.1"/>
+        <path class="animated-path" d="M-375 -183C-375 -183 -307 222 157 349C621 476 689 881 689 881" stroke="currentColor" stroke-width="0.53" stroke-opacity="0.13"/>
+        <path class="animated-path" d="M-370 -177C-370 -177 -302 228 162 355C626 482 694 887 694 887" stroke="currentColor" stroke-width="0.56" stroke-opacity="0.16"/>
+        <path class="animated-path" d="M-365 -171C-365 -171 -297 234 167 361C631 488 699 893 699 893" stroke="currentColor" stroke-width="0.59" stroke-opacity="0.19"/>
+        <path class="animated-path" d="M-360 -165C-360 -165 -292 240 172 367C636 494 704 899 704 899" stroke="currentColor" stroke-width="0.62" stroke-opacity="0.22"/>
+        <path class="animated-path" d="M-355 -159C-355 -159 -287 246 177 373C641 500 709 905 709 905" stroke="currentColor" stroke-width="0.65" stroke-opacity="0.25"/>
+        <path class="animated-path" d="M-350 -153C-350 -153 -282 252 182 379C646 506 714 911 714 911" stroke="currentColor" stroke-width="0.68" stroke-opacity="0.28"/>
+        <path class="animated-path" d="M-345 -147C-345 -147 -277 258 187 385C651 512 719 917 719 917" stroke="currentColor" stroke-width="0.71" stroke-opacity="0.31"/>
+        <path class="animated-path" d="M-340 -141C-340 -141 -272 264 192 391C656 518 724 923 724 923" stroke="currentColor" stroke-width="0.74" stroke-opacity="0.34"/>
+        <path class="animated-path" d="M-335 -135C-335 -135 -267 270 197 397C661 524 729 929 729 929" stroke="currentColor" stroke-width="0.77" stroke-opacity="0.37"/>
+        <path class="animated-path" d="M-330 -129C-330 -129 -262 276 202 403C666 530 734 935 734 935" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.4"/>
+        <path class="animated-path" d="M-325 -123C-325 -123 -257 282 207 409C671 536 739 941 739 941" stroke="currentColor" stroke-width="0.83" stroke-opacity="0.43"/>
+      </svg>
+    </div>
+
+    <!-- Background Paths Layer 2 -->
+    <div class="floating-paths paths-2">
+      <svg viewBox="0 0 696 316" fill="none">
+        <title>Background Paths Layer 2</title>
+        <path class="animated-path" d="M-320 -117C-320 -117 -252 288 212 415C676 542 744 947 744 947" stroke="currentColor" stroke-width="0.86" stroke-opacity="0.46"/>
+        <path class="animated-path" d="M-315 -111C-315 -111 -247 294 217 421C681 548 749 953 749 953" stroke="currentColor" stroke-width="0.89" stroke-opacity="0.49"/>
+        <path class="animated-path" d="M-310 -105C-310 -105 -242 300 222 427C686 554 754 959 754 959" stroke="currentColor" stroke-width="0.92" stroke-opacity="0.52"/>
+        <path class="animated-path" d="M-305 -99C-305 -99 -237 306 227 433C691 560 759 965 759 965" stroke="currentColor" stroke-width="0.95" stroke-opacity="0.55"/>
+        <path class="animated-path" d="M-300 -93C-300 -93 -232 312 232 439C696 566 764 971 764 971" stroke="currentColor" stroke-width="0.98" stroke-opacity="0.58"/>
+        <path class="animated-path" d="M-295 -87C-295 -87 -227 318 237 445C701 572 769 977 769 977" stroke="currentColor" stroke-width="1.01" stroke-opacity="0.61"/>
+        <path class="animated-path" d="M-290 -81C-290 -81 -222 324 242 451C706 578 774 983 774 983" stroke="currentColor" stroke-width="1.04" stroke-opacity="0.64"/>
+        <path class="animated-path" d="M-285 -75C-285 -75 -217 330 247 457C711 584 779 989 779 989" stroke="currentColor" stroke-width="1.07" stroke-opacity="0.67"/>
+      </svg>
+    </div>
+
+    <div class="container">
+      <div class="hero-content">
+        <div class="kicker">
+          <span class="dot"></span>
+          America's Premier Lead Discovery Platform
+        </div>
+
+        <h1 class="hero-title" id="heroTitle">
+          Welcome to the <span class="accent">Lead Machine</span>
+        </h1>
+
+        <p class="hero-sub">
+          Generate verified SMB decision maker contacts with advanced filtering across geography,
+          industry, and company size. Cross-platform verification and CRM-ready export built for daily volume.
+        </p>
+
+        <div class="cta-container">
+          <div class="cta-row">
+            <button class="btn btn-primary">⚡ Generate Leads</button>
+            <button class="btn btn-secondary">See How It Works</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo Controls -->
+    <div class="demo-controls">
+      <button class="demo-btn" onclick="toggleTheme()">Toggle Dark</button>
+      <button class="demo-btn" onclick="restartAnimation()">Restart</button>
+    </div>
+  </section>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    function animateTitle() {
+      const title = document.getElementById('heroTitle');
+      const text = title.textContent;
+      const words = text.split(' ');
+      
+      title.innerHTML = words.map(word => {
+        if (word === 'Lead' || word === 'Machine') {
+          return `<span class="word accent">${word.split('').map((letter, i) => 
+            `<span class="letter" style="animation-delay: ${i * 0.05}s">${letter}</span>`
+          ).join('')}</span>`;
+        } else {
+          return `<span class="word">${word.split('').map((letter, i) => 
+            `<span class="letter" style="animation-delay: ${i * 0.05}s">${letter}</span>`
+          ).join('')}</span>`;
+        }
+      }).join(' ');
+    }
+    
+    function toggleTheme() {
+      const body = document.body;
+      const currentTheme = body.getAttribute('data-theme');
+      body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+    }
+    
+    function restartAnimation() {
+      // Reset title animation
+      const letters = document.querySelectorAll('.letter');
+      letters.forEach((letter, i) => {
+        letter.style.animation = 'none';
+        setTimeout(() => {
+          letter.style.animation = `letterReveal 0.8s ease-out ${i * 0.05}s forwards`;
+        }, 10);
+      });
+      
+      // Reset other animations
+      const heroSub = document.querySelector('.hero-sub');
+      const ctaContainer = document.querySelector('.cta-container');
+      
+      [heroSub, ctaContainer].forEach(el => {
+        el.style.animation = 'none';
+        setTimeout(() => {
+          if (el === heroSub) {
+            el.style.animation = 'fadeInUp 1s ease-out 1.5s forwards';
+          } else {
+            el.style.animation = 'fadeInUp 1s ease-out 2s forwards';
+          }
+        }, 10);
+      });
+    }
+    
+    // Initialize animations on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      animateTitle();
+    });
+  </script>
+
+</body>
+</html>

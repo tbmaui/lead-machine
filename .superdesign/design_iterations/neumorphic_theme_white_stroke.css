@@ -50,8 +50,6 @@
   --neu-shadow-pressed: inset 4px 4px 8px oklch(0.75 0.02 240),
                        inset -2px -2px 5px oklch(1 0 0 / 0.8);
   
-  /* Consistent stroke gradient for all elements */
-  --stroke-gradient: linear-gradient(135deg, 
-                    oklch(1 0 0) 0%,
-                    oklch(0.3 0 0) 100%);
+  /* All-white stroke instead of gradient */
+  --stroke-gradient: oklch(1 0 0);
 }

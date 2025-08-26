@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lead Machine — Status Updates</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+/* =========================
+   Brand Tokens (CSS Vars)
+   ========================= */
+:root{
+  /* Brand */
+  --cc-tomato: #f36334;
+  --cc-dim-1: #566e67;  /* cooler dim gray (site header vibe) */
+  --cc-sea:   #91bfa5;
+  --cc-dim-2: #5d5d5f;  /* warmer dim gray (body text) */
+  --cc-gray:  #7c797c;
+
+  /* Light theme base */
+  --bg: #f8f8f9;
+  --bg-hero-high: #ffffff;
+  --text: #2b2c2e;
+  --text-muted: #67666b;
+  --card: #ffffff;
+  --stroke: rgba(20,20,22,0.08);
+  --shadow: 0 10px 30px rgba(32,36,38,0.08);
+  --focus: var(--cc-tomato);
+  
+  /* Status colors */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: var(--cc-sea);
+}
+
+body[data-theme="dark"]{
+  --bg: #1e1e1f;
+  --bg-hero-high: #232325;
+  --text: #f0f0f2;
+  --text-muted: #b5b5b8;
+  --card: #2a2a2c;
+  --stroke: rgba(255,255,255,0.08);
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --focus: #ff895f; /* slightly brighter tomato for dark focus */
+}
+
+/* ============ Base ============ */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:"Source Sans 3", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  line-height:1.5;
+}
+
+/* Utility */
+.container{
+  width:min(1120px, 92vw);
+  margin-inline:auto;
+}
+
+/* ======= Hero ======= */
+.hero{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  padding: clamp(80px, 10vw, 120px) 0;
+  background:
+    radial-gradient(1200px 600px at 50% 0%, var(--bg-hero-high), transparent 70%),
+    radial-gradient(800px 400px at 50% 100%, var(--bg-hero-high), transparent 60%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-hero-high) 60%, var(--bg) 100%);
+  text-align: center;
+}
+
+/* subtle diamond mesh overlay inspired by Complete Controller patterns */
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0 22px,
+      rgba(90,92,94,0.06) 22px 23px),
+    repeating-linear-gradient(-45deg,
+      transparent 0 22px,
+      rgba(90,92,94,0.06) 22px 23px);
+  filter: contrast(105%) saturate(105%);
+  pointer-events:none;
+  z-index:-1;
+  mask-image: radial-gradient(80% 80% at 50% 50%, #000 0, #000 60%, transparent 100%);
+}
+body[data-theme="dark"] .hero::before{
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0 22px,
+      rgba(255,255,255,0.05) 22px 23px),
+    repeating-linear-gradient(-45deg,
+      transparent 0 22px,
+      rgba(255,255,255,0.05) 22px 23px);
+  mask-image: radial-gradient(85% 85% at 50% 50%, #000 0, #000 58%, transparent 100%);
+}
+
+/* Centered layout */
+.hero-content{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 800px;
+  margin: 0 auto 40px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Copy */
+.kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 12px;
+  border-radius:999px;
+  background: color-mix(in oklab, var(--cc-sea) 16%, transparent);
+  color: color-mix(in oklab, var(--cc-dim-1) 65%, var(--text) 35%);
+  font-weight:600;
+  font-size:14px;
+  letter-spacing:.25px;
+  border:1px solid color-mix(in oklab, var(--cc-sea) 25%, var(--stroke));
+  margin-bottom: 16px;
+}
+.kicker .dot{
+  width:8px;height:8px;border-radius:50%;
+  background: var(--cc-tomato);
+  box-shadow:0 0 0 4px color-mix(in oklab, var(--cc-tomato) 22%, transparent);
+}
+
+h1.hero-title{
+  margin:16px 0 24px;
+  font-family:"Montserrat", system-ui, sans-serif;
+  font-weight:700;
+  font-size: clamp(38px, 5.5vw, 60px);
+  line-height:1.08;
+  letter-spacing:-0.5px;
+  color: var(--text);
+}
+h1.hero-title .accent{
+  box-shadow: inset 0 -0.45em 0 color-mix(in oklab, var(--cc-tomato) 18%, transparent);
+}
+
+.hero-sub{
+  max-width: 60ch;
+  color: var(--text-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+  margin-bottom: 32px;
+}
+
+/* CTAs */
+.cta-row{
+  display:flex;
+  gap:16px;
+  flex-wrap:wrap;
+  justify-content: center;
+}
+
+.btn{
+  --_bg: var(--card);
+  --_fg: var(--text);
+  --_bd: var(--stroke);
+  appearance:none;
+  border-radius:10px;
+  border:1px solid var(--_bd);
+  background: var(--_bg);
+  color: var(--_fg);
+  padding:12px 24px;
+  font-weight:600;
+  letter-spacing:.2px;
+  box-shadow: var(--shadow);
+  transform: translateZ(0);
+  transition: transform .18s ease, box-shadow .18s ease, background .2s ease, border-color .2s ease;
+  cursor:pointer;
+}
+.btn:focus-visible{ outline: 3px solid var(--focus); outline-offset:2px; }
+
+.btn-primary{
+  --_bg: var(--cc-tomato);
+  --_fg: #fff;
+  --_bd: color-mix(in oklab, #000 10%, var(--cc-tomato));
+}
+.btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 14px 36px rgba(243, 99, 52, .35); }
+
+.btn-secondary{
+  --_bg: transparent;
+  --_fg: var(--cc-sea);
+  --_bd: color-mix(in oklab, var(--cc-sea) 60%, var(--stroke));
+  box-shadow:none;
+}
+.btn-secondary:hover{ background: color-mix(in oklab, var(--cc-sea) 14%, transparent); }
+
+/* ======= Status Updates Component ======= */
+.status-updates-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 20px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.status-card {
+  display: flex;
+  min-width: 320px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--stroke);
+  background: linear-gradient(135deg, var(--card) 0%, color-mix(in oklab, var(--card) 95%, var(--cc-sea) 5%) 100%);
+  padding: 12px 16px 12px 12px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.status-card.completed {
+  opacity: 0.8;
+  transform: scale(0.95);
+}
+
+.status-card.active {
+  opacity: 1;
+  transform: scale(1);
+  border-color: var(--cc-sea);
+  box-shadow: 0 8px 25px rgba(145, 191, 165, 0.15);
+}
+
+.status-card.pending {
+  opacity: 0.6;
+  transform: scale(0.9);
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.status-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-icon.loading {
+  animation: spin 1s linear infinite;
+}
+
+.status-icon.success {
+  color: var(--success);
+}
+
+.status-icon.error {
+  color: var(--error);
+}
+
+.status-icon.info {
+  color: var(--info);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.progress-bar-container {
+  margin-left: 24px;
+  height: 6px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 3px;
+  background-color: color-mix(in oklab, var(--text-muted) 20%, transparent);
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 2s ease-in-out;
+}
+
+.progress-bar.success {
+  background-color: var(--success);
+  width: 100%;
+}
+
+.progress-bar.loading {
+  background: linear-gradient(90deg, var(--cc-sea), var(--cc-tomato));
+  animation: progressAnimation 3s ease-in-out;
+}
+
+.progress-bar.pending {
+  background-color: color-mix(in oklab, var(--text-muted) 40%, transparent);
+  width: 0%;
+}
+
+@keyframes progressAnimation {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* Fade overlays */
+.fade-overlay-top {
+  position: absolute;
+  top: 0;
+  height: 40%;
+  width: 100%;
+  background: linear-gradient(to bottom, var(--bg) 20%, transparent 100%);
+  pointer-events: none;
+}
+
+.fade-overlay-bottom {
+  position: absolute;
+  bottom: 0;
+  height: 40%;
+  width: 100%;
+  background: linear-gradient(to top, var(--bg) 20%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Demo Controls */
+.demo-controls {
+  margin-top: 40px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.demo-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--stroke);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-btn:hover {
+  background: var(--cc-sea);
+  color: white;
+  border-color: var(--cc-sea);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero { padding: 60px 0; }
+  .status-card {
+    min-width: 280px;
+  }
+}
+</style>
+</head>
+
+<body data-theme="light"><!-- change to "dark" to preview dark mode -->
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="kicker"><span class="dot"></span>America's Premier Lead Discovery Platform</div>
+
+        <h1 class="hero-title">
+          Welcome to the <span class="accent">Lead Machine</span>
+        </h1>
+
+        <p class="hero-sub">
+          Generate verified SMB decision maker contacts with advanced filtering across geography,
+          industry, and company size. Cross-platform verification and CRM-ready export built for daily volume.
+        </p>
+
+        <div class="cta-row">
+          <button class="btn btn-primary">⚡ Generate Leads</button>
+          <button class="btn btn-secondary">See How It Works</button>
+        </div>
+      </div>
+      
+      <!-- Status Updates Component -->
+      <div class="status-updates-container">
+        <div class="fade-overlay-top"></div>
+        
+        <div class="status-card pending" id="step3">
+          <div class="status-header">
+            <div class="status-icon info">
+              <i data-lucide="loader" class="status-icon"></i>
+            </div>
+            <div>Exporting to CRM</div>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar pending"></div>
+          </div>
+        </div>
+        
+        <div class="status-card active" id="step2">
+          <div class="status-header">
+            <div class="status-icon loading info">
+              <i data-lucide="loader" class="status-icon"></i>
+            </div>
+            <div>Verifying Lead Quality</div>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar loading"></div>
+          </div>
+        </div>
+        
+        <div class="status-card completed" id="step1">
+          <div class="status-header">
+            <div class="status-icon success">
+              <i data-lucide="check-circle" class="status-icon"></i>
+            </div>
+            <div>Target Audience Selected</div>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar success"></div>
+          </div>
+        </div>
+        
+        <div class="fade-overlay-bottom"></div>
+      </div>
+      
+      <!-- Demo Controls -->
+      <div class="demo-controls">
+        <button class="demo-btn" onclick="resetAnimation()">Reset Animation</button>
+        <button class="demo-btn" onclick="toggleTheme()">Toggle Dark Mode</button>
+        <button class="demo-btn" onclick="changeSteps()">Change Steps</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    let animationTimeout;
+    let currentStep = 1;
+    
+    function resetAnimation() {
+      clearTimeout(animationTimeout);
+      
+      // Reset all cards
+      const cards = document.querySelectorAll('.status-card');
+      const progressBars = document.querySelectorAll('.progress-bar');
+      
+      cards.forEach((card, index) => {
+        card.className = 'status-card';
+        if (index === 2) card.classList.add('active');
+        else if (index === 1) card.classList.add('pending');
+        else card.classList.add('completed');
+      });
+      
+      progressBars.forEach((bar, index) => {
+        bar.className = 'progress-bar';
+        if (index === 2) bar.classList.add('loading');
+        else if (index === 1) bar.classList.add('pending');
+        else bar.classList.add('success');
+      });
+      
+      // Start animation sequence
+      animationTimeout = setTimeout(() => {
+        // Step 2 becomes active
+        document.getElementById('step2').className = 'status-card active';
+        document.getElementById('step2').querySelector('.progress-bar').className = 'progress-bar loading';
+        document.getElementById('step3').className = 'status-card pending';
+        
+        setTimeout(() => {
+          // Step 2 completes, Step 3 becomes active
+          document.getElementById('step2').className = 'status-card completed';
+          document.getElementById('step2').querySelector('.progress-bar').className = 'progress-bar success';
+          document.getElementById('step3').className = 'status-card active';
+          document.getElementById('step3').querySelector('.progress-bar').className = 'progress-bar loading';
+          
+          setTimeout(() => {
+            // Step 3 completes
+            document.getElementById('step3').className = 'status-card completed';
+            document.getElementById('step3').querySelector('.progress-bar').className = 'progress-bar success';
+            
+            // Reset after a pause
+            setTimeout(resetAnimation, 2000);
+          }, 3000);
+        }, 3000);
+      }, 100);
+    }
+    
+    function toggleTheme() {
+      const body = document.body;
+      const currentTheme = body.getAttribute('data-theme');
+      body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+    }
+    
+    const stepVariations = [
+      ['Target Audience Selected', 'Verifying Lead Quality', 'Exporting to CRM'],
+      ['Database Connected', 'Filtering Prospects', 'Generating Report'],
+      ['Search Initiated', 'Validating Contacts', 'Preparing Download'],
+      ['Criteria Set', 'Scanning Networks', 'Compiling Results']
+    ];
+    
+    function changeSteps() {
+      currentStep = (currentStep + 1) % stepVariations.length;
+      const steps = stepVariations[currentStep];
+      
+      document.querySelector('#step1 .status-header div:last-child').textContent = steps[0];
+      document.querySelector('#step2 .status-header div:last-child').textContent = steps[1];
+      document.querySelector('#step3 .status-header div:last-child').textContent = steps[2];
+    }
+    
+    // Start the animation on page load
+    resetAnimation();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neumorphic Elements - With Search Input</title>
+    <link rel="stylesheet" href="neumorphic_theme.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            background-color: var(--background);
+            font-family: var(--font-sans);
+            color: var(--foreground);
+        }
+
+        /* Base neumorphic element with outline stroke */
+        .neu-element {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--neu-shadow);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Consistent gradient stroke outline for ALL elements */
+        .neu-element::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius);
+            padding: 1px;
+            background: var(--stroke-gradient);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Pressed state for clickable elements */
+        .neu-element.pressed {
+            box-shadow: var(--neu-shadow-pressed);
+            transform: translateY(1px);
+        }
+
+        /* Tab Bar */
+        .tab-bar {
+            display: flex;
+            gap: 1rem;
+            padding: 0.75rem;
+            width: fit-content;
+        }
+
+        .tab-icon {
+            padding: 0.75rem;
+            color: var(--foreground);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .tab-icon:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .tab-icon.active {
+            color: var(--primary);
+            opacity: 1;
+            background: var(--card);
+            box-shadow: var(--neu-shadow-pressed);
+        }
+
+        /* Select Item */
+        .select-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .select-item.pressed:hover {
+            transform: translateY(1px);
+        }
+
+        .select-item .location-icon {
+            color: var(--primary);
+        }
+
+        /* List Item */
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            gap: 1rem;
+            cursor: pointer;
+        }
+
+        .list-item img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        /* Progress Circle */
+        .progress-container {
+            padding: 1.5rem;
+            display: inline-block;
+        }
+
+        .progress-circle {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-circle svg {
+            transform: rotate(-90deg);
+            overflow: visible;
+        }
+
+        .progress-circle circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+        }
+
+        .progress-bg {
+            stroke: var(--progress-bg);
+        }
+
+        .progress-value {
+            stroke: var(--primary);
+            transition: stroke-dashoffset 0.3s ease;
+            filter: drop-shadow(0px 0px 2px var(--primary));
+        }
+
+        .progress-value.orange {
+            stroke: var(--secondary);
+            filter: drop-shadow(0px 0px 2px var(--secondary));
+        }
+
+        /* Switch */
+        .switch {
+            width: 200px;
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .switch-toggle {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--switch-inactive);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .switch-toggle::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            padding: 1px;
+            background: var(--stroke-gradient);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .switch-toggle::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+            box-shadow: var(--neu-shadow-small);
+            z-index: 1;
+        }
+
+        .switch-toggle.active {
+            background: var(--switch-active);
+        }
+
+        .switch-toggle.active::before {
+            transform: translateX(24px);
+        }
+
+        .switch-toggle.orange.active {
+            background: var(--secondary);
+        }
+
+        /* Button */
+        .neu-button {
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 120px;
+        }
+
+        .neu-button i {
+            font-size: 1.25rem;
+        }
+
+        /* Enhanced visibility */
+        .section-title {
+            color: var(--foreground);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .component-wrapper {
+            margin-bottom: 2.5rem;
+        }
+
+        .component-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .color-label {
+            display: inline-block;
+            margin-right: 1rem;
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        /* Color swatches */
+        .color-swatches {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .color-swatch {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0.5rem;
+            color: var(--foreground);
+            font-size: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-swatch.green {
+            background: var(--brand-green);
+        }
+
+        .color-swatch.orange {
+            background: var(--brand-orange);
+        }
+
+        /* Stroke example */
+        .stroke-example {
+            width: 200px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        /* Search Input Styles */
+        .finder {
+            border: 1px solid #fff;
+            background-color: var(--card);
+            border-radius: 15px;
+            padding: 8px;
+            box-shadow: var(--neu-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .finder::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 15px;
+            padding: 1px;
+            background: var(--stroke-gradient);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .finder__outer {
+            display: flex;
+            width: 600px;
+            padding: 1.5rem 2rem;
+            border-radius: 10px;
+            box-shadow: var(--neu-shadow-inner);
+        }
+
+        .finder__inner {
+            display: flex;
+            align-items: center;
+            position: relative;
+            flex: 1;
+        }
+
+        .finder__form {
+            flex: 1;
+            height: calc(100% + 3rem);
+        }
+
+        .finder__input {
+            width: 100%;
+            border: none;
+            background-color: transparent;
+            outline: none;
+            font-size: 1.25rem;
+            letter-spacing: 0.75px;
+            color: var(--foreground);
+        }
+
+        .finder__icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 1rem;
+            transition: all 0.2s;
+            box-shadow: inset 0 0 0 20px var(--foreground);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .finder__icon::after {
+            display: block;
+            content: "";
+            position: absolute;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            width: 10px;
+            height: 10px;
+            background-color: var(--foreground);
+            border: 3px solid var(--card);
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0px;
+            right: 0;
+            margin: auto;
+            border-radius: 50%;
+        }
+
+        .finder__icon::before {
+            display: block;
+            content: "";
+            position: absolute;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            width: 4px;
+            height: 13px;
+            background-color: var(--card);
+            top: 50%;
+            left: 20px;
+            transform: rotateZ(45deg) translate(-50%, 0);
+            transform-origin: 0 0;
+            border-radius: 4px;
+        }
+
+        .finder.active .finder__icon::after {
+            border-width: 10px;
+            background-color: var(--card);
+        }
+
+        .finder.active .finder__icon::before {
+            background-color: var(--foreground);
+            width: 6px;
+            transform: rotateZ(45deg) translate(-50%, 25px);
+        }
+
+        .finder.active .finder__icon {
+            transform: translateY(-5px);
+        }
+
+        .finder.processing .finder__icon {
+            transform-origin: 50%;
+            animation: spinner 0.3s linear infinite;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes spinner {
+            0% {
+                transform: rotateZ(45deg);
+            }
+            100% {
+                transform: rotateZ(405deg);
+            }
+        }
+
+        /* Text Input */
+        .text-input {
+            padding: 1rem;
+            width: 100%;
+        }
+
+        .text-input-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .text-input-field {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: none;
+            background-color: transparent;
+            outline: none;
+            font-size: 1rem;
+            color: var(--foreground);
+            box-shadow: var(--neu-shadow-inner);
+            border-radius: 10px;
+        }
+
+        .text-input-label {
+            position: absolute;
+            left: 1.5rem;
+            top: 1rem;
+            color: var(--muted-foreground);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .text-input-field:focus + .text-input-label,
+        .text-input-field:not(:placeholder-shown) + .text-input-label {
+            transform: translateY(-1.5rem) scale(0.8);
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <div class="max-w-4xl mx-auto space-y-8">
+        <h2 class="text-2xl font-semibold mb-4 text-[var(--foreground)]">Neumorphic Elements with Search Input</h2>
+        
+        <!-- Search Input -->
+        <div class="component-wrapper">
+            <p class="section-title">Search Input</p>
+            <div class="container">
+                <form autocomplete="off">
+                    <div class="finder">
+                        <div class="finder__outer">
+                            <div class="finder__inner">
+                                <div class="finder__icon"></div>
+                                <input class="finder__input" type="text" name="q" placeholder="Search for anything..." />
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Text Input -->
+        <div class="component-wrapper">
+            <p class="section-title">Text Input</p>
+            <div class="component-row">
+                <div class="neu-element text-input">
+                    <div class="text-input-container">
+                        <input type="text" class="text-input-field" id="name" placeholder=" " />
+                        <label for="name" class="text-input-label">Name</label>
+                    </div>
+                </div>
+                
+                <div class="neu-element text-input">
+                    <div class="text-input-container">
+                        <input type="email" class="text-input-field" id="email" placeholder=" " />
+                        <label for="email" class="text-input-label">Email</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab Bar -->
+        <div class="component-wrapper">
+            <p class="section-title">Tab bar</p>
+            <div class="neu-element tab-bar">
+                <i class="tab-icon active" data-lucide="calendar"></i>
+                <i class="tab-icon" data-lucide="phone"></i>
+                <i class="tab-icon" data-lucide="bookmark"></i>
+                <i class="tab-icon" data-lucide="settings"></i>
+            </div>
+        </div>
+
+        <!-- Select Item -->
+        <div class="component-wrapper">
+            <p class="section-title">Select item</p>
+            <div class="component-row">
+                <div class="neu-element select-item">
+                    <i class="location-icon" data-lucide="map-pin"></i>
+                    <div class="flex-1">
+                        <div class="font-medium">1164 San Lorenzo 43</div>
+                        <div class="text-sm opacity-60">View in Google Maps</div>
+                    </div>
+                    <i data-lucide="chevron-right" class="opacity-50"></i>
+                </div>
+                
+                <div class="neu-element select-item pressed">
+                    <i class="location-icon" style="color: var(--brand-green);" data-lucide="map-pin"></i>
+                    <div class="flex-1">
+                        <div class="font-medium">1164 San Lorenzo 43</div>
+                        <div class="text-sm opacity-60">Selected (Pressed)</div>
+                    </div>
+                    <i data-lucide="check" style="color: var(--brand-green);"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- List Item -->
+        <div class="component-wrapper">
+            <p class="section-title">List item</p>
+            <div class="component-row">
+                <div class="neu-element list-item">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg" alt="Amazon logo">
+                    <div class="flex-1">
+                        <div class="font-medium">Amazon</div>
+                        <div class="text-sm opacity-60">$125.00</div>
+                    </div>
+                    <div class="text-red-500 font-medium">$-125.0</div>
+                </div>
+                
+                <div class="neu-element list-item">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg" alt="Amazon logo">
+                    <div class="flex-1">
+                        <div class="font-medium">Amazon</div>
+                        <div class="text-sm opacity-60">$125.00</div>
+                    </div>
+                    <div style="color: var(--brand-orange);" class="font-medium">$+125.0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="component-wrapper">
+            <p class="section-title">Buttons</p>
+            <div class="component-row">
+                <span class="color-label">Default</span>
+                <div class="neu-element neu-button">
+                    <i data-lucide="plus"></i>
+                    <span>Add Item</span>
+                </div>
+                
+                <div class="neu-element neu-button">
+                    <i data-lucide="check" style="color: var(--brand-green);"></i>
+                    <span style="color: var(--brand-green);">Confirm</span>
+                </div>
+                
+                <div class="neu-element neu-button">
+                    <i data-lucide="alert-triangle" style="color: var(--brand-orange);"></i>
+                    <span style="color: var(--brand-orange);">Warning</span>
+                </div>
+            </div>
+            
+            <div class="component-row">
+                <span class="color-label">Pressed</span>
+                <div class="neu-element neu-button pressed">
+                    <i data-lucide="plus"></i>
+                    <span>Add Item</span>
+                </div>
+                
+                <div class="neu-element neu-button pressed">
+                    <i data-lucide="check" style="color: var(--brand-green);"></i>
+                    <span style="color: var(--brand-green);">Confirm</span>
+                </div>
+                
+                <div class="neu-element neu-button pressed">
+                    <i data-lucide="alert-triangle" style="color: var(--brand-orange);"></i>
+                    <span style="color: var(--brand-orange);">Warning</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Toggle functionality for all clickable elements
+        document.querySelectorAll('.neu-button, .select-item, .list-item').forEach(element => {
+            element.addEventListener('click', function() {
+                this.classList.toggle('pressed');
+            });
+        });
+
+        // Tab icon toggle
+        document.querySelectorAll('.tab-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+                document.querySelectorAll('.tab-icon').forEach(i => {
+                    i.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Switch toggle functionality
+        document.querySelectorAll('.switch-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                // Also toggle pressed state on parent
+                this.closest('.neu-element').classList.toggle('pressed');
+            });
+        });
+
+        // Search input functionality
+        const input = document.querySelector(".finder__input");
+        const finder = document.querySelector(".finder");
+        const form = document.querySelector("form");
+
+        input.addEventListener("focus", () => {
+            finder.classList.add("active");
+        });
+
+        input.addEventListener("blur", () => {
+            if (input.value.length === 0) {
+                finder.classList.remove("active");
+            }
+        });
+
+        form.addEventListener("submit", (ev) => {
+            ev.preventDefault();
+            finder.classList.add("processing");
+            finder.classList.remove("active");
+            input.disabled = true;
+            setTimeout(() => {
+                finder.classList.remove("processing");
+                input.disabled = false;
+                if (input.value.length > 0) {
+                    finder.classList.add("active");
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* Base colors for light theme */
+    /* Base colors for light theme - Enhanced NEUMORPHIC ELEMENT 4 */
     --background: 220 14% 96%;
     --foreground: 220 20% 25%;
 
@@ -16,16 +16,19 @@
     --popover: 220 15% 97%;
     --popover-foreground: 220 20% 25%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
+    /* Softer Brand Colors - NEUMORPHIC ELEMENT 4 Integration */
+    --brand-green: 140 25% 78%;
+    --brand-orange: 40 40% 80%;
+    --primary: var(--brand-green);
+    --primary-foreground: 220 20% 25%;
 
-    --secondary: 220 14% 94%;
-    --secondary-foreground: 220 20% 30%;
+    --secondary: var(--brand-orange);
+    --secondary-foreground: 220 20% 25%;
 
     --muted: 220 14% 94%;
     --muted-foreground: 220 10% 50%;
 
-    --accent: 217 91% 60%;
+    --accent: 250 50% 55%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -33,11 +36,11 @@
 
     --border: 220 13% 91%;
     --input: 220 15% 97%;
-    --ring: 217 91% 60%;
+    --ring: var(--brand-green);
 
     --radius: 0.75rem;
 
-    /* Neumorphism-specific variables */
+    /* Enhanced Neumorphism-specific variables - NEUMORPHIC ELEMENT 4 */
     --neu-base: 220 14% 96%;
     --neu-highlight: 0 0% 100%;
     --neu-shadow: 220 20% 85%;
@@ -45,16 +48,20 @@
     --neu-inset-highlight: 0 0% 99%;
     --neu-inset-shadow: 220 15% 88%;
     
-    /* Soft shadow combinations */
+    /* Enhanced soft shadow combinations - NEUMORPHIC ELEMENT 4 */
+    --neu-shadow-small: 3px 3px 6px hsl(var(--neu-shadow)), -2px -2px 5px hsl(var(--neu-highlight));
     --neu-shadow-light: 5px 5px 10px hsl(var(--neu-shadow)), -5px -5px 10px hsl(var(--neu-highlight));
     --neu-shadow-medium: 8px 8px 16px hsl(var(--neu-shadow)), -8px -8px 16px hsl(var(--neu-highlight));
     --neu-shadow-strong: 12px 12px 24px hsl(var(--neu-shadow-dark)), -12px -12px 24px hsl(var(--neu-highlight));
     --neu-shadow-inset: inset 4px 4px 8px hsl(var(--neu-inset-shadow)), inset -4px -4px 8px hsl(var(--neu-inset-highlight));
     --neu-shadow-pressed: inset 6px 6px 12px hsl(var(--neu-shadow)), inset -6px -6px 12px hsl(var(--neu-highlight));
     
-    /* Gradient stroke outline system - light theme */
+    /* Enhanced Gradient stroke outline system - NEUMORPHIC ELEMENT 4 */
     --gradient-stroke-light: 0 0% 100%;
     --gradient-stroke-dark: 220 25% 80%;
+    --stroke-gradient: linear-gradient(135deg, hsl(var(--gradient-stroke-light)) 0%, hsl(var(--gradient-stroke-dark)) 100%);
+    --stroke-gradient-green: linear-gradient(135deg, hsl(var(--brand-green) / 0.8) 0%, hsl(var(--gradient-stroke-dark)) 100%);
+    --stroke-gradient-orange: linear-gradient(135deg, hsl(var(--brand-orange) / 0.8) 0%, hsl(var(--gradient-stroke-dark)) 100%);
 
     --sidebar-background: 0 0% 98%;
 
@@ -74,7 +81,7 @@
   }
 
   .dark {
-    /* Base colors for dark theme */
+    /* Base colors for dark theme - Enhanced NEUMORPHIC ELEMENT 4 */
     --background: 220 15% 18%;
     --foreground: 220 10% 88%;
 
@@ -84,16 +91,19 @@
     --popover: 220 15% 20%;
     --popover-foreground: 220 10% 88%;
 
-    --primary: 217 91% 60%;
+    /* Softer Brand Colors - NEUMORPHIC ELEMENT 4 Dark Theme */
+    --brand-green: 140 30% 65%;
+    --brand-orange: 40 50% 70%;
+    --primary: var(--brand-green);
     --primary-foreground: 220 15% 15%;
 
-    --secondary: 220 15% 22%;
-    --secondary-foreground: 220 10% 85%;
+    --secondary: var(--brand-orange);
+    --secondary-foreground: 220 15% 15%;
 
     --muted: 220 15% 22%;
     --muted-foreground: 220 8% 65%;
 
-    --accent: 217 91% 60%;
+    --accent: 250 50% 65%;
     --accent-foreground: 220 15% 15%;
 
     --destructive: 0 84.2% 60.2%;
@@ -101,9 +111,9 @@
 
     --border: 220 15% 25%;
     --input: 220 15% 20%;
-    --ring: 217 91% 60%;
+    --ring: var(--brand-green);
 
-    /* Neumorphism-specific variables for dark theme */
+    /* Enhanced Neumorphism-specific variables for dark theme - NEUMORPHIC ELEMENT 4 */
     --neu-base: 220 15% 18%;
     --neu-highlight: 220 12% 25%;
     --neu-shadow: 220 20% 12%;
@@ -111,16 +121,20 @@
     --neu-inset-highlight: 220 12% 22%;
     --neu-inset-shadow: 220 18% 15%;
     
-    /* Soft shadow combinations for dark theme */
+    /* Enhanced soft shadow combinations for dark theme - NEUMORPHIC ELEMENT 4 */
+    --neu-shadow-small: 3px 3px 6px hsl(var(--neu-shadow)), -2px -2px 5px hsl(var(--neu-highlight));
     --neu-shadow-light: 5px 5px 10px hsl(var(--neu-shadow)), -5px -5px 10px hsl(var(--neu-highlight));
     --neu-shadow-medium: 8px 8px 16px hsl(var(--neu-shadow)), -8px -8px 16px hsl(var(--neu-highlight));
     --neu-shadow-strong: 12px 12px 24px hsl(var(--neu-shadow-dark)), -12px -12px 24px hsl(var(--neu-highlight));
     --neu-shadow-inset: inset 4px 4px 8px hsl(var(--neu-inset-shadow)), inset -4px -4px 8px hsl(var(--neu-inset-highlight));
     --neu-shadow-pressed: inset 6px 6px 12px hsl(var(--neu-shadow)), inset -6px -6px 12px hsl(var(--neu-highlight));
     
-    /* Gradient stroke outline system - dark theme */
+    /* Enhanced Gradient stroke outline system - NEUMORPHIC ELEMENT 4 Dark Theme */
     --gradient-stroke-light: 220 12% 25%;
     --gradient-stroke-dark: 220 25% 8%;
+    --stroke-gradient: linear-gradient(135deg, hsl(var(--gradient-stroke-light)) 0%, hsl(var(--gradient-stroke-dark)) 100%);
+    --stroke-gradient-green: linear-gradient(135deg, hsl(var(--brand-green) / 0.6) 0%, hsl(var(--gradient-stroke-dark)) 100%);
+    --stroke-gradient-orange: linear-gradient(135deg, hsl(var(--brand-orange) / 0.6) 0%, hsl(var(--gradient-stroke-dark)) 100%);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -336,5 +350,104 @@
 
   .neu-hero-feature {
     @apply neu-flat neu-gradient-stroke bg-card text-card-foreground;
+  }
+
+  /* NEUMORPHIC ELEMENT 4 Component Styles */
+  .neu-element {
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    box-shadow: var(--neu-shadow-medium);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  /* Enhanced gradient stroke outline - applied to ALL elements */
+  .neu-element::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    padding: 1px;
+    background: var(--stroke-gradient);
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Green variant stroke */
+  .neu-element.neu-green::before {
+    background: var(--stroke-gradient-green);
+  }
+
+  /* Orange variant stroke */
+  .neu-element.neu-orange::before {
+    background: var(--stroke-gradient-orange);
+  }
+
+  /* Pressed state for clickable elements */
+  .neu-element.neu-pressed {
+    box-shadow: var(--neu-shadow-pressed);
+    transform: translateY(1px);
+  }
+
+  /* Enhanced button styling - NEUMORPHIC ELEMENT 4 */
+  .neu-button-enhanced {
+    @apply neu-element;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 120px;
+    color: hsl(var(--foreground));
+    position: relative;
+    z-index: 2;
+  }
+
+  .neu-button-enhanced:hover:not(:disabled) {
+    box-shadow: var(--neu-shadow-strong);
+    transform: translateY(-1px);
+  }
+
+  .neu-button-enhanced:active:not(:disabled) {
+    @apply neu-pressed;
+  }
+
+  .neu-button-enhanced:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Enhanced input styling - NEUMORPHIC ELEMENT 4 */
+  .neu-input-enhanced {
+    @apply neu-element;
+    background: hsl(var(--input));
+    color: hsl(var(--foreground));
+    border: none;
+    box-shadow: var(--neu-shadow-inset);
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .neu-input-enhanced:focus {
+    outline: none;
+    box-shadow: var(--neu-shadow-inset), 0 0 0 2px hsl(var(--ring) / 0.5);
+  }
+
+  /* Enhanced card styling - NEUMORPHIC ELEMENT 4 */
+  .neu-card-enhanced {
+    @apply neu-element;
+    background: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    padding: 1.5rem;
   }
 }

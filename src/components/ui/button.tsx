@@ -5,17 +5,17 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "neu-button inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "neu-button-enhanced inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground",
+        default: "neu-green",
         destructive:
-          "bg-destructive text-destructive-foreground",
+          "bg-destructive text-destructive-foreground shadow-none hover:shadow-none active:shadow-none",
         outline:
-          "border-0 bg-background text-foreground neu-flat hover:neu-raised active:neu-pressed",
+          "border-0 bg-background text-foreground neu-element hover:neu-raised active:neu-pressed",
         secondary:
-          "bg-secondary text-secondary-foreground",
+          "neu-orange",
         ghost: "shadow-none bg-transparent hover:bg-accent hover:text-accent-foreground hover:shadow-none active:shadow-none",
         link: "shadow-none bg-transparent text-primary underline-offset-4 hover:underline hover:shadow-none active:shadow-none",
       },

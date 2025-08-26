@@ -141,25 +141,45 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
     const ad = (lead.additional_data as any) || {};
     
     // First check direct database fields
-    if (lead.location && lead.location.trim()) {
-      return lead.location.trim();
+    if (lead.location && String(lead.location).trim()) {
+      return String(lead.location).trim();
     }
     
     // Check structured data in additional_data
-    const city = ad.city || '';
-    const state = ad.state || '';
-    const region = ad.region || '';
-    const country = ad.country || '';
+    const locationFields = [
+      ad.location, ad.Location, ad.city, ad.City, 
+      ad.state, ad.State, ad.region, ad.Region,
+      ad.country, ad.Country, ad['Location'],
+      ad['Current Location'], ad['Geographic Location']
+    ];
+    
+    // Try to find a meaningful location field
+    for (const field of locationFields) {
+      if (field && String(field).trim() && String(field).trim() !== 'N/A') {
+        return String(field).trim();
+      }
+    }
+    
+    // Check for city/state combinations
+    const city = ad.city || ad.City || '';
+    const state = ad.state || ad.State || ad.region || ad.Region || '';
     if (city && state) return `${city}, ${state}`;
-    if (state || region || country) return state || region || country;
+    if (city || state) return city || state;
     
     // Extract location from additional_data text summary
-    if (typeof ad === 'string') {
-      const locationMatch = ad.match(/based in ([^,.]+(?:, [^,.]+)?)/i) || 
-                           ad.match(/located in ([^,.]+(?:, [^,.]+)?)/i) ||
-                           ad.match(/from ([^,.]+(?:, [^,.]+)?)/i);
-      if (locationMatch) {
-        return locationMatch[1].trim();
+    if (typeof ad === 'string' && ad.length > 0) {
+      const locationPatterns = [
+        /(?:based|located|lives?|resides?) in ([^,.\\n]+(?:, [^,.\\n]+)?)/i,
+        /(?:from|in) ([A-Za-z\\s]+, [A-Z]{2})/i, // City, State format
+        /([A-Za-z\\s]+, [A-Z]{2}) area/i,
+        /Metro ([A-Za-z\\s]+)/i
+      ];
+      
+      for (const pattern of locationPatterns) {
+        const match = ad.match(pattern);
+        if (match && match[1].trim().length > 2) {
+          return match[1].trim();
+        }
       }
     }
     
@@ -189,35 +209,204 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
     const ad = (lead.additional_data as any) || {};
     
     // First check direct database field
-    if (lead.industry && String(lead.industry).trim()) {
+    if (lead.industry && String(lead.industry).trim() && String(lead.industry).trim() !== 'N/A') {
       return String(lead.industry).trim();
     }
     
-    // Check structured data in additional_data
-    if (ad.industry || ad.company_industry || ad.sector || ad.naics) {
-      return ad.industry || ad.company_industry || ad.sector || ad.naics;
+    // Check structured data in additional_data with common field variations
+    const industryFields = [
+      ad.industry, ad.Industry, ad.INDUSTRY,
+      ad.company_industry, ad['Company Industry'], ad.companyIndustry,
+      ad.sector, ad.Sector, ad.business_sector,
+      ad.vertical, ad.Vertical, ad.market_vertical,
+      ad.field, ad.Field, ad['Business Field'],
+      ad.domain, ad.Domain, ad['Industry Domain'],
+      ad.naics, ad.NAICS, ad.sic, ad.SIC,
+      ad.industryName, ad['Industry Name'], ad.industry_name,
+      ad.businessType, ad['Business Type'], ad.business_type
+    ];
+    
+    for (const field of industryFields) {
+      if (field && String(field).trim() && String(field).trim() !== 'N/A' && String(field).trim().length > 2) {
+        const value = String(field).trim();
+        // Skip obviously bad values
+        if (!value.match(/^(unknown|null|undefined|na|n\/a|tbd|pending)$/i)) {
+          return value.charAt(0).toUpperCase() + value.slice(1);
+        }
+      }
     }
     
-    // Extract industry from additional_data text summary
-    if (typeof ad === 'string') {
-      // Look for common industry patterns
+    // Try to extract from company name patterns (many companies include industry)
+    const company = getDisplayCompany(lead);
+    if (company && company !== 'N/A') {
+      const companyIndustryPatterns = [
+        /\b(construction|building|contracting)\b/i,
+        /\b(software|technology|tech|digital|IT|systems?)\b/i,
+        /\b(marketing|advertising|media)\b/i,
+        /\b(consulting|advisory|services?)\b/i,
+        /\b(manufacturing|industrial|production)\b/i,
+        /\b(healthcare|medical|pharmaceutical|pharma)\b/i,
+        /\b(financial|banking|finance|investment)\b/i,
+        /\b(real estate|property|realty)\b/i,
+        /\b(education|training|learning)\b/i,
+        /\b(retail|sales|commerce)\b/i,
+        /\b(logistics|supply chain|shipping|transportation)\b/i,
+        /\b(energy|utilities|power)\b/i,
+        /\b(telecommunications|telecom)\b/i,
+        /\b(insurance|risk)\b/i
+      ];
+      
+      const industryMappings: Record<string, string> = {
+        'construction': 'Construction',
+        'building': 'Construction', 
+        'contracting': 'Construction',
+        'software': 'Technology',
+        'technology': 'Technology',
+        'tech': 'Technology',
+        'digital': 'Technology',
+        'it': 'Technology',
+        'systems': 'Technology',
+        'marketing': 'Marketing',
+        'advertising': 'Marketing',
+        'media': 'Media',
+        'consulting': 'Consulting',
+        'advisory': 'Consulting',
+        'services': 'Professional Services',
+        'manufacturing': 'Manufacturing',
+        'industrial': 'Manufacturing',
+        'production': 'Manufacturing',
+        'healthcare': 'Healthcare',
+        'medical': 'Healthcare',
+        'pharmaceutical': 'Healthcare',
+        'pharma': 'Healthcare',
+        'financial': 'Financial Services',
+        'banking': 'Financial Services',
+        'finance': 'Financial Services',
+        'investment': 'Financial Services',
+        'real estate': 'Real Estate',
+        'property': 'Real Estate',
+        'realty': 'Real Estate',
+        'education': 'Education',
+        'training': 'Education',
+        'learning': 'Education',
+        'retail': 'Retail',
+        'sales': 'Retail',
+        'commerce': 'Retail',
+        'logistics': 'Logistics',
+        'supply chain': 'Logistics',
+        'shipping': 'Logistics',
+        'transportation': 'Transportation',
+        'energy': 'Energy',
+        'utilities': 'Utilities',
+        'power': 'Energy',
+        'telecommunications': 'Telecommunications',
+        'telecom': 'Telecommunications',
+        'insurance': 'Insurance',
+        'risk': 'Insurance'
+      };
+      
+      for (const pattern of companyIndustryPatterns) {
+        const match = company.match(pattern);
+        if (match && match[0]) {
+          const key = match[0].toLowerCase();
+          const mappedIndustry = industryMappings[key];
+          if (mappedIndustry) {
+            return mappedIndustry;
+          }
+        }
+      }
+    }
+    
+    // Extract industry from additional_data text summary with improved patterns
+    if (typeof ad === 'string' && ad.length > 0) {
       const industryPatterns = [
-        /specializes in ([^,.]+)/i,
-        /specializing in ([^,.]+)/i,
-        /in the ([^,.\s]+ industry)/i,
-        /([^,.\s]+ industry)/i,
-        /company (?:which |that )?(?:specializes in |focuses on )([^,.]+)/i,
-        /focusing on ([^,.]+) services/i,
-        /([^,.\s]+ services)/i
+        /\b(construction|building|contracting) industry\b/i,
+        /\b(software|technology|tech|digital|IT) (industry|sector|field)\b/i,
+        /\b(marketing|advertising|media) (industry|sector|field)\b/i,
+        /\b(consulting|advisory|professional services) (industry|sector|field)\b/i,
+        /\b(manufacturing|industrial|production) (industry|sector|field)\b/i,
+        /\b(healthcare|medical|pharmaceutical) (industry|sector|field)\b/i,
+        /\b(financial services|banking|finance) (industry|sector|field)\b/i,
+        /\b(real estate|property) (industry|sector|field)\b/i,
+        /\bindustry[:\\s]+([^,.\\n]{4,30})(?:[,.]|\\n|$)/i,
+        /\bsector[:\\s]+([^,.\\n]{4,30})(?:[,.]|\\n|$)/i,
+        /\bfield[:\\s]+([^,.\\n]{4,30})(?:[,.]|\\n|$)/i,
+        /\bspecializes? in ([^,.\\n]{4,30})(?:[,.]|\\n|$)/i,
+        /\bworks? (?:in|with) ([^,.\\n]{4,30}) (?:companies?|clients?|industry|sector)\b/i,
+        /\bexperienced? in ([^,.\\n]{4,30})(?:[,.]|\\n|$)/i,
+        /\b([A-Za-z\\s&]{4,25}) industry\b/i,
+        /\b([A-Za-z\\s&]{4,25}) sector\b/i
       ];
       
       for (const pattern of industryPatterns) {
         const match = ad.match(pattern);
-        if (match) {
-          const industry = match[1].trim();
-          // Filter out generic words
-          if (!industry.match(/^(services|company|business|organization|group|inc|solutions)$/i)) {
-            return industry.charAt(0).toUpperCase() + industry.slice(1);
+        if (match && match[1]) {
+          let industry = match[1].trim();
+          // Clean up and validate the extracted industry
+          if (industry.length >= 4 && industry.length <= 30) {
+            // Filter out generic/meaningless words
+            if (!industry.match(/^(the|and|or|of|in|at|with|for|services?|solutions?|company|business|organization|group|inc|corp|ltd|llc|years?|experience|professional|expert|various|multiple|different|many|several)$/i)) {
+              // Clean up common prefixes/suffixes
+              industry = industry.replace(/\b(and|&|or)\s.*$/, '').trim();
+              industry = industry.replace(/^(the|a|an)\s+/i, '').trim();
+              return industry.charAt(0).toUpperCase() + industry.slice(1);
+            }
+          }
+        }
+      }
+    }
+    
+    // Try to extract from title/role information
+    const title = lead.title;
+    if (title && title.length > 3 && title !== 'N/A') {
+      const titleIndustryPatterns = [
+        /\b(construction|building|contracting)\b/i,
+        /\b(software|technology|tech|IT)\b/i,
+        /\b(marketing|advertising)\b/i,
+        /\b(consulting|advisory)\b/i,
+        /\b(manufacturing|industrial)\b/i,
+        /\b(healthcare|medical|pharmaceutical)\b/i,
+        /\b(financial|banking|finance)\b/i,
+        /\b(real estate|property)\b/i,
+        /\b(education|academic)\b/i,
+        /\b(retail|sales)\b/i
+      ];
+      
+      for (const pattern of titleIndustryPatterns) {
+        const match = title.match(pattern);
+        if (match && match[0]) {
+          const key = match[0].toLowerCase();
+          const industryMappings: Record<string, string> = {
+            'construction': 'Construction',
+            'building': 'Construction',
+            'contracting': 'Construction',
+            'software': 'Technology',
+            'technology': 'Technology',
+            'tech': 'Technology',
+            'it': 'Technology',
+            'marketing': 'Marketing',
+            'advertising': 'Marketing',
+            'consulting': 'Consulting',
+            'advisory': 'Consulting',
+            'manufacturing': 'Manufacturing',
+            'industrial': 'Manufacturing',
+            'healthcare': 'Healthcare',
+            'medical': 'Healthcare',
+            'pharmaceutical': 'Healthcare',
+            'financial': 'Financial Services',
+            'banking': 'Financial Services',
+            'finance': 'Financial Services',
+            'real estate': 'Real Estate',
+            'property': 'Real Estate',
+            'education': 'Education',
+            'academic': 'Education',
+            'retail': 'Retail',
+            'sales': 'Sales'
+          };
+          
+          const mappedIndustry = industryMappings[key];
+          if (mappedIndustry) {
+            return mappedIndustry;
           }
         }
       }
@@ -249,42 +438,171 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
 
   const getSummary = (lead: Lead) => {
     const ad = lead.additional_data;
-    if (!ad) return 'N/A';
+    
+    // Debug logging for development
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Getting summary for lead ${lead.id}:`, {
+        leadId: lead.id,
+        name: lead.name,
+        additional_data_type: typeof ad,
+        additional_data_keys: typeof ad === 'object' && ad ? Object.keys(ad) : 'N/A',
+        additional_data_preview: typeof ad === 'string' ? ad.substring(0, 100) : typeof ad === 'object' && ad ? JSON.stringify(ad).substring(0, 200) : 'N/A'
+      });
+    }
+    
+    if (!ad) {
+      console.log(`No additional_data for lead ${lead.id}`);
+      return 'No summary available';
+    }
+    
+    // Handle the case where N8N sends data as an array-like object with character indices
+    if (typeof ad === 'object' && ad !== null) {
+      // Check if it has an 'additional_data' property with the actual summary
+      if ((ad as any).additional_data && typeof (ad as any).additional_data === 'string') {
+        const summary = (ad as any).additional_data.trim();
+        if (summary.length > 0) {
+          return summary.length > 250 ? `${summary.substring(0, 250)}...` : summary;
+        }
+      }
+      
+      // Check if this looks like a character array (keys are mostly numbers)
+      const keys = Object.keys(ad);
+      const numericKeys = keys.filter(key => /^\d+$/.test(key));
+      if (numericKeys.length > keys.length * 0.8) { // If 80%+ of keys are numeric
+        // Reconstruct the string from character indices
+        const maxIndex = Math.max(...numericKeys.map(k => parseInt(k)));
+        let reconstructed = '';
+        for (let i = 0; i <= maxIndex; i++) {
+          const char = (ad as any)[i.toString()];
+          if (typeof char === 'string') {
+            reconstructed += char;
+          }
+        }
+        if (reconstructed.trim().length > 0) {
+          const trimmed = reconstructed.trim();
+          return trimmed.length > 250 ? `${trimmed.substring(0, 250)}...` : trimmed;
+        }
+      }
+    }
     
     // If additional_data is already a string summary, return it
     if (typeof ad === 'string') {
-      return ad.trim() || 'N/A';
+      const trimmed = ad.trim();
+      if (trimmed.length === 0) return 'No summary available';
+      // Limit length for display
+      return trimmed.length > 250 ? `${trimmed.substring(0, 250)}...` : trimmed;
     }
     
     // If it's an object, look for common summary field names
     if (typeof ad === 'object') {
       const summaryFields = [
         'summary', 'Summary', 'SUMMARY',
-        'description', 'Description', 'DESCRIPTION',
-        'bio', 'Bio', 'BIO',
-        'about', 'About', 'ABOUT',
-        'profile', 'Profile', 'PROFILE'
+        'description', 'Description', 'DESCRIPTION', 
+        'bio', 'Bio', 'BIO', 'biography',
+        'about', 'About', 'ABOUT', 'about_me',
+        'profile', 'Profile', 'PROFILE', 'profile_summary',
+        'overview', 'Overview', 'OVERVIEW',
+        'headline', 'Headline', 'professional_headline',
+        'experience_summary', 'career_summary',
+        'profileSummary', 'profile_text', 'profileText',
+        'linkedin_summary', 'linkedinSummary'
       ];
       
       for (const field of summaryFields) {
-        if ((ad as any)[field] && typeof (ad as any)[field] === 'string') {
-          return (ad as any)[field].trim();
+        const value = (ad as any)[field];
+        if (value && typeof value === 'string' && value.trim().length > 0) {
+          const trimmed = value.trim();
+          return trimmed.length > 250 ? `${trimmed.substring(0, 250)}...` : trimmed;
         }
       }
       
-      // If no specific summary field, try to create a brief summary from available data
+      // Try to create a meaningful summary from structured data
       const obj = ad as any;
-      const parts = [];
+      const meaningfulParts = [];
       
-      if (obj.title) parts.push(`Title: ${obj.title}`);
-      if (obj.company || obj.Company) parts.push(`Company: ${obj.company || obj.Company}`);
-      if (obj.industry) parts.push(`Industry: ${obj.industry}`);
-      if (obj.location) parts.push(`Location: ${obj.location}`);
+      // Look for professional headline or current position
+      if (obj.professional_headline || obj.professionalHeadline) {
+        meaningfulParts.push(obj.professional_headline || obj.professionalHeadline);
+      }
       
-      return parts.length > 0 ? parts.join('; ') : 'Additional data available';
+      // Look for experience or role information
+      if (obj.current_role || obj.currentRole) {
+        meaningfulParts.push(obj.current_role || obj.currentRole);
+      }
+      
+      // Look for current position or experience
+      if (obj.current_position || obj.currentPosition) {
+        meaningfulParts.push(obj.current_position || obj.currentPosition);
+      }
+      
+      if (obj.experience && typeof obj.experience === 'string') {
+        meaningfulParts.push(obj.experience.substring(0, 120));
+      } else if (Array.isArray(obj.experience) && obj.experience.length > 0) {
+        // Handle array of experience objects
+        const latestExp = obj.experience[0];
+        if (typeof latestExp === 'object' && latestExp.description) {
+          meaningfulParts.push(latestExp.description.substring(0, 120));
+        }
+      }
+      
+      // Look for specialties or areas of expertise
+      if (obj.specialties && typeof obj.specialties === 'string') {
+        meaningfulParts.push(`Specialties: ${obj.specialties.substring(0, 80)}`);
+      }
+      
+      if (obj.skills && Array.isArray(obj.skills)) {
+        meaningfulParts.push(`Skills: ${obj.skills.slice(0, 4).join(', ')}`);
+      } else if (obj.skills && typeof obj.skills === 'string') {
+        meaningfulParts.push(`Skills: ${obj.skills.substring(0, 60)}`);
+      }
+      
+      // Look for education information
+      if (obj.education && typeof obj.education === 'string') {
+        meaningfulParts.push(`Education: ${obj.education.substring(0, 80)}`);
+      } else if (Array.isArray(obj.education) && obj.education.length > 0) {
+        const latestEdu = obj.education[0];
+        if (typeof latestEdu === 'object' && latestEdu.school) {
+          meaningfulParts.push(`Education: ${latestEdu.school}`);
+        }
+      }
+      
+      // If we found meaningful data, return it
+      if (meaningfulParts.length > 0) {
+        const summary = meaningfulParts.join(' • ');
+        return summary.length > 250 ? `${summary.substring(0, 250)}...` : summary;
+      }
+      
+      // Fallback: show key fields if available
+      const fallbackParts = [];
+      if (obj.title && obj.title !== lead.title) fallbackParts.push(`Role: ${obj.title}`);
+      if (obj.company && obj.company !== lead.company) fallbackParts.push(`Company: ${obj.company}`);
+      if (obj.industry && obj.industry !== lead.industry) fallbackParts.push(`Industry: ${obj.industry}`);
+      if (obj.location && obj.location !== lead.location) fallbackParts.push(`Location: ${obj.location}`);
+      
+      if (fallbackParts.length > 0) {
+        return fallbackParts.join(' • ');
+      }
+      
+      // Very last fallback: try to create a summary from any text fields
+      const allTextFields = [];
+      Object.entries(obj).forEach(([key, value]) => {
+        if (typeof value === 'string' && value.trim().length > 10 && value.trim().length < 200) {
+          // Skip keys that are likely IDs, URLs, or other non-descriptive data
+          if (!key.match(/(id|url|link|href|_at|date|created|updated|uuid)/i) && !value.match(/^(https?|ftp):\/\//)) {
+            allTextFields.push(`${key}: ${value.trim()}`);
+          }
+        }
+      });
+      
+      if (allTextFields.length > 0) {
+        const summary = allTextFields.slice(0, 3).join(' • ');
+        return summary.length > 250 ? `${summary.substring(0, 250)}...` : summary;
+      }
+      
+      return `Structured data available (${Object.keys(obj).length} fields)`;
     }
     
-    return 'N/A';
+    return 'No summary available';
   };
 
   const createComparator = (key: SortKey, direction: SortDirection) => {
@@ -377,7 +695,17 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
   };
 
   return (
-    <div className="neu-card overflow-hidden text-xs">
+    <div className="neu-card text-xs">
+      <style>{`
+        .resize-table th {
+          resize: horizontal;
+          overflow: hidden;
+        }
+        .resize-table th:hover {
+          border-right: 2px solid hsl(var(--border));
+        }
+      `}</style>
+      <div className="overflow-x-auto overflow-y-hidden">
       <div className="flex items-center justify-between p-3 border-b border-border">
         <div className="flex items-center gap-2 flex-wrap">
           <div className="text-xs text-muted-foreground mr-2">
@@ -539,11 +867,12 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
           </div>
         </div>
       )}
-      <table className="w-full table-fixed border-collapse">
+      <table className="w-full border-collapse resize-table" style={{ minWidth: '1400px', tableLayout: 'fixed' }}>
         <thead>
           <tr className="border-b border-border text-muted-foreground">
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[12%]"
+              className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
+              style={{ width: '140px', minWidth: '120px', position: 'relative' }}
               aria-sort={sortKey === 'name' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -556,7 +885,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[10%]"
+              className="text-left p-2 font-medium uppercase tracking-wide"
+              style={{ width: '180px', minWidth: '150px' }}
               aria-sort={sortKey === 'title' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -569,7 +899,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[14%]"
+              className="text-left p-2 font-medium uppercase tracking-wide"
+              style={{ width: '200px', minWidth: '160px' }}
               aria-sort={sortKey === 'company' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -582,7 +913,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[12%]"
+              className="text-left p-2 font-medium uppercase tracking-wide"
+              style={{ width: '130px', minWidth: '110px' }}
               aria-sort={sortKey === 'industry' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -595,7 +927,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[14%]"
+              className="text-left p-2 font-medium uppercase tracking-wide"
+              style={{ width: '150px', minWidth: '130px' }}
               aria-sort={sortKey === 'phone' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -608,7 +941,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[16%]"
+              className="text-left p-2 font-medium uppercase tracking-wide"
+              style={{ width: '220px', minWidth: '180px' }}
               aria-sort={sortKey === 'email' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -621,7 +955,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[8%]"
+              className="text-left p-2 font-medium uppercase tracking-wide"
+              style={{ width: '120px', minWidth: '100px' }}
               aria-sort={sortKey === 'location' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -634,7 +969,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide w-[5%]"
+              className="text-left p-2 font-medium uppercase tracking-wide"
+              style={{ width: '80px', minWidth: '70px' }}
               aria-sort={sortKey === 'score' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -646,10 +982,10 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                 Score {sortKey === 'score' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
               </button>
             </th>
-            <th className="text-left p-2 font-medium tracking-wide w-[5%]">LinkedIn</th>
-            <th className="text-left p-2 font-medium tracking-wide w-[5%]">Company Website</th>
-            <th className="text-left p-2 font-medium tracking-wide w-[5%]">Company LinkedIn</th>
-            <th className="text-left p-2 font-medium tracking-wide w-[14%]">Summary</th>
+            <th className="text-left p-2 font-medium tracking-wide" style={{ width: '70px', minWidth: '60px' }}>LinkedIn</th>
+            <th className="text-left p-2 font-medium tracking-wide" style={{ width: '70px', minWidth: '60px' }}>Website</th>
+            <th className="text-left p-2 font-medium tracking-wide" style={{ width: '70px', minWidth: '60px' }}>Co. LinkedIn</th>
+            <th className="text-left p-2 font-medium tracking-wide" style={{ width: '250px', minWidth: '200px' }}>Summary</th>
           </tr>
         </thead>
         <tbody>
@@ -662,47 +998,51 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             
             return (
               <tr key={index} className="border-b border-border transition-colors hover:bg-accent/30">
-                <td className="p-2">
-                  <div className="flex items-center gap-2 min-w-0 max-w-full">
+                <td className="p-2" style={{ width: '140px', minWidth: '120px' }}>
+                  <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className="font-medium text-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[20ch] sm:max-w-[24ch] lg:max-w-[28ch]"
+                      className="font-medium text-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis"
+                      style={{ maxWidth: '120px' }}
                       title={lead.name}
                     >
                       {lead.name}
                     </span>
                   </div>
                 </td>
-                <td className="p-2">
-                  <div className="min-w-0 max-w-full">
+                <td className="p-2" style={{ width: '180px', minWidth: '150px' }}>
+                  <div className="min-w-0">
                     <span
-                      className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[24ch] sm:max-w-[28ch] lg:max-w-[32ch] inline-block"
+                      className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis inline-block"
+                      style={{ maxWidth: '160px' }}
                       title={lead.title || 'N/A'}
                     >
                       {lead.title || 'N/A'}
                     </span>
                   </div>
                 </td>
-                <td className="p-2">
-                  <div className="flex items-center gap-2 min-w-0 max-w-full">
+                <td className="p-2" style={{ width: '200px', minWidth: '160px' }}>
+                  <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[20ch] sm:max-w-[28ch] lg:max-w-[32ch]"
+                      className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis"
+                      style={{ maxWidth: '180px' }}
                       title={displayCompany}
                     >
                       {displayCompany}
                     </span>
                   </div>
                 </td>
-                <td className="p-2">
-                  <div className="min-w-0 max-w-full">
+                <td className="p-2" style={{ width: '130px', minWidth: '110px' }}>
+                  <div className="min-w-0">
                     <span
-                      className="text-foreground/80 text-xs leading-tight break-words block"
+                      className="text-foreground/80 text-xs leading-tight truncate whitespace-nowrap overflow-hidden text-ellipsis inline-block"
+                      style={{ maxWidth: '110px' }}
                       title={industry || 'N/A'}
                     >
                       {industry || 'N/A'}
                     </span>
                   </div>
                 </td>
-                <td className="p-2">
+                <td className="p-2" style={{ width: '150px', minWidth: '130px' }}>
                   {getDisplayPhone(lead) ? (
                     <div className="flex items-center gap-2 min-w-0">
                       <div className={`w-2 h-2 rounded-full flex-shrink-0 ${getPhoneStatusColor(getDisplayPhone(lead))}`}></div>
@@ -725,13 +1065,14 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     </div>
                   )}
                 </td>
-                <td className="p-2">
+                <td className="p-2" style={{ width: '220px', minWidth: '180px' }}>
                   {lead.email ? (
                     <div className="flex items-center gap-2 min-w-0 max-w-full">
                       <div className={`w-2 h-2 rounded-full ${getEmailStatusColor(lead.email)}`}></div>
                       <a
                         href={`mailto:${lead.email}`}
-                        className="text-primary hover:underline truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[28ch] sm:max-w-[32ch] lg:max-w-[40ch] min-w-0"
+                        className="text-primary hover:underline truncate whitespace-nowrap overflow-hidden text-ellipsis min-w-0"
+                        style={{ maxWidth: '160px' }}
                         title={lead.email}
                       >
                         {lead.email}
@@ -754,8 +1095,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     </div>
                   )}
                 </td>
-                <td className="p-2">
-                  <div className="min-w-0 max-w-full">
+                <td className="p-2" style={{ width: '120px', minWidth: '100px' }}>
+                  <div className="min-w-0">
                     {(() => {
                       const location = getLocation(lead);
                       const { city, state } = splitLocation(location);
@@ -768,12 +1109,12 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     })()}
                   </div>
                 </td>
-                <td className="p-2">
+                <td className="p-2" style={{ width: '80px', minWidth: '70px' }}>
                   <div className="flex">
                     {renderStars(lead.score || 3)}
                   </div>
                 </td>
-                <td className="p-2">
+                <td className="p-2" style={{ width: '70px', minWidth: '60px' }}>
                   {contactLinkedIn ? (
                     <a
                       href={contactLinkedIn}
@@ -789,7 +1130,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
-                <td className="p-2">
+                <td className="p-2" style={{ width: '70px', minWidth: '60px' }}>
                   {companyWebsite ? (
                     <a
                       href={companyWebsite}
@@ -805,7 +1146,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
-                <td className="p-2">
+                <td className="p-2" style={{ width: '70px', minWidth: '60px' }}>
                   {companyLinkedIn ? (
                     <a
                       href={companyLinkedIn}
@@ -821,14 +1162,23 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
-                <td className="p-2">
+                <td className="p-2" style={{ width: '250px', minWidth: '200px' }}>
                   <div className="min-w-0 max-w-full">
-                    <span
-                      className="text-foreground/80 text-xs leading-relaxed line-clamp-3 overflow-hidden"
+                    <div
+                      className="text-foreground/80 text-xs leading-normal"
+                      style={{ 
+                        display: '-webkit-box',
+                        WebkitLineClamp: 4,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        wordBreak: 'break-word',
+                        hyphens: 'auto',
+                        maxHeight: '64px'
+                      }}
                       title={getSummary(lead)}
                     >
                       {getSummary(lead)}
-                    </span>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -836,6 +1186,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };

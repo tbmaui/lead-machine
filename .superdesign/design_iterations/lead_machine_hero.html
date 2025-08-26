@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lead Machine — Hero</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+/* =========================
+   Brand Tokens (CSS Vars)
+   ========================= */
+:root{
+  /* Brand */
+  --cc-tomato: #f36334;
+  --cc-dim-1: #566e67;  /* cooler dim gray (site header vibe) */
+  --cc-sea:   #91bfa5;
+  --cc-dim-2: #5d5d5f;  /* warmer dim gray (body text) */
+  --cc-gray:  #7c797c;
+
+  /* Light theme base */
+  --bg: #f8f8f9;
+  --bg-hero-high: #ffffff;
+  --text: #2b2c2e;
+  --text-muted: #67666b;
+  --card: #ffffff;
+  --stroke: rgba(20,20,22,0.08);
+  --shadow: 0 10px 30px rgba(32,36,38,0.08);
+  --focus: var(--cc-tomato);
+}
+
+body[data-theme="dark"]{
+  --bg: #1e1e1f;
+  --bg-hero-high: #232325;
+  --text: #f0f0f2;
+  --text-muted: #b5b5b8;
+  --card: #2a2a2c;
+  --stroke: rgba(255,255,255,0.08);
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --focus: #ff895f; /* slightly brighter tomato for dark focus */
+}
+
+/* ============ Base ============ */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:"Source Sans 3", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  line-height:1.5;
+}
+
+/* Utility */
+.container{
+  width:min(1120px, 92vw);
+  margin-inline:auto;
+}
+
+/* ======= Hero ======= */
+.hero{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  padding: clamp(56px, 8vw, 96px) 0;
+  background:
+    radial-gradient(1200px 600px at -10% -20%, var(--bg-hero-high), transparent 60%),
+    radial-gradient(800px 400px at 110% 120%, var(--bg-hero-high), transparent 50%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-hero-high) 60%, var(--bg) 100%);
+}
+
+/* subtle diamond mesh overlay inspired by Complete Controller patterns */
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0 22px,
+      rgba(90,92,94,0.06) 22px 23px),
+    repeating-linear-gradient(-45deg,
+      transparent 0 22px,
+      rgba(90,92,94,0.06) 22px 23px);
+  filter: contrast(105%) saturate(105%);
+  pointer-events:none;
+  z-index:-1;
+  mask-image: radial-gradient(80% 80% at 20% 20%, #000 0, #000 60%, transparent 100%);
+}
+body[data-theme="dark"] .hero::before{
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0 22px,
+      rgba(255,255,255,0.05) 22px 23px),
+    repeating-linear-gradient(-45deg,
+      transparent 0 22px,
+      rgba(255,255,255,0.05) 22px 23px);
+  mask-image: radial-gradient(85% 85% at 78% 15%, #000 0, #000 58%, transparent 100%);
+}
+
+/* Grid */
+.hero-grid{
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(24px, 3vw, 48px);
+  align-items:center;
+}
+
+/* Left (copy) */
+.kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 12px;
+  border-radius:999px;
+  background: color-mix(in oklab, var(--cc-sea) 16%, transparent);
+  color: color-mix(in oklab, var(--cc-dim-1) 65%, var(--text) 35%);
+  font-weight:600;
+  font-size:14px;
+  letter-spacing:.25px;
+  border:1px solid color-mix(in oklab, var(--cc-sea) 25%, var(--stroke));
+}
+.kicker .dot{
+  width:8px;height:8px;border-radius:50%;
+  background: var(--cc-tomato);
+  box-shadow:0 0 0 4px color-mix(in oklab, var(--cc-tomato) 22%, transparent);
+}
+
+h1.hero-title{
+  margin:16px 0 12px;
+  font-family:"Montserrat", system-ui, sans-serif;
+  font-weight:700;
+  font-size: clamp(34px, 5vw, 56px);
+  line-height:1.08;
+  letter-spacing:-0.5px;
+  color: var(--text);
+}
+h1.hero-title .accent{
+  box-shadow: inset 0 -0.45em 0 color-mix(in oklab, var(--cc-tomato) 18%, transparent);
+}
+
+.hero-sub{
+  max-width: 60ch;
+  color: var(--text-muted);
+  font-size: clamp(16px, 1.4vw, 18px);
+}
+
+/* CTAs */
+.cta-row{
+  margin-top:28px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  --_bg: var(--card);
+  --_fg: var(--text);
+  --_bd: var(--stroke);
+  appearance:none;
+  border-radius:10px;
+  border:1px solid var(--_bd);
+  background: var(--_bg);
+  color: var(--_fg);
+  padding:12px 18px;
+  font-weight:600;
+  letter-spacing:.2px;
+  box-shadow: var(--shadow);
+  transform: translateZ(0);
+  transition: transform .18s ease, box-shadow .18s ease, background .2s ease, border-color .2s ease;
+  cursor:pointer;
+}
+.btn:focus-visible{ outline: 3px solid var(--focus); outline-offset:2px; }
+
+.btn-primary{
+  --_bg: var(--cc-tomato);
+  --_fg: #fff;
+  --_bd: color-mix(in oklab, #000 10%, var(--cc-tomato));
+}
+.btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 14px 36px rgba(243, 99, 52, .35); }
+
+.btn-secondary{
+  --_bg: transparent;
+  --_fg: var(--cc-sea);
+  --_bd: color-mix(in oklab, var(--cc-sea) 60%, var(--stroke));
+  box-shadow:none;
+}
+.btn-secondary:hover{ background: color-mix(in oklab, var(--cc-sea) 14%, transparent); }
+
+/* Right (visual) */
+.visual{
+  position:relative;
+  aspect-ratio: 4 / 3;
+  min-height: 280px;
+  border-radius: 18px;
+  background:
+    radial-gradient(120% 120% at 100% 0%, color-mix(in oklab, var(--cc-sea) 22%, transparent), transparent 45%),
+    radial-gradient(120% 120% at 0% 100%, color-mix(in oklab, var(--cc-tomato) 16%, transparent), transparent 50%),
+    var(--card);
+  border:1px solid var(--stroke);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+
+/* Decorative network (SVG sits inside) */
+.visual svg{
+  position:absolute; inset:0; width:100%; height:100%;
+}
+.node{ fill: var(--cc-sea); }
+.node--warm{ fill: var(--cc-tomato); }
+.link{ stroke: color-mix(in oklab, var(--text-muted) 45%, var(--cc-dim-1) 55%); stroke-opacity:.55; }
+
+/* Morphix-like floating chips */
+.chip{
+  position:absolute;
+  background: var(--bg-hero-high);
+  color: var(--text);
+  border:1px solid var(--stroke);
+  padding:8px 10px;
+  font-weight:600;
+  font-size:12px;
+  border-radius:12px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(3px);
+}
+.chip--one{ top:14px; left:14px; }
+.chip--two{ bottom:16px; right:16px; }
+.chip .pill{
+  display:inline-block; width:8px; height:8px; border-radius:50%;
+  background: var(--cc-tomato); margin-right:8px;
+}
+
+/* Responsive */
+@media (max-width: 940px){
+  .hero-grid{ grid-template-columns:1fr; }
+  .visual{ order:-1; }
+  .hero{ padding-top:56px; }
+}
+</style>
+</head>
+
+<body data-theme="light"><!-- change to "dark" to preview dark mode -->
+
+  <section class="hero">
+    <div class="container hero-grid">
+
+      <!-- Right: Visual (placed first for mobile stacking via CSS) -->
+      <div class="visual" aria-hidden="true">
+        <!-- lightweight abstract "network" graphic -->
+        <svg viewBox="0 0 800 600" role="img" aria-label="Lead discovery network graphic">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="var(--cc-sea)" stop-opacity=".35"/>
+              <stop offset="1" stop-color="var(--cc-tomato)" stop-opacity=".35"/>
+            </linearGradient>
+          </defs>
+
+          <!-- soft background blobs -->
+          <ellipse cx="170" cy="90" rx="170" ry="90" fill="url(#g1)" opacity=".25"/>
+          <ellipse cx="650" cy="480" rx="210" ry="120" fill="url(#g1)" opacity=".22"/>
+
+          <!-- links -->
+          <g stroke-width="2" class="link" fill="none">
+            <path d="M90,480 C210,360 280,380 360,300 S520,220 700,260"/>
+            <path d="M120,170 C240,220 300,200 400,260 S560,380 690,330"/>
+            <path d="M220,520 C260,460 340,430 420,440 S580,520 640,500"/>
+            <path d="M120,320 C210,280 280,300 340,260 S520,180 660,200"/>
+          </g>
+
+          <!-- nodes -->
+          <g>
+            <circle class="node" cx="120" cy="170" r="8"/>
+            <circle class="node" cx="210" cy="520" r="7"/>
+            <circle class="node--warm" cx="360" cy="300" r="10"/>
+            <circle class="node" cx="420" cy="440" r="8"/>
+            <circle class="node--warm" cx="560" cy="380" r="9"/>
+            <circle class="node" cx="690" cy="330" r="7"/>
+            <circle class="node--warm" cx="700" cy="260" r="8"/>
+            <circle class="node" cx="340" cy="260" r="6.5"/>
+          </g>
+        </svg>
+
+        <!-- floating chips / badges -->
+        <div class="chip chip--one"><span class="pill"></span>Precision Targeting</div>
+        <div class="chip chip--two"><span class="pill" style="background:var(--cc-sea)"></span>CRM-Ready Export</div>
+      </div>
+
+      <!-- Left: Copy -->
+      <div>
+        <div class="kicker"><span class="dot"></span>America's Premier Lead Discovery Platform</div>
+
+        <h1 class="hero-title">
+          Welcome to the <span class="accent">Lead Machine</span>
+        </h1>
+
+        <p class="hero-sub">
+          Generate verified SMB decision maker contacts with advanced filtering across geography,
+          industry, and company size. Cross-platform verification and CRM-ready export built for daily volume.
+        </p>
+
+        <div class="cta-row">
+          <button class="btn btn-primary">⚡ Generate Leads</button>
+          <button class="btn btn-secondary">See How It Works</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</body>
+</html>

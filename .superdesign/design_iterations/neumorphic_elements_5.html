@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neumorphic Elements - Consistent Stroke</title>
+    <link rel="stylesheet" href="neumorphic_theme.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            background-color: var(--background);
+            font-family: var(--font-sans);
+            color: var(--foreground);
+        }
+
+        /* Base neumorphic element with outline stroke */
+        .neu-element {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--neu-shadow);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Consistent gradient stroke outline for ALL elements */
+        .neu-element::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius);
+            padding: 1px;
+            background: var(--stroke-gradient);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Green variant - only affects the content, not the stroke */
+        .neu-element.green {
+            color: var(--primary);
+        }
+
+        /* Orange variant - only affects the content, not the stroke */
+        .neu-element.orange {
+            color: var(--secondary);
+        }
+
+        /* Pressed state for clickable elements */
+        .neu-element.pressed {
+            box-shadow: var(--neu-shadow-pressed);
+            transform: translateY(1px);
+        }
+
+        /* Tab Bar */
+        .tab-bar {
+            display: flex;
+            gap: 1rem;
+            padding: 0.75rem;
+            width: fit-content;
+        }
+
+        .tab-icon {
+            padding: 0.75rem;
+            color: var(--foreground);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .tab-icon:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .tab-icon.active {
+            color: var(--primary);
+            opacity: 1;
+            background: var(--card);
+            box-shadow: var(--neu-shadow-pressed);
+        }
+
+        /* Select Item */
+        .select-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .select-item.pressed:hover {
+            transform: translateY(1px);
+        }
+
+        .select-item .location-icon {
+            color: var(--primary);
+        }
+
+        /* List Item */
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            gap: 1rem;
+            cursor: pointer;
+        }
+
+        .list-item img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        /* Progress Circle */
+        .progress-container {
+            padding: 1.5rem;
+            display: inline-block;
+        }
+
+        .progress-circle {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-circle svg {
+            transform: rotate(-90deg);
+            overflow: visible;
+        }
+
+        .progress-circle circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+        }
+
+        .progress-bg {
+            stroke: var(--progress-bg);
+        }
+
+        .progress-value {
+            stroke: var(--primary);
+            transition: stroke-dashoffset 0.3s ease;
+            filter: drop-shadow(0px 0px 2px var(--primary));
+        }
+
+        .progress-value.orange {
+            stroke: var(--secondary);
+            filter: drop-shadow(0px 0px 2px var(--secondary));
+        }
+
+        /* Switch */
+        .switch {
+            width: 200px;
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .switch-toggle {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--switch-inactive);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .switch-toggle::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            padding: 1px;
+            background: var(--stroke-gradient);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .switch-toggle::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+            box-shadow: var(--neu-shadow-small);
+            z-index: 1;
+        }
+
+        .switch-toggle.active {
+            background: var(--switch-active);
+        }
+
+        .switch-toggle.active::before {
+            transform: translateX(24px);
+        }
+
+        .switch-toggle.orange.active {
+            background: var(--secondary);
+        }
+
+        /* Button */
+        .neu-button {
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 120px;
+        }
+
+        .neu-button i {
+            font-size: 1.25rem;
+        }
+
+        /* Enhanced visibility */
+        .section-title {
+            color: var(--foreground);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .component-wrapper {
+            margin-bottom: 2.5rem;
+        }
+
+        .component-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .color-label {
+            display: inline-block;
+            margin-right: 1rem;
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        /* Color swatches */
+        .color-swatches {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .color-swatch {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0.5rem;
+            color: var(--foreground);
+            font-size: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-swatch.green {
+            background: var(--brand-green);
+        }
+
+        .color-swatch.orange {
+            background: var(--brand-orange);
+        }
+
+        /* Stroke example */
+        .stroke-example {
+            width: 200px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            color: var(--foreground);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <div class="max-w-4xl mx-auto space-y-8">
+        <h2 class="text-2xl font-semibold mb-4 text-[var(--foreground)]">Elements with Consistent Stroke</h2>
+        
+        <!-- Stroke Example -->
+        <div class="component-wrapper">
+            <p class="section-title">Consistent Stroke Gradient</p>
+            <div class="neu-element stroke-example">
+                White to Dark Gray
+            </div>
+        </div>
+        
+        <!-- Color Swatches -->
+        <div class="component-wrapper">
+            <p class="section-title">Brand Colors</p>
+            <div class="color-swatches">
+                <div class="neu-element">
+                    <div class="color-swatch green">
+                        <span>Green</span>
+                        <span>Primary</span>
+                    </div>
+                </div>
+                <div class="neu-element">
+                    <div class="color-swatch orange">
+                        <span>Orange</span>
+                        <span>Secondary</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab Bar -->
+        <div class="component-wrapper">
+            <p class="section-title">Tab bar</p>
+            <div class="neu-element tab-bar">
+                <i class="tab-icon active" data-lucide="calendar"></i>
+                <i class="tab-icon" data-lucide="phone"></i>
+                <i class="tab-icon" data-lucide="bookmark"></i>
+                <i class="tab-icon" data-lucide="settings"></i>
+            </div>
+        </div>
+
+        <!-- Select Item -->
+        <div class="component-wrapper">
+            <p class="section-title">Select item</p>
+            <div class="component-row">
+                <div class="neu-element select-item">
+                    <i class="location-icon" data-lucide="map-pin"></i>
+                    <div class="flex-1">
+                        <div class="font-medium">1164 San Lorenzo 43</div>
+                        <div class="text-sm opacity-60">View in Google Maps</div>
+                    </div>
+                    <i data-lucide="chevron-right" class="opacity-50"></i>
+                </div>
+                
+                <div class="neu-element select-item pressed">
+                    <i class="location-icon" style="color: var(--brand-green);" data-lucide="map-pin"></i>
+                    <div class="flex-1">
+                        <div class="font-medium">1164 San Lorenzo 43</div>
+                        <div class="text-sm opacity-60">Selected (Pressed)</div>
+                    </div>
+                    <i data-lucide="check" style="color: var(--brand-green);"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- List Item -->
+        <div class="component-wrapper">
+            <p class="section-title">List item</p>
+            <div class="component-row">
+                <div class="neu-element list-item">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg" alt="Amazon logo">
+                    <div class="flex-1">
+                        <div class="font-medium">Amazon</div>
+                        <div class="text-sm opacity-60">$125.00</div>
+                    </div>
+                    <div class="text-red-500 font-medium">$-125.0</div>
+                </div>
+                
+                <div class="neu-element list-item">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg" alt="Amazon logo">
+                    <div class="flex-1">
+                        <div class="font-medium">Amazon</div>
+                        <div class="text-sm opacity-60">$125.00</div>
+                    </div>
+                    <div style="color: var(--brand-orange);" class="font-medium">$+125.0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="component-wrapper">
+            <p class="section-title">Progress</p>
+            <div class="component-row">
+                <div class="neu-element progress-container">
+                    <div class="progress-circle">
+                        <svg width="120" height="120" viewBox="0 0 120 120">
+                            <circle class="progress-bg" cx="60" cy="60" r="54" />
+                            <circle class="progress-value" cx="60" cy="60" r="54" 
+                                    stroke-dasharray="339.292" 
+                                    stroke-dashoffset="74.64424" />
+                        </svg>
+                        <div class="absolute flex flex-col items-center">
+                            <span class="text-2xl font-semibold">78%</span>
+                            <span class="text-sm opacity-60">Green</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="neu-element progress-container">
+                    <div class="progress-circle">
+                        <svg width="120" height="120" viewBox="0 0 120 120">
+                            <circle class="progress-bg" cx="60" cy="60" r="54" />
+                            <circle class="progress-value orange" cx="60" cy="60" r="54" 
+                                    stroke-dasharray="339.292" 
+                                    stroke-dashoffset="135.7168" />
+                        </svg>
+                        <div class="absolute flex flex-col items-center">
+                            <span class="text-2xl font-semibold">60%</span>
+                            <span class="text-sm opacity-60">Orange</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Switch -->
+        <div class="component-wrapper">
+            <p class="section-title">Switch</p>
+            <div class="component-row">
+                <div class="neu-element switch">
+                    <span>Green Switch</span>
+                    <div class="switch-toggle"></div>
+                </div>
+                
+                <div class="neu-element switch">
+                    <span>Orange Switch</span>
+                    <div class="switch-toggle orange"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Buttons -->
+        <div class="component-wrapper">
+            <p class="section-title">Buttons</p>
+            <div class="component-row">
+                <span class="color-label">Default</span>
+                <div class="neu-element neu-button">
+                    <i data-lucide="plus"></i>
+                    <span>Add Item</span>
+                </div>
+                
+                <div class="neu-element neu-button">
+                    <i data-lucide="check" style="color: var(--brand-green);"></i>
+                    <span style="color: var(--brand-green);">Confirm</span>
+                </div>
+                
+                <div class="neu-element neu-button">
+                    <i data-lucide="alert-triangle" style="color: var(--brand-orange);"></i>
+                    <span style="color: var(--brand-orange);">Warning</span>
+                </div>
+            </div>
+            
+            <div class="component-row">
+                <span class="color-label">Pressed</span>
+                <div class="neu-element neu-button pressed">
+                    <i data-lucide="plus"></i>
+                    <span>Add Item</span>
+                </div>
+                
+                <div class="neu-element neu-button pressed">
+                    <i data-lucide="check" style="color: var(--brand-green);"></i>
+                    <span style="color: var(--brand-green);">Confirm</span>
+                </div>
+                
+                <div class="neu-element neu-button pressed">
+                    <i data-lucide="alert-triangle" style="color: var(--brand-orange);"></i>
+                    <span style="color: var(--brand-orange);">Warning</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Toggle functionality for all clickable elements
+        document.querySelectorAll('.neu-button, .select-item, .list-item').forEach(element => {
+            element.addEventListener('click', function() {
+                this.classList.toggle('pressed');
+            });
+        });
+
+        // Tab icon toggle
+        document.querySelectorAll('.tab-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+                document.querySelectorAll('.tab-icon').forEach(i => {
+                    i.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Switch toggle functionality
+        document.querySelectorAll('.switch-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                // Also toggle pressed state on parent
+                this.closest('.neu-element').classList.toggle('pressed');
+            });
+        });
+    </script>
+</body>
+</html>

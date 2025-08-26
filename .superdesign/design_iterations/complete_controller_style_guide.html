@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Complete Controller — Neomorphic UI Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cc-tomato:#f36334;
+      --cc-sea:#91bfa5;
+      --cc-dim1:#566e67;
+      --cc-dim2:#5d5d5f;
+      --cc-gray:#7c797c;
+
+      --bg:#E7EEF7;
+      --surface:#f2f1ee;
+      --stroke:#ffffff;
+      --text:#2b2c2e;
+      --muted:#67666b;
+
+      --raise: 8px 8px 16px #7b7b79, -8px -8px 16px #ffffff;
+      --inset: inset 8px 8px 16px #7b7b79, inset -8px -8px 16px #ffffff;
+
+      --r-sm:10px; --r-md:14px; --r-lg:20px;
+      --speed:180ms;
+    }
+
+    body[data-theme="dark"] {
+      --bg: #1e1e20;
+      --surface: #636a6e;
+      --stroke: #8a8a8c;
+      --text: #f1f1f2;
+      --muted: #b5b5b8;
+      --raise: 8px 8px 16px #323638;
+      --inset: inset 8px 8px 16px #323638, inset -8px -8px 16px #949ea4;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Source Sans 3", system-ui, sans-serif;
+    }
+    h1,h2,h3 {
+      font-family: "Montserrat", system-ui, sans-serif;
+      margin: 0 0 .4rem;
+    }
+    h1 { font-size: 32px; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 18px; }
+    .container {
+      width: min(1120px, 92vw);
+      margin: 24px auto 80px;
+    }
+    .muted { color: var(--muted); }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin: 0 auto 12px;
+      width: min(1120px, 92vw);
+    }
+    .theme-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .theme-switch input {
+      appearance: none;
+      width: 46px;
+      height: 26px;
+      border-radius: 999px;
+      background: var(--surface);
+      box-shadow: var(--raise);
+      position: relative;
+      border: 1px solid var(--stroke);
+      cursor: pointer;
+    }
+    .theme-switch input::after {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: var(--raise);
+      transition: transform var(--speed);
+    }
+    .theme-switch input:checked {
+      box-shadow: var(--inset);
+    }
+    .theme-switch input:checked::after {
+      transform: translateX(20px);
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--r-lg);
+      box-shadow: var(--raise);
+      padding: 16px;
+      margin: 14px 0;
+      border: 1px solid var(--stroke);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 50px;
+      font-weight: 700;
+      letter-spacing: .2px;
+      cursor: pointer;
+      background: linear-gradient(145deg, #ffffff, #dad9d6);
+      color: color-mix(in oklab, var(--text) 70%, var(--cc-dim2) 30%);
+      box-shadow: var(--raise);
+      border: 1px solid var(--stroke);
+      transition: all var(--speed);
+    }
+    .btn:hover {
+      background: linear-gradient(145deg, #dad9d6, #ffffff);
+    }
+    .btn.is-pressed {
+      background: var(--surface);
+      color: var(--cc-tomato);
+      box-shadow: var(--inset);
+      border-color: var(--cc-tomato);
+    }
+    body[data-theme="dark"] .btn,
+    body[data-theme="dark"] .btn:hover {
+      background: var(--surface);
+    }
+    body[data-theme="dark"] .btn.is-pressed {
+      background: var(--surface);
+      color: var(--cc-sea);
+      border-color: var(--cc-sea);
+    }
+
+    .input, .select, .textarea {
+      width: 100%;
+      height: 40px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--inset);
+      transition: box-shadow var(--speed), background var(--speed);
+    }
+    .select {
+      border-radius: 12px;
+    }
+    .select option {
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: 2px 0;
+    }
+    .select option:hover,
+    .select option:focus,
+    .select option:checked {
+      background: color-mix(in oklab, var(--cc-sea) 20%, var(--surface));
+      color: var(--cc-tomato);
+    }
+    body[data-theme="dark"] .select option:hover,
+    body[data-theme="dark"] .select option:focus,
+    body[data-theme="dark"] .select option:checked {
+      background: color-mix(in oklab, var(--cc-tomato) 15%, var(--surface));
+      color: var(--cc-sea);
+    }
+    .input::placeholder, .textarea::placeholder {
+      color: var(--muted);
+      opacity: 0.7;
+    }
+    body[data-theme="dark"] .input::placeholder, 
+    body[data-theme="dark"] .textarea::placeholder {
+      color: #d1d1d3;
+      opacity: 0.8;
+    }
+    .textarea { height: auto; min-height: 96px; resize: vertical; }
+    .input:focus, .select:focus, .textarea:focus {
+      outline: none;
+      box-shadow: var(--raise);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .field { display: grid; gap: 6px; }
+    .label { font-weight: 600; }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: var(--surface);
+      box-shadow: var(--raise);
+      border: 1px solid var(--stroke);
+    }
+    .chip .x { cursor: pointer; opacity: .6; }
+    .chip .x:hover { opacity: 1; }
+
+    .segmented {
+      display: flex;
+      position: relative;
+      align-items: center;
+      border-radius: 12px;
+      padding: 4px;
+      background: var(--surface);
+      box-shadow: var(--raise);
+      border: 1px solid var(--stroke);
+    }
+    .segmented input { display: none; }
+    .segmented label {
+      min-width: 100px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .segmented .thumb {
+      position: absolute;
+      inset: 4px auto 4px 4px;
+      width: 100px;
+      border-radius: 10px;
+      box-shadow: var(--inset);
+      border: 1px solid var(--stroke);
+      transition: transform .3s cubic-bezier(.645,.045,.355,1);
+    }
+    .segmented input:checked + label {
+      color: var(--cc-tomato);
+    }
+
+    .slider .range {
+      appearance: none;
+      width: 100%;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background:
+        linear-gradient(90deg, #91bfa5 0%, #c4a76a 35%, #f36334 100%) 0/ var(--fill,50%) 100% no-repeat,
+        linear-gradient(0deg, color-mix(in oklab, var(--surface) 70%, #fff 30%), var(--surface));
+      box-shadow: var(--raise), var(--inset);
+    }
+    .slider .range::-webkit-slider-thumb {
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid var(--stroke);
+      margin-top: -4px;
+      box-shadow: var(--raise);
+      transition: transform var(--speed);
+    }
+    .slider .range:active::-webkit-slider-thumb {
+      transform: scale(.96);
+    }
+
+    /* ======= Loaders ======= */
+    .loader-ripple {
+      --size: 84px;
+      width: var(--size);
+      height: var(--size);
+      position: relative;
+      border-radius: 50%;
+      margin: 6px;
+      background: var(--surface);
+      box-shadow: var(--raise);
+      border: 1px solid var(--stroke);
+    }
+    .loader-ripple .ring {
+      position: absolute;
+      inset: 10px;
+      border-radius: 50%;
+      border: 3px solid var(--cc-sea);
+      animation: ripple 1600ms ease-out infinite;
+    }
+    .loader-ripple .ring:nth-child(2) {
+      border-color: var(--cc-tomato);
+      animation-delay: 300ms;
+    }
+    @keyframes ripple {
+      0% { transform: scale(.2); opacity:.9 }
+      70% { opacity:.12 }
+      100% { transform: scale(1); opacity:0 }
+    }
+
+    .loader-breath {
+      --size: 84px;
+      width: var(--size);
+      height: var(--size);
+      border-radius: 50%;
+      position: relative;
+      margin: 6px;
+      background: var(--surface);
+      box-shadow: var(--raise);
+      border: 1px solid var(--stroke);
+    }
+    .loader-breath::before {
+      content:"";
+      position:absolute;
+      inset:12px;
+      border-radius:50%;
+      box-shadow:var(--inset);
+      border:1px solid var(--stroke);
+    }
+    .loader-breath::after {
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:50%;
+      box-shadow:0 0 0 0 rgba(243,99,52,.35);
+      animation:breath 1800ms ease-in-out infinite;
+    }
+    @keyframes breath {
+      0%   { box-shadow:0 0 0 0 rgba(243,99,52,.35) }
+      50%  { box-shadow:0 0 0 10px rgba(243,99,52,0) }
+      100% { box-shadow:0 0 0 0 rgba(243,99,52,.35) }
+    }
+
+    .loader-spinner {
+      width:84px;height:84px;display:grid;place-items:center;
+      border-radius:50%;background:var(--surface);
+      border:1px solid var(--stroke);
+      box-shadow:var(--raise);
+      margin:6px;
+    }
+    .loader-spinner .spinner {
+      width:56px;height:56px;display:grid;
+    }
+    .loader-spinner .spinner::before,
+    .loader-spinner .spinner::after {
+      content:"";grid-area:1/1;
+      background: var(--c) 50% 0, var(--c) 50% 100%, var(--c) 100% 50%, var(--c) 0 50%;
+      background-size:13.4px 13.4px;background-repeat:no-repeat;
+      animation:spinner-rotate 1s infinite;
+    }
+    .loader-spinner .spinner::before {
+      --c: radial-gradient(farthest-side, var(--cc-sea) 92%, #0000);
+      margin:4.5px;background-size:9px 9px;animation-timing-function:linear;
+    }
+    .loader-spinner .spinner::after {
+      --c: radial-gradient(farthest-side, var(--cc-tomato) 92%, #0000);
+    }
+    @keyframes spinner-rotate {100%{transform:rotate(.5turn)}}
+
+    .spinning-loader {
+      display:flex;justify-content:center;align-items:center;
+      position:relative;width:160px;height:200px;margin:6px;
+      background:var(--surface);
+      border:1px solid var(--stroke);
+      border-radius:20px;
+      box-shadow:var(--raise);
+    }
+    .spinning-loader .loader,
+    .spinning-loader .loaderA {
+      position:absolute;width:1.15em;height:13em;border-radius:999px;
+      background:var(--surface);
+    }
+    .spinning-loader .loader::after,
+    .spinning-loader .loader::before {
+      content:"";position:absolute;width:1.15em;border-radius:999px;
+      background:var(--surface);border:1px solid var(--stroke);
+      box-shadow:inset 5px 5px 15px rgba(0,0,0,0.10), inset -5px -5px 15px rgba(255,255,255,0.70);
+    }
+    body[data-theme="dark"] .spinning-loader .loader::after,
+    body[data-theme="dark"] .spinning-loader .loader::before {
+      box-shadow:inset 5px 5px 15px rgba(0,0,0,0.25), inset -5px -5px 15px rgba(255,255,255,0.15);
+    }
+    .spinning-loader .loader::after{top:0;height:5em;mask-image:linear-gradient(to bottom, black calc(100% - 48px), transparent 100%)}
+    .spinning-loader .loader::before{bottom:0;height:4.5em;mask-image:linear-gradient(to top, black calc(100% - 48px), transparent 100%)}
+    .spinning-loader .loader:nth-child(n+1){transform:rotate(calc(var(--i,0) * 20deg))}
+    .spinning-loader .loaderA{background:transparent}
+    .spinning-loader .loaderA:nth-child(n+1){transform:rotate(calc(var(--i,0) * 20deg))}
+    .spinning-loader .ball0,.spinning-loader .ball1,.spinning-loader .ball2,.spinning-loader .ball3,.spinning-loader .ball4,
+    .spinning-loader .ball5,.spinning-loader .ball6,.spinning-loader .ball7,.spinning-loader .ball8,.spinning-loader .ball9{
+      width:1.15em;height:1.15em;border-radius:50%;
+      background: var(--cc-tomato);
+      animation: spin-move 3.6s ease-in-out infinite;
+      box-shadow: rgba(0,0,0,0.12) 0 0 4px inset, 0 1px 6px rgba(0,0,0,0.12);
+    }
+    .spinning-loader .ball1{animation-delay:.2s}
+    .spinning-loader .ball2{animation-delay:.4s}
+    .spinning-loader .ball3{animation-delay:.6s}
+    .spinning-loader .ball4{animation-delay:.8s}
+    .spinning-loader .ball5{animation-delay:1s}
+    .spinning-loader .ball6{animation-delay:1.2s}
+    .spinning-loader .ball7{animation-delay:1.4s}
+    .spinning-loader .ball8{animation-delay:1.6s}
+    .spinning-loader .ball9{animation-delay:1.8s}
+    @keyframes spin-move{0%{transform:translateY(0)}50%{transform:translateY(12em)}100%{transform:translateY(0)}}
+  </style>
+</head>
+<body data-theme="light">
+  <div class="topbar">
+    <h1>Complete Controller — Neomorphic UI Library</h1>
+    <label class="theme-switch" title="Toggle dark mode">
+      <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode">
+      <span class="muted">Dark</span>
+    </label>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>Buttons</h2>
+      <div class="row">
+        <button class="btn" data-pressable>Generate Leads</button>
+        <button class="btn" data-pressable>See How It Works</button>
+        <button class="btn" data-pressable><span class="icon">🔎</span> Search</button>
+        <button class="btn" data-pressable>Primary</button>
+        <button class="btn" disabled>Disabled</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Inputs</h2>
+      <div class="row">
+        <label class="field" style="min-width:260px">
+          <span class="label">Location</span>
+          <input class="input" placeholder="e.g., Montana">
+        </label>
+        <label class="field" style="min-width:260px">
+          <span class="label">Industry</span>
+          <select class="select"><option>Healthcare</option><option>Construction</option></select>
+        </label>
+        <label class="field" style="min-width:260px">
+          <span class="label">Notes</span>
+          <textarea class="textarea" placeholder="Optional…"></textarea>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Segmented</h2>
+      <div class="preview" style="margin-top:12px;display:inline-block">
+        <div class="segmented" style="width:328px">
+          <input id="seg-1" type="radio" name="seg" checked><label for="seg-1">Overview</label>
+          <input id="seg-2" type="radio" name="seg"><label for="seg-2">Use Cases</label>
+          <input id="seg-3" type="radio" name="seg"><label for="seg-3">Export</label>
+          <div class="thumb" id="segThumb"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Slider</h2>
+      <div class="row" style="justify-content:space-between;align-items:end">
+        <div>
+          <div class="muted">Selected</div>
+          <h3 id="leadNum">250</h3>
+        </div>
+        <div class="slider" style="min-width:360px;flex:1">
+          <input id="leadRange" type="range" class="range" min="0" max="1000" value="250">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Loaders</h2>
+      <div class="row" style="justify-content:center;gap:24px;flex-wrap:wrap;">
+        <!-- Ripple Loader -->
+        <div class="loader-ripple">
+          <span class="ring"></span>
+          <span class="ring"></span>
+        </div>
+
+        <!-- Breath Loader -->
+        <div class="loader-breath"></div>
+
+        <!-- Dot Spinner -->
+        <div class="loader-spinner">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Spinning Drop Loader -->
+        <div class="spinning-loader">
+          <!-- Shell bars -->
+          <div class="loader" style="--i:0"></div>
+          <div class="loader" style="--i:1"></div>
+          <div class="loader" style="--i:2"></div>
+          <div class="loader" style="--i:3"></div>
+          <div class="loader" style="--i:4"></div>
+          <div class="loader" style="--i:5"></div>
+          <div class="loader" style="--i:6"></div>
+          <div class="loader" style="--i:7"></div>
+          <div class="loader" style="--i:8"></div>
+          <div class="loader" style="--i:9"></div>
+          <!-- Balls -->
+          <div class="loaderA" style="--i:0"><div class="ball0"></div></div>
+          <div class="loaderA" style="--i:1"><div class="ball1"></div></div>
+          <div class="loaderA" style="--i:2"><div class="ball2"></div></div>
+          <div class="loaderA" style="--i:3"><div class="ball3"></div></div>
+          <div class="loaderA" style="--i:4"><div class="ball4"></div></div>
+          <div class="loaderA" style="--i:5"><div class="ball5"></div></div>
+          <div class="loaderA" style="--i:6"><div class="ball6"></div></div>
+          <div class="loaderA" style="--i:7"><div class="ball7"></div></div>
+          <div class="loaderA" style="--i:8"><div class="ball8"></div></div>
+        </div>
+      </div>
+      <div class="row" style="justify-content:center;margin-top:16px;gap:12px;font-size:14px;" class="muted">
+        <span>Ripple</span>
+        <span>Breath</span>
+        <span>Dot Spinner</span>
+        <span>Spinning Drop</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme persistence
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('cc-theme');
+    if (savedTheme) {
+      document.body.setAttribute('data-theme', savedTheme);
+      themeToggle.checked = (savedTheme === 'dark');
+    }
+    themeToggle?.addEventListener('change', () => {
+      const mode = themeToggle.checked ? 'dark' : 'light';
+      document.body.setAttribute('data-theme', mode);
+      localStorage.setItem('cc-theme', mode);
+    });
+
+    // Segmented thumb control
+    const segThumb = document.getElementById('segThumb');
+    const segRadios = [...document.querySelectorAll('input[name="seg"]')];
+    function updateSeg() {
+      const idx = segRadios.findIndex(r => r.checked);
+      segThumb.style.transform = `translateX(${idx * 108}px)`;
+    }
+    segRadios.forEach(r => r.addEventListener('change', updateSeg));
+    updateSeg();
+
+    // Slider fill
+    const range = document.getElementById('leadRange');
+    const num = document.getElementById('leadNum');
+    function updateFill(){
+      const pct = ((range.value - range.min) * 100) / (range.max - range.min);
+      range.style.setProperty('--fill', pct + '%');
+      num.textContent = (+range.value).toLocaleString();
+    }
+    range.addEventListener('input', updateFill);
+    updateFill();
+
+    // Pressable
+    function attachPressable(el){
+      const press = () => el.classList.toggle('is-pressed');
+      el.addEventListener('click', press);
+      el.addEventListener('keydown', e => {
+        if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); press(); }
+      });
+    }
+    document.querySelectorAll('[data-pressable]').forEach(attachPressable);
+  </script>
+</body>
+</html>
