@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 import { applyFilters, type Filters } from "@/lib/filters";
 import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { calculateLeadScore, getLeadTier, getTierInfo, getLeadIndustry } from "@/lib/leadScoring";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -27,6 +28,17 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
   });
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const debouncedText = useDebouncedValue(filters.text, 200);
+
+  // Memoize lead scores for performance with large datasets
+  const leadsWithScores = useMemo(() => {
+    return leads.map(lead => {
+      const score = calculateLeadScore(lead);
+      return {
+        ...lead,
+        calculatedScore: score
+      };
+    });
+  }, [leads]);
 
   const cycleSort = (key: SortKey) => {
     if (sortKey !== key) {
@@ -63,14 +75,17 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
   };
 
   const renderStars = (score: number) => {
+    // Map 0-100 calculated score to 1-5 star display
+    // 0-19: 1 star, 20-39: 2 stars, 40-59: 3 stars, 60-79: 4 stars, 80-100: 5 stars
+    const starRating = Math.max(1, Math.min(5, Math.floor(score / 20) + 1));
     const stars = [];
-    const fullStars = Math.floor(score);
     
     for (let i = 0; i < 5; i++) {
       stars.push(
         <span 
           key={i} 
-          className={i < fullStars ? 'text-green-500' : 'text-gray-300'}
+          className={i < starRating ? 'text-green-500' : 'text-gray-300'}
+          title={`Score: ${score}/100 (${starRating} stars)`}
         >
           ★
         </span>
@@ -643,8 +658,9 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
       }
 
       if (key === "score") {
-        const aNum = typeof aVal === 'number' ? aVal : Number(aVal ?? 0);
-        const bNum = typeof bVal === 'number' ? bVal : Number(bVal ?? 0);
+        // Use calculated scores instead of stored scores
+        const aNum = (a.lead as any).calculatedScore || 0;
+        const bNum = (b.lead as any).calculatedScore || 0;
         if (aNum < bNum) return -1 * dir;
         if (aNum > bNum) return 1 * dir;
         // stable
@@ -660,8 +676,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
   };
 
   const filteredLeads = useMemo(() => {
-    return applyFilters(leads, { ...filters, text: debouncedText });
-  }, [leads, filters, debouncedText]);
+    return applyFilters(leadsWithScores, { ...filters, text: debouncedText });
+  }, [leadsWithScores, filters, debouncedText]);
 
   const sortedLeads = useMemo(() => {
     const decorated = filteredLeads.map((lead, index) => ({ lead, index }));
@@ -709,7 +725,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
       <div className="flex items-center justify-between p-3 border-b border-border">
         <div className="flex items-center gap-2 flex-wrap">
           <div className="text-xs text-muted-foreground mr-2">
-            {filteredLeads.length !== leads.length ? `Showing ${filteredLeads.length} of ${leads.length} leads` : `Showing ${leads.length} leads`}
+            {filteredLeads.length !== leadsWithScores.length ? `Showing ${filteredLeads.length} of ${leadsWithScores.length} leads` : `Showing ${leadsWithScores.length} leads`}
           </div>
           {/* Active filter chips */}
           {filters.text.name && (
@@ -975,11 +991,11 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             >
               <button
                 type="button"
-                aria-label="Sort by Score"
+                aria-label="Sort by Tier"
                 onClick={() => cycleSort('score')}
                 className="inline-flex items-center gap-1 hover:text-foreground"
               >
-                Score {sortKey === 'score' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
+                Tier {sortKey === 'score' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
               </button>
             </th>
             <th className="text-left p-2 font-medium tracking-wide" style={{ width: '70px', minWidth: '60px' }}>LinkedIn</th>
@@ -994,7 +1010,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             const companyLinkedIn = getCompanyLinkedIn(lead);
             const contactLinkedIn = getContactLinkedIn(lead);
             const displayCompany = getDisplayCompany(lead);
-            const industry = getIndustry(lead);
+            const industry = getLeadIndustry(lead);
             
             return (
               <tr key={index} className="border-b border-border transition-colors hover:bg-accent/30">
@@ -1044,55 +1060,23 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                 </td>
                 <td className="p-2" style={{ width: '150px', minWidth: '130px' }}>
                   {getDisplayPhone(lead) ? (
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${getPhoneStatusColor(getDisplayPhone(lead))}`}></div>
-                      <span className="text-foreground/80 whitespace-nowrap text-xs">{getDisplayPhone(lead)}</span>
-                      <button
-                        aria-label={`Copy phone ${getDisplayPhone(lead)}`}
-                        onClick={(e) => { e.stopPropagation(); copyToClipboard(getDisplayPhone(lead) as string, 'Phone'); }}
-                        className={cn(
-                          buttonVariants({ variant: "ghost", size: "sm" }),
-                          "p-1 h-7 w-7 flex-shrink-0"
-                        )}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </button>
-                    </div>
+                    <span className="text-foreground/80 whitespace-nowrap text-xs">{getDisplayPhone(lead)}</span>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                      <span className="text-muted-foreground">N/A</span>
-                    </div>
+                    <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
                 <td className="p-2" style={{ width: '220px', minWidth: '180px' }}>
                   {lead.email ? (
-                    <div className="flex items-center gap-2 min-w-0 max-w-full">
-                      <div className={`w-2 h-2 rounded-full ${getEmailStatusColor(lead.email)}`}></div>
-                      <a
-                        href={`mailto:${lead.email}`}
-                        className="text-primary hover:underline truncate whitespace-nowrap overflow-hidden text-ellipsis min-w-0"
-                        style={{ maxWidth: '160px' }}
-                        title={lead.email}
-                      >
-                        {lead.email}
-                      </a>
-                      <button
-                        aria-label={`Copy email ${lead.email}`}
-                        onClick={(e) => { e.stopPropagation(); copyToClipboard(lead.email as string, 'Email'); }}
-                        className={cn(
-                          buttonVariants({ variant: "ghost", size: "sm" }),
-                          "p-1 h-7 w-7"
-                        )}
-                      >
-                        <Copy className="h-3 w-3" />
-                      </button>
-                    </div>
+                    <a
+                      href={`mailto:${lead.email}`}
+                      className="text-primary hover:underline truncate whitespace-nowrap overflow-hidden text-ellipsis inline-block"
+                      style={{ maxWidth: '200px' }}
+                      title={lead.email}
+                    >
+                      {lead.email}
+                    </a>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                      <span className="text-muted-foreground">N/A</span>
-                    </div>
+                    <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
                 <td className="p-2" style={{ width: '120px', minWidth: '100px' }}>
@@ -1110,9 +1094,21 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                   </div>
                 </td>
                 <td className="p-2" style={{ width: '80px', minWidth: '70px' }}>
-                  <div className="flex">
-                    {renderStars(lead.score || 3)}
-                  </div>
+                  {(() => {
+                    const score = (lead as any).calculatedScore || 0;
+                    const tier = getLeadTier(score);
+                    const tierInfo = getTierInfo(tier);
+                    
+                    return (
+                      <div 
+                        className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold text-white"
+                        style={{ backgroundColor: tierInfo.color }}
+                        title={`${tierInfo.label}: ${score}/100 - ${tierInfo.action}`}
+                      >
+                        {tier}
+                      </div>
+                    );
+                  })()}
                 </td>
                 <td className="p-2" style={{ width: '70px', minWidth: '60px' }}>
                   {contactLinkedIn ? (

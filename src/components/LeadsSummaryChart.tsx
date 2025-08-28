@@ -9,6 +9,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Pie, PieChart, Cell, Label, LabelList, Sector } from "recharts";
+import { calculateLeadScore, getLeadTier, getTierColor, getTierInfo, type LeadTier } from "@/lib/leadScoring";
 
 // Type definitions for proper type safety
 interface AdditionalData {
@@ -41,9 +42,16 @@ type TitleSlice = {
   value: number;
 };
 
-type ChartData = QualitySlice | TitleSlice;
+type TierSlice = {
+  name: string;
+  value: number;
+  tier: LeadTier;
+  color: string;
+};
 
-type ChartMode = "quality" | "titles";
+type ChartData = QualitySlice | TitleSlice | TierSlice;
+
+type ChartMode = "quality" | "titles" | "tiers";
 
 export function computeQualityBreakdown(leads: Lead[]): QualitySlice[] {
   let both = 0;
@@ -93,6 +101,32 @@ export function computeTitlesBreakdown(leads: Lead[]): TitleSlice[] {
   return slices;
 }
 
+export function computeTiersBreakdown(leads: Lead[]): TierSlice[] {
+  const tierCounts = new Map<LeadTier, number>();
+  
+  // Initialize all tiers with 0 counts
+  const allTiers: LeadTier[] = ['S', 'A', 'B', 'C', 'D'];
+  allTiers.forEach(tier => tierCounts.set(tier, 0));
+  
+  // Calculate score for each lead and categorize by tier
+  for (const lead of leads) {
+    const score = calculateLeadScore(lead);
+    const tier = getLeadTier(score);
+    tierCounts.set(tier, (tierCounts.get(tier) || 0) + 1);
+  }
+  
+  // Create slices for all tiers, including those with 0 counts for consistent display
+  return allTiers.map(tier => {
+    const tierInfo = getTierInfo(tier);
+    return {
+      name: tierInfo.label, // Use user-friendly labels instead of "Tier X"
+      value: tierCounts.get(tier) || 0,
+      tier,
+      color: tierInfo.color
+    };
+  });
+}
+
 interface LeadsSummaryChartProps {
   leads: Lead[];
 }
@@ -114,18 +148,19 @@ const TITLE_COLORS = [
 ];
 
 const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
-  const [mode, setMode] = useState<ChartMode>("quality");
+  const [mode, setMode] = useState<ChartMode>("tiers"); // Set tiers as default mode
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   // Move all hooks before any early returns to fix React Hook Rules violation
   const qualityData = useMemo(() => computeQualityBreakdown(leads || []), [leads]);
   const titleData = useMemo(() => computeTitlesBreakdown(leads || []), [leads]);
+  const tierData = useMemo(() => computeTiersBreakdown(leads || []), [leads]);
   const total = useMemo(() => leads?.length || 0, [leads]);
   
   const hasData = useMemo(() => {
-    const data = mode === "quality" ? qualityData : titleData;
+    const data = mode === "quality" ? qualityData : mode === "titles" ? titleData : tierData;
     return data.some((s) => s.value > 0);
-  }, [mode, qualityData, titleData]);
+  }, [mode, qualityData, titleData, tierData]);
 
   const chartConfig = useMemo(() => {
     if (mode === "quality") {
@@ -136,15 +171,26 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
         Neither: { label: "Neither", color: QUALITY_COLORS.neither },
       } as const;
     }
+    if (mode === "tiers") {
+      const config: Record<string, { label: string; color: string }> = {};
+      tierData.forEach((slice) => {
+        config[slice.name] = { 
+          label: slice.name, // Just use the friendly label 
+          color: slice.color 
+        };
+      });
+      return config;
+    }
+    // titles mode
     const config: Record<string, { label: string; color: string }> = {};
     titleData.forEach((slice, idx) => {
       config[slice.name] = { label: slice.name, color: TITLE_COLORS[idx % TITLE_COLORS.length] };
     });
     return config;
-  }, [mode, titleData]);
+  }, [mode, titleData, tierData]);
 
-  // Early return after all hooks are called
-  if (!leads || leads.length === 0) return null;
+  // Early return after all hooks are called  
+  if (!leads) return null;
 
   const renderSliceLabel = (props: SliceLabelProps) => {
     const value = props?.value;
@@ -179,10 +225,11 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
   };
 
   return (
-    <div className="neu-card neu-gradient-stroke p-6 max-w-sm mx-auto" role="img" aria-label={mode === "quality" ? "Lead quality summary donut chart" : "Title distribution donut chart"}>
+    <div className="neu-card neu-gradient-stroke p-6 max-w-sm mx-auto" role="img" aria-label={mode === "quality" ? "Lead quality summary donut chart" : mode === "titles" ? "Title distribution donut chart" : "Lead tier distribution donut chart"}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-foreground">Lead Summary</h3>
         <ToggleGroup type="single" value={mode} onValueChange={(v) => v && setMode(v as ChartMode)} className="neu-flat">
+          <ToggleGroupItem value="tiers" aria-label="Show tier breakdown" className="neu-button text-xs">Tiers</ToggleGroupItem>
           <ToggleGroupItem value="quality" aria-label="Show quality breakdown" className="neu-button text-xs">Quality</ToggleGroupItem>
           <ToggleGroupItem value="titles" aria-label="Show titles breakdown" className="neu-button text-xs">Titles</ToggleGroupItem>
         </ToggleGroup>
@@ -195,7 +242,7 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
           <PieChart width={280} height={280}>
             <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
             <Pie
-              data={mode === "quality" ? qualityData : titleData}
+              data={mode === "quality" ? qualityData : mode === "titles" ? titleData : tierData}
               dataKey="value"
               nameKey="name"
               innerRadius={60}
@@ -207,9 +254,11 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
               
               activeIndex={activeIndex === null ? undefined : activeIndex}
             >
-              {(mode === "quality" ? qualityData : titleData).map((entry, index) => {
+              {(mode === "quality" ? qualityData : mode === "titles" ? titleData : tierData).map((entry, index) => {
                 const color = mode === "quality"
                   ? QUALITY_COLORS[(entry as QualitySlice).key]
+                  : mode === "tiers" 
+                  ? (entry as TierSlice).color
                   : TITLE_COLORS[index % TITLE_COLORS.length];
                 return <Cell key={entry.name} fill={color} />;
               })}

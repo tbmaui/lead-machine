@@ -18,7 +18,6 @@ Create detailed, implementation-ready stories for brownfield projects where trad
 - Existing project documentation doesn't follow BMad v4+ structure
 - Need to gather additional context from user during story creation
 
-**Use create-next-story when:**
 
 - Working with properly sharded PRD and v4 architecture documents
 - Following standard greenfield or well-documented brownfield workflow

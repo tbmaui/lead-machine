@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -33,29 +32,25 @@ const FeaturesTable = () => {
   ];
 
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Key Features & Functionality</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="font-semibold">Feature</TableHead>
-              <TableHead className="font-semibold">Description</TableHead>
+    <div className="neu-card neu-gradient-stroke p-8">
+      <h3 className="text-lg font-semibold mb-6">Key Features & Functionality</h3>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="font-semibold">Feature</TableHead>
+            <TableHead className="font-semibold">Description</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {features.map((item, index) => (
+            <TableRow key={index}>
+              <TableCell className="font-medium text-sm">{item.feature}</TableCell>
+              <TableCell className="text-sm">{item.description}</TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {features.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium text-sm">{item.feature}</TableCell>
-                <TableCell className="text-sm">{item.description}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 
