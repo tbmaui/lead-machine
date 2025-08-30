@@ -9,7 +9,7 @@ import ExportButtons from "./ExportButtons";
 import LeadsTable from "./LeadsTable";
 import LeadsSummaryChart from "./LeadsSummaryChart";
 import SearchCriteriaDisplay from "./SearchCriteriaDisplay";
-import { LoadingBackground } from "@/components/ui/loading-background";
+import { SimpleLoadingAnimation } from "@/components/ui/simple-loading-animation";
 
 interface LeadGenResultsProps {
   job: LeadGenJob;
@@ -64,33 +64,39 @@ const LeadGenResults = ({ job, leads, onNewSearch, showingResults }: LeadGenResu
   const displayLeads = leads.length > 0 ? leads : [];
 
   if (isProcessing) {
+    // Determine animation intensity based on job status
+    const getAnimationIntensity = (): "low" | "medium" | "high" => {
+      if (job.status === 'searching' || job.status === 'enriching') return 'high';
+      if (job.status === 'processing' || job.status === 'validating') return 'medium';
+      return 'low';
+    };
+
     return (
-      <div className="relative space-y-6 min-h-[400px] border-4 border-red-500" style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)' }}>
-        {/* DEBUG: Red border and background to confirm this renders */}
-        <div className="absolute inset-0 bg-blue-500/20 border-4 border-blue-500 border-dashed z-0" />
-        
-        {/* Animated background for loading state */}
-        <LoadingBackground className="absolute inset-0 z-1" />
+      <div className="relative space-y-6 min-h-[400px] animate-in fade-in duration-700">
+        {/* Simple loading animation - EXTENDED ABOVE */}
+        <div className="fixed top-[20vh] left-0 right-0 bottom-0 z-0">
+          <SimpleLoadingAnimation />
+        </div>
         
         {/* Content with relative positioning */}
-        <div className="relative z-10 space-y-6">
-          <Card className="border-blue-200 bg-blue-50/90 backdrop-blur-sm">
+        <div className="relative z-20 space-y-6">
+          <Card className="border-blue-200/50 bg-blue-50/20 backdrop-blur-sm animate-in slide-in-from-top-4 fade-in duration-500 delay-150">
             <CardContent className="pt-6">
               <div className="flex items-start gap-3">
                 <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-white text-xs font-bold">i</span>
+                  <span className="text-white text-xs font-bold">⏳</span>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-blue-900 mb-1">How to Generate Quality Leads</h3>
-                  <p className="text-sm text-blue-700">
-                    Choose your target location and industry to discover verified decision makers. This demo uses real, embedded data for Atlanta and Austin.
+                  <h3 className="font-semibold mb-1" style={{ color: '#f36334' }}>Processing Your Lead Search</h3>
+                  <p className="text-sm" style={{ color: '#f36334' }}>
+                    This comprehensive process can take up to 5 minutes as we search, verify, and enrich your leads across multiple platforms. Please hang tight - it's worth the wait for high-quality results!
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-background/90 backdrop-blur-sm border-2">
+          <Card className="bg-background/30 backdrop-blur-sm border-2 border-opacity-50 animate-in slide-in-from-top-4 fade-in duration-500 delay-300">
             <CardHeader>
               <CardTitle>Processing Your Request</CardTitle>
             </CardHeader>

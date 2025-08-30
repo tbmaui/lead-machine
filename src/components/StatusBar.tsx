@@ -40,21 +40,21 @@ export function StatusBar({ status, progress, steps }: StatusBarProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between text-sm" aria-live="polite" aria-atomic>
-        <span className="text-muted-foreground">Overall Progress</span>
-        <span className="font-medium">{animated}%</span>
-      </div>
-      <Progress
-        value={animated}
-        className={cn("h-4")}
-        aria-label="Lead generation progress"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={animated}
-      />
-      <div className="text-sm text-muted-foreground" aria-live="polite" aria-atomic>
-        {currentLabel}
-      </div>
+        <div className="flex items-center justify-between text-sm" aria-live="polite" aria-atomic>
+          <span className="text-muted-foreground">Overall Progress</span>
+          <span className="font-medium">{animated}%</span>
+        </div>
+        <Progress
+          value={animated}
+          className={cn("h-4")}
+          aria-label="Lead generation progress"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={animated}
+        />
+        <div className="text-sm text-muted-foreground" aria-live="polite" aria-atomic>
+          {currentLabel}
+        </div>
 
       {steps && steps.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">

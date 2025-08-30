@@ -24,32 +24,36 @@ export function AnimatedBackgroundPaths({
       
       // For loading variant, adjust path positioning to create flowing effect
       const yOffset = variant === 'loading' ? i * 8 : i * 6;
-      const flowSpeed = variant === 'loading' ? 15 + Math.random() * 8 : 20 + Math.random() * 10;
+      const flowSpeed = variant === 'loading' ? 8 + Math.random() * 4 : 12 + Math.random() * 6;
+      
+      // Simplified path that stays within viewBox
+      const startX = 50 + i * 15 * position;
+      const startY = 50 + yOffset;
+      const midX = 300 + i * 10 * position;  
+      const midY = 150 + yOffset * 0.5;
+      const endX = 650 + i * 5 * position;
+      const endY = 250 + yOffset * 0.3;
       
       return (
         <motion.path
           key={pathIndex}
-          d={`M-${380 - i * 5 * position} -${189 + yOffset}C-${
-            380 - i * 5 * position
-          } -${189 + yOffset} -${312 - i * 5 * position} ${216 - yOffset} ${
-            152 - i * 5 * position
-          } ${343 - yOffset}C${616 - i * 5 * position} ${470 - yOffset} ${
-            684 - i * 5 * position
-          } ${875 - yOffset} ${684 - i * 5 * position} ${875 - yOffset}`}
-          stroke="currentColor"
-          strokeWidth={0.5 + i * 0.03}
-          strokeOpacity={opacity + i * 0.02}
-          initial={{ pathLength: 0.3, opacity: 0.6 }}
+          d={`M${startX} ${startY}Q${midX} ${midY} ${endX} ${endY}`}
+          stroke="#3b82f6"
+          strokeWidth={1 + i * 0.05}
+          strokeOpacity={Math.max(0.2, opacity + i * 0.03)}
+          fill="none"
+          strokeDasharray="10 5"
+          initial={{ pathLength: 0, opacity: 0.4 }}
           animate={{
             pathLength: 1,
-            opacity: [0.2, 0.4, 0.2],
-            pathOffset: [0, 1, 0],
+            opacity: [0.4, 0.8, 0.4],
+            strokeDashoffset: [0, -50, -100],
           }}
           transition={{
             duration: flowSpeed,
-            repeat: Number.POSITIVE_INFINITY,
+            repeat: Infinity,
             ease: "linear",
-            delay: variant === 'loading' ? Math.random() * 3 : 0,
+            delay: variant === 'loading' ? i * 0.2 : 0,
           }}
         />
       );

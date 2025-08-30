@@ -1,7 +1,7 @@
 import { MoveRight, Sparkles, Target, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useHeroV2 } from "@/lib/feature-flags";
-import { BackgroundPaths } from "@/components/ui/background-paths";
+import { HeroBackgroundPaths } from "@/components/ui/hero-background-paths";
 import { AnimatedBackgroundPaths } from "@/components/ui/animated-background-paths";
 import { motion } from "framer-motion";
 
@@ -65,8 +65,8 @@ function HeroSection() {
   const EnhancedHeroSection = () => {
     return (
       <div className="relative w-full bg-background">
-        {/* Animated Background Paths */}
-        <AnimatedBackgroundPaths variant="hero" />
+        {/* Original BackgroundPaths Animation */}
+        <HeroBackgroundPaths />
 
         {/* Original Content Layout */}
         <div className="relative z-10 container mx-auto px-4">
