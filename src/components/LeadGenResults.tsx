@@ -22,6 +22,14 @@ const LeadGenResults = ({ job, leads, onNewSearch, showingResults }: LeadGenResu
   const [currentStep, setCurrentStep] = useState(0);
   // Show processing view for all non-completed states
   const isProcessing = job.status === 'pending' || job.status === 'processing' || job.status === 'searching' || job.status === 'enriching' || job.status === 'validating' || job.status === 'finalizing';
+  
+  console.log("LeadGenResults render:", { 
+    jobStatus: job.status, 
+    jobProgress: job.progress, 
+    isProcessing, 
+    showingResults,
+    leadsCount: leads.length 
+  });
 
   const steps = [
     "Initializing search parameters...",

@@ -13,6 +13,7 @@ export function AnimatedBackgroundPaths({
   className = "", 
   variant = 'hero' 
 }: AnimatedBackgroundPathsProps) {
+  console.log("AnimatedBackgroundPaths rendering:", { variant, pathCount, opacity, className });
   // Different viewBox and positioning for loading variant
   const viewBox = variant === 'loading' ? "0 0 696 500" : "0 0 696 316";
   
