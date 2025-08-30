@@ -9,6 +9,7 @@ import ExportButtons from "./ExportButtons";
 import LeadsTable from "./LeadsTable";
 import LeadsSummaryChart from "./LeadsSummaryChart";
 import SearchCriteriaDisplay from "./SearchCriteriaDisplay";
+import { LoadingBackground } from "@/components/ui/loading-background";
 
 interface LeadGenResultsProps {
   job: LeadGenJob;
@@ -56,37 +57,43 @@ const LeadGenResults = ({ job, leads, onNewSearch, showingResults }: LeadGenResu
 
   if (isProcessing) {
     return (
-      <div className="space-y-6">
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-white text-xs font-bold">i</span>
+      <div className="relative space-y-6">
+        {/* Animated background for loading state */}
+        <LoadingBackground className="absolute inset-0 -mx-4 -my-6" />
+        
+        {/* Content with relative positioning */}
+        <div className="relative z-10 space-y-6">
+          <Card className="border-blue-200 bg-blue-50/90 backdrop-blur-sm">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-white text-xs font-bold">i</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-blue-900 mb-1">How to Generate Quality Leads</h3>
+                  <p className="text-sm text-blue-700">
+                    Choose your target location and industry to discover verified decision makers. This demo uses real, embedded data for Atlanta and Austin.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-blue-900 mb-1">How to Generate Quality Leads</h3>
-                <p className="text-sm text-blue-700">
-                  Choose your target location and industry to discover verified decision makers. This demo uses real, embedded data for Atlanta and Austin.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Processing Your Request</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <StatusBar status={job.status} progress={job.progress} steps={steps} />
-            <div className="flex gap-2 mt-4">
-              <Button variant="outline" onClick={onNewSearch} className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Cancel & New Search
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          <Card className="bg-background/90 backdrop-blur-sm border-2">
+            <CardHeader>
+              <CardTitle>Processing Your Request</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <StatusBar status={job.status} progress={job.progress} steps={steps} />
+              <div className="flex gap-2 mt-4">
+                <Button variant="outline" onClick={onNewSearch} className="flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Cancel & New Search
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
