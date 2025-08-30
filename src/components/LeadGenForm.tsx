@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // Removed unused Card imports - using neu-form-section instead
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,10 +11,12 @@ import LeadGenResults from "./LeadGenResults";
 
 interface LeadGenFormProps {
   userId: string;
+  restoredSearch?: {job: any, leads: any[]} | null;
+  onSearchRestored?: () => void;
 }
 
-const LeadGenForm = ({ userId }: LeadGenFormProps) => {
-  const { currentJob, leads, loading, showingResults, startLeadGeneration, resetJob } = useLeadGeneration(userId);
+const LeadGenForm = ({ userId, restoredSearch, onSearchRestored }: LeadGenFormProps) => {
+  const { currentJob, leads, loading, showingResults, startLeadGeneration, resetJob, restoreSearchData } = useLeadGeneration(userId);
   
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
   const industryOptions = [
@@ -48,6 +50,17 @@ const LeadGenForm = ({ userId }: LeadGenFormProps) => {
   const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
   const [leadCount, setLeadCount] = useState([100]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // Handle restored search data
+  useEffect(() => {
+    if (restoredSearch && restoredSearch.job && restoredSearch.leads) {
+      console.log("Processing restored search:", restoredSearch);
+      restoreSearchData(restoredSearch.job, restoredSearch.leads);
+      if (onSearchRestored) {
+        onSearchRestored();
+      }
+    }
+  }, [restoredSearch, restoreSearchData, onSearchRestored]);
 
   const handleJobTitleToggle = (title: string) => {
     setSelectedJobTitles(prev => 

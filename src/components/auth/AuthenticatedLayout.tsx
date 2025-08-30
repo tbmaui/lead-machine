@@ -11,17 +11,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, Settings, LogOut, Loader2 } from "lucide-react";
+import { User, Settings, LogOut, Loader2, History } from "lucide-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
+import { SearchHistory } from "@/components/SearchHistory";
 
 interface AuthenticatedLayoutProps {
   children: ReactNode;
+  onRestoreSearch?: (job: any, leads: any[]) => void;
 }
 
-export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
+export function AuthenticatedLayout({ children, onRestoreSearch }: AuthenticatedLayoutProps) {
   const { user, signOut } = useAuth();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [showSearchHistory, setShowSearchHistory] = useState(false);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -91,14 +94,37 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
+                  
+                  {/* Conditional rendering based on search history state */}
+                  {!showSearchHistory ? (
+                    <>
+                      <DropdownMenuItem 
+                        className="cursor-pointer"
+                        onClick={() => setShowSearchHistory(true)}
+                      >
+                        <History className="mr-2 h-4 w-4" />
+                        <span>Search History</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <SearchHistory 
+                      onRestoreSearch={(job, leads) => {
+                        if (onRestoreSearch) {
+                          onRestoreSearch(job, leads);
+                        }
+                        setShowSearchHistory(false);
+                      }}
+                      onClose={() => setShowSearchHistory(false)}
+                    />
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="cursor-pointer text-red-600 focus:text-red-600"

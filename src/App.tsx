@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { useState } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AuthenticatedLayout } from "@/components/auth/AuthenticatedLayout";
 import Index from "./pages/Index";
@@ -12,7 +13,14 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  const [restoredSearch, setRestoredSearch] = useState<{job: any, leads: any[]} | null>(null);
+
+  const handleRestoreSearch = (job: any, leads: any[]) => {
+    setRestoredSearch({job, leads});
+  };
+
+  return (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider
       attribute="class"
@@ -30,8 +38,11 @@ const App = () => (
               path="/"
               element={
                 <ProtectedRoute>
-                  <AuthenticatedLayout>
-                    <Index />
+                  <AuthenticatedLayout onRestoreSearch={handleRestoreSearch}>
+                    <Index 
+                      restoredSearch={restoredSearch}
+                      onSearchRestored={() => setRestoredSearch(null)}
+                    />
                   </AuthenticatedLayout>
                 </ProtectedRoute>
               }
@@ -43,6 +54,7 @@ const App = () => (
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

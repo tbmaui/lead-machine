@@ -5,7 +5,12 @@ import QuickStartInstructions from "@/components/QuickStartInstructions";
 import LeadScoreCalculation from "@/components/LeadScoreCalculation";
 import { useAuth } from "@/hooks/useAuth";
 
-const Index = () => {
+interface IndexProps {
+  restoredSearch?: {job: any, leads: any[]} | null;
+  onSearchRestored?: () => void;
+}
+
+const Index = ({ restoredSearch, onSearchRestored }: IndexProps) => {
   const { user } = useAuth();
 
   return (
@@ -29,7 +34,13 @@ const Index = () => {
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Start Your Lead Search</h2>
           </div>
-          {user && <LeadGenForm userId={user.id} />}
+          {user && (
+            <LeadGenForm 
+              userId={user.id} 
+              restoredSearch={restoredSearch}
+              onSearchRestored={onSearchRestored}
+            />
+          )}
         </section>
       </main>
     </div>

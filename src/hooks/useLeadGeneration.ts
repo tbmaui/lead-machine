@@ -354,6 +354,14 @@ export const useLeadGeneration = (userId: string) => {
     simulationActiveRef.current = false;
   };
 
+  const restoreSearchData = (job: LeadGenJob, leadsData: Lead[]) => {
+    console.log("Restoring search data:", { job, leadsData });
+    setCurrentJob(job);
+    setLeads(leadsData);
+    setShowingResults(true);
+    setJobIdForSubscription(job.id);
+  };
+
   return {
     currentJob,
     leads,
@@ -361,6 +369,7 @@ export const useLeadGeneration = (userId: string) => {
     showingResults,
     startLeadGeneration,
     resetJob,
-    fetchLeads
+    fetchLeads,
+    restoreSearchData
   };
 };
