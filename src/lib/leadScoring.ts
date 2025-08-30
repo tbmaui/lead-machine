@@ -22,116 +22,175 @@ const TIER_COLORS = {
 
 const TIER_INFO: Record<LeadTier, TierInfo> = {
   S: {
-    label: 'Hot Leads',
+    label: 'Action Ready',
     color: TIER_COLORS.S,
-    action: 'Contact within 2-4 hours',
-    urgency: 'IMMEDIATE ACTION REQUIRED'
+    action: 'Complete profile - ready for immediate outreach',
+    urgency: 'READY FOR CONTACT'
   },
   A: {
-    label: 'Warm Leads', 
+    label: 'Priority Prospect', 
     color: TIER_COLORS.A,
-    action: 'Contact within 24-48 hours',
+    action: 'High-quality data - prioritize for outreach',
     urgency: 'HIGH PRIORITY'
   },
   B: {
-    label: 'Qualified Leads',
+    label: 'Basic Profile',
     color: TIER_COLORS.B,
-    action: 'Contact within 3-5 days',
+    action: 'Standard prospect - include in regular campaigns',
     urgency: 'STANDARD PRIORITY'
   },
   C: {
-    label: 'Low Priority',
+    label: 'Research Required',
     color: TIER_COLORS.C,
-    action: 'Nurture campaigns only',
-    urgency: 'NURTURE FOCUS'
+    action: 'Additional research needed before contact',
+    urgency: 'RESEARCH FOCUS'
   },
   D: {
-    label: 'Disqualified',
+    label: 'Incomplete Profile',
     color: TIER_COLORS.D,
-    action: 'Do not contact',
-    urgency: 'DO NOT CONTACT'
+    action: 'Insufficient data for effective outreach',
+    urgency: 'DATA ENRICHMENT NEEDED'
   }
 };
 
 /**
- * Calculate lead score using Story 3.1 weighted formula (0-100 scale)
- * - Contact Quality (40%): Title Level (25pts) + Contact Completeness (15pts)
- * - Company Attributes (45%): Company Size (20pts) + Industry Relevance (15pts) + Growth Indicators (10pts)
- * - Data Enrichment Quality (15%): Data Completeness Score (15pts)
+ * Data-Driven Lead Scoring Algorithm (0-100 scale)
+ * Score based on data completeness with title-based bonus within each tier
+ * 
+ * 5 Stars (80-100): Action Ready - Complete profile ready for immediate outreach
+ * 4 Stars (60-79): Priority Prospect - High-quality data, prioritize for outreach
+ * 3 Stars (40-59): Basic Profile - Standard prospect for regular campaigns
+ * 2 Stars (20-39): Research Required - Additional research needed before contact
+ * 1 Star (0-19): Incomplete Profile - Insufficient data for effective outreach
  */
 export function calculateLeadScore(lead: Lead): number {
-  let totalScore = 0;
-  
-  // Inline calculations for better performance
-  totalScore += getTitleScore(lead.title);
-  totalScore += getContactScore(lead.email, lead.phone);
-  totalScore += getCompanySizeScore(lead);
-  totalScore += getIndustryScore(lead.industry);
-  totalScore += getGrowthScore(lead);
-  totalScore += getDataCompletenessScore(lead);
-  
-  // Ensure score is between 0-100
-  return Math.max(0, Math.min(100, Math.round(totalScore)));
+  // Get helper functions for data extraction
+  const getLinkedIn = (lead: Lead) => lead.linkedin_url || (lead.additional_data as any)?.linkedin_url || (lead.additional_data as any)?.LinkedIn;
+  const getWebsite = (lead: Lead) => lead.organization_url || (lead.additional_data as any)?.company_website_url || (lead.additional_data as any)?.website;
+  const getCompanyLinkedIn = (lead: Lead) => lead.organization_linkedin_url || (lead.additional_data as any)?.company_linkedin_url || (lead.additional_data as any)?.organization_linkedin_url;
+  const getSummary = (lead: Lead) => (lead.additional_data as any)?.summary || (lead.additional_data as any)?.Summary || (lead.additional_data as any)?.bio;
+
+  // Check required core fields (name, title, company, industry, location)
+  const coreFields = [
+    lead.name?.trim(),
+    lead.title?.trim(), 
+    lead.company?.trim(),
+    lead.industry?.trim(),
+    lead.location?.trim()
+  ];
+
+  // Check enhanced fields (LinkedIn, website, company LinkedIn, summary)
+  const enhancedFields = [
+    getLinkedIn(lead),
+    getWebsite(lead),
+    getCompanyLinkedIn(lead),
+    getSummary(lead)
+  ];
+
+  // Check contact fields
+  const hasEmail = !!(lead.email?.trim() && lead.email !== 'N/A');
+  const hasPhone = !!(lead.phone?.trim() && lead.phone !== 'N/A');
+
+  // Count completed core and enhanced fields
+  const completedCore = coreFields.filter(field => field && field !== 'N/A').length;
+  const completedEnhanced = enhancedFields.filter(field => field && String(field).trim() && String(field).trim() !== 'N/A').length;
+
+  let baseScore = 0;
+
+  // 5 Stars (80-100): All core + enhanced fields + both email AND phone
+  if (completedCore >= 4 && completedEnhanced >= 2 && hasEmail && hasPhone) {
+    baseScore = 80 + getTitleBonus(lead.title);
+  }
+  // 4 Stars (60-79): All core + most enhanced + email OR phone
+  else if (completedCore >= 4 && completedEnhanced >= 2 && (hasEmail || hasPhone)) {
+    baseScore = 60 + Math.floor(getTitleBonus(lead.title) * 0.8);
+  }
+  // 3 Stars (40-59): Most core fields + some contact info
+  else if (completedCore >= 3 && (hasEmail || hasPhone)) {
+    baseScore = 40 + Math.floor(getTitleBonus(lead.title) * 0.6);
+  }
+  // 2 Stars (20-39): Some core fields
+  else if (completedCore >= 2) {
+    baseScore = 20 + Math.floor(getTitleBonus(lead.title) * 0.4);
+  }
+  // 1 Star (0-19): Minimal data
+  else {
+    baseScore = Math.floor(getTitleBonus(lead.title) * 0.2);
+  }
+
+  // Ensure score stays within bounds
+  return Math.max(0, Math.min(100, Math.round(baseScore)));
 }
 
 /**
- * Title Level Scoring (25 points max)
- * Based on Story 3.1 corrected hierarchy
+ * Title Bonus for Data-Driven Scoring (0-20 points max)
+ * Used as bonus points within each star tier
  */
-export function getTitleScore(title?: string): number {
+export function getTitleBonus(title?: string): number {
   if (!title || title.trim() === '' || title === 'N/A') return 0;
   
   const titleLower = title.toLowerCase().trim();
   
-  // VP Level (15 points): Vice Presidents (check first to avoid "president" match)
+  // CEO/Owner/Founder (20 points): Highest level decision makers
+  if (titleLower.indexOf('ceo') !== -1 || 
+      titleLower.indexOf('chief executive') !== -1 ||
+      titleLower.indexOf('owner') !== -1 ||
+      titleLower.indexOf('founder') !== -1) {
+    return 20;
+  }
+  
+  // President (18 points): High-level executives
+  if (titleLower.indexOf('president') !== -1 && !titleLower.includes('vice')) {
+    return 18;
+  }
+  
+  // C-Suite (15 points): CTO, CMO, CFO, CSO, etc.
+  if (titleLower.match(/\b(cto|cmo|cfo|cso|chief technology officer|chief marketing officer|chief financial officer|c-level)\b/) ||
+      (titleLower.indexOf('chief') !== -1 && titleLower.indexOf('director') === -1)) {
+    return 15;
+  }
+  
+  // VP Level (12 points): Vice Presidents
   if (titleLower.includes('vp') || 
       titleLower.includes('vice president') || 
       titleLower.includes('v.p.') || 
       titleLower.includes('v. p.')) {
-    return 15;
+    return 12;
   }
   
-  // Owner/CEO (25 points): CEO, Owner, Founder, President - optimized with indexOf
-  if (titleLower.indexOf('ceo') !== -1 || 
-      titleLower.indexOf('chief executive') !== -1 ||
-      titleLower.indexOf('owner') !== -1 ||
-      titleLower.indexOf('founder') !== -1 ||
-      titleLower.indexOf('president') !== -1) {
-    return 25;
-  }
-  
-  // Rest of C-Suite (20 points): CTO, CMO, CFO, CSO, etc. - need word boundaries
-  if (titleLower.match(/\b(cto|cmo|cfo|cso|chief technology officer|chief marketing officer|chief financial officer|c-level)\b/)) {
-    return 20;
-  }
-  
-  // Check for other chief titles that aren't director level
-  if (titleLower.indexOf('chief') !== -1 && titleLower.indexOf('director') === -1) {
-    return 20;
-  }
-  
-  // Director Level (10 points): Directors, Heads, Managers, Senior roles - optimized with indexOf
+  // Director Level (8 points): Directors, Department Heads
   if (titleLower.indexOf('director') !== -1 ||
       titleLower.indexOf('head of') !== -1 ||
-      titleLower.indexOf('department head') !== -1 ||
-      titleLower.indexOf('manager') !== -1 ||
-      titleLower.indexOf('senior') !== -1 ||
-      titleLower.indexOf('team lead') !== -1) {
-    return 10;
+      titleLower.indexOf('department head') !== -1) {
+    return 8;
   }
   
-  // Associate/Junior (5 points): Junior roles, Associates, Interns, Specialists, Coordinators - optimized with indexOf
+  // Manager/Senior Level (5 points): Managers, Senior roles, Team leads
+  if (titleLower.indexOf('manager') !== -1 ||
+      titleLower.indexOf('senior') !== -1 ||
+      titleLower.indexOf('team lead') !== -1) {
+    return 5;
+  }
+  
+  // Associate/Junior Level (2 points): Junior roles, Associates, Specialists
   if (titleLower.indexOf('junior') !== -1 ||
       titleLower.indexOf('associate') !== -1 ||
-      titleLower.indexOf('intern') !== -1 ||
       titleLower.indexOf('specialist') !== -1 ||
       titleLower.indexOf('coordinator') !== -1 ||
       titleLower.indexOf('assistant') !== -1) {
-    return 5;
+    return 2;
   }
   
   // Unknown/Generic (0 points)
   return 0;
+}
+
+/**
+ * Legacy Title Scoring function - kept for compatibility
+ * @deprecated Use getTitleBonus instead for new data-driven scoring
+ */
+export function getTitleScore(title?: string): number {
+  return getTitleBonus(title);
 }
 
 /**
@@ -322,11 +381,11 @@ export function getDataCompletenessScore(lead: Lead): number {
  * Get lead tier based on score (S/A/B/C/D system)
  */
 export function getLeadTier(score: number): LeadTier {
-  if (score >= 80) return 'S'; // Hot Leads: 80-100 points
-  if (score >= 60) return 'A'; // Warm Leads: 60-79 points
-  if (score >= 40) return 'B'; // Qualified Leads: 40-59 points
-  if (score >= 20) return 'C'; // Low Priority: 20-39 points
-  return 'D'; // Disqualified: 0-19 points
+  if (score >= 80) return 'S'; // Action Ready: 80-100 points
+  if (score >= 60) return 'A'; // Priority Prospect: 60-79 points
+  if (score >= 40) return 'B'; // Basic Profile: 40-59 points
+  if (score >= 20) return 'C'; // Research Required: 20-39 points
+  return 'D'; // Incomplete Profile: 0-19 points
 }
 
 /**

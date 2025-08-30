@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import type { User, AuthError } from '@supabase/supabase-js';
+
+export interface AuthResult {
+  user: User | null;
+  error: AuthError | null;
+}
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -24,20 +29,48 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInAnonymously = async () => {
-    // For demo purposes, create a temporary user ID
-    const tempUser = {
-      id: crypto.randomUUID(),
-      email: 'demo@example.com',
-      user_metadata: {}
-    } as User;
-    setUser(tempUser);
-    return tempUser;
+  const signIn = async (email: string, password: string): Promise<AuthResult> => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    
+    return {
+      user: data.user,
+      error
+    };
+  };
+
+  const signUp = async (email: string, password: string): Promise<AuthResult> => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password
+    });
+    
+    return {
+      user: data.user,
+      error
+    };
+  };
+
+  const signOut = async (): Promise<{ error: AuthError | null }> => {
+    const { error } = await supabase.auth.signOut();
+    return { error };
+  };
+
+  const resetPassword = async (email: string): Promise<{ error: AuthError | null }> => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
+    return { error };
   };
 
   return {
     user,
     loading,
-    signInAnonymously
+    signIn,
+    signUp,
+    signOut,
+    resetPassword
   };
 };

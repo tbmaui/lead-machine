@@ -8,6 +8,7 @@ import LeadGenStats from "./LeadGenStats";
 import ExportButtons from "./ExportButtons";
 import LeadsTable from "./LeadsTable";
 import LeadsSummaryChart from "./LeadsSummaryChart";
+import SearchCriteriaDisplay from "./SearchCriteriaDisplay";
 
 interface LeadGenResultsProps {
   job: LeadGenJob;
@@ -113,6 +114,7 @@ const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
         <CardContent className="space-y-6">
           <LeadGenStats leads={displayLeads} />
           <LeadsSummaryChart leads={displayLeads} />
+          {job.job_criteria && <SearchCriteriaDisplay criteria={job.job_criteria} />}
           <LeadsTable leads={displayLeads} />
         </CardContent>
       </Card>

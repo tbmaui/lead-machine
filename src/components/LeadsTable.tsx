@@ -80,12 +80,28 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
     const starRating = Math.max(1, Math.min(5, Math.floor(score / 20) + 1));
     const stars = [];
     
+    // Color mapping for star ratings
+    const getStarColor = (rating: number, filled: boolean) => {
+      if (!filled) return 'text-gray-300';
+      
+      switch (rating) {
+        case 5: return 'text-[#dfb809]'; // Golden Rod - Highest quality
+        case 4: return 'text-[#a9ccb8]'; // Light Sea Green - High quality  
+        case 3: return 'text-[#6f927e]'; // Dark Sea Green - Medium quality
+        case 2: return 'text-[#f47146]'; // Tomato - Lower quality
+        case 1: return 'text-[#fbc8b7]'; // Peach Puff - Lowest quality
+        default: return 'text-gray-300';
+      }
+    };
+    
     for (let i = 0; i < 5; i++) {
+      const isFilled = i < starRating;
       stars.push(
         <span 
           key={i} 
-          className={i < starRating ? 'text-green-500' : 'text-gray-300'}
+          className={getStarColor(starRating, isFilled)}
           title={`Score: ${score}/100 (${starRating} stars)`}
+          aria-label={isFilled ? 'Filled star' : 'Empty star'}
         >
           ★
         </span>
@@ -721,7 +737,28 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
           border-right: 2px solid hsl(var(--border));
         }
       `}</style>
-      <div className="overflow-x-auto overflow-y-hidden">
+      {/* Top scroll indicator */}
+      <div className="overflow-x-auto overflow-y-hidden border-b border-border" style={{ height: '12px' }} onScroll={(e) => {
+        // Sync with main table
+        const mainTable = e.currentTarget.nextElementSibling as HTMLElement;
+        if (mainTable) {
+          mainTable.scrollLeft = e.currentTarget.scrollLeft;
+        }
+      }}>
+        <div style={{ width: '1400px', height: '1px' }}></div>
+      </div>
+      <div className="overflow-x-auto overflow-y-hidden" onScroll={(e) => {
+        // Sync top scrollbar
+        const topScrollbar = e.currentTarget.previousElementSibling as HTMLElement;
+        if (topScrollbar) {
+          topScrollbar.scrollLeft = e.currentTarget.scrollLeft;
+        }
+        // Sync bottom scrollbar  
+        const bottomScrollbar = e.currentTarget.nextElementSibling as HTMLElement;
+        if (bottomScrollbar) {
+          bottomScrollbar.scrollLeft = e.currentTarget.scrollLeft;
+        }
+      }}>
       <div className="flex items-center justify-between p-3 border-b border-border">
         <div className="flex items-center gap-2 flex-wrap">
           <div className="text-xs text-muted-foreground mr-2">
@@ -850,36 +887,14 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
         </div>
       </div>
       {showFilters && (
-        <div id="filters-panel" className="flex items-center gap-2 p-3 border-b border-border">
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-7 gap-2">
-            <label className="sr-only" htmlFor="filter-name">Filter Name</label>
-            <Input id="filter-name" placeholder="Filter Name" value={filters.text.name || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, name: e.target.value } }))} />
-            <label className="sr-only" htmlFor="filter-title">Filter Title</label>
-            <Input id="filter-title" placeholder="Filter Title" value={filters.text.title || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, title: e.target.value } }))} />
-            <label className="sr-only" htmlFor="filter-company">Filter Company</label>
-            <Input id="filter-company" placeholder="Filter Company" value={filters.text.company || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, company: e.target.value } }))} />
-            <label className="sr-only" htmlFor="filter-email">Filter Email</label>
-            <Input id="filter-email" placeholder="Filter Email" value={filters.text.email || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, email: e.target.value } }))} />
-            <label className="sr-only" htmlFor="filter-location">Filter Location</label>
-            <Input id="filter-location" placeholder="Filter Location" value={filters.text.location || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, location: e.target.value } }))} />
-            <label className="sr-only" htmlFor="filter-industry">Filter Industry</label>
-            <Input id="filter-industry" placeholder="Filter Industry" value={filters.text.industry || ""} onChange={(e) => setFilters(f => ({ ...f, text: { ...f.text, industry: e.target.value } }))} />
-            <div className="flex items-center gap-2">
-              <label htmlFor="filter-has-email" className="text-xs text-muted-foreground">Has Email</label>
-              <input id="filter-has-email" aria-label="Filter Has Email" type="checkbox" checked={!!filters.hasEmail} onChange={(e) => setFilters(f => ({ ...f, hasEmail: e.target.checked ? true : undefined }))} />
-            </div>
-            <div className="flex items-center gap-2">
-              <label htmlFor="filter-has-phone" className="text-xs text-muted-foreground">Has Phone</label>
-              <input id="filter-has-phone" aria-label="Filter Has Phone" type="checkbox" checked={!!filters.hasPhone} onChange={(e) => setFilters(f => ({ ...f, hasPhone: e.target.checked ? true : undefined }))} />
-            </div>
-            <div className="flex items-center gap-2">
-              <label htmlFor="filter-score-min" className="text-xs text-muted-foreground">Min Score</label>
-              <Input id="filter-score-min" inputMode="numeric" placeholder="Min" value={filters.scoreMin ?? ""} onChange={(e) => setFilters(f => ({ ...f, scoreMin: e.target.value === "" ? null : Number(e.target.value) }))} />
-            </div>
-            <div className="flex items-center gap-2">
-              <label htmlFor="filter-score-max" className="text-xs text-muted-foreground">Max Score</label>
-              <Input id="filter-score-max" inputMode="numeric" placeholder="Max" value={filters.scoreMax ?? ""} onChange={(e) => setFilters(f => ({ ...f, scoreMax: e.target.value === "" ? null : Number(e.target.value) }))} />
-            </div>
+        <div id="filters-panel" className="flex items-center gap-4 p-3 border-b border-border">
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-has-email" className="text-sm text-muted-foreground">Has Email</label>
+            <input id="filter-has-email" aria-label="Filter Has Email" type="checkbox" checked={!!filters.hasEmail} onChange={(e) => setFilters(f => ({ ...f, hasEmail: e.target.checked ? true : undefined }))} />
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-has-phone" className="text-sm text-muted-foreground">Has Phone</label>
+            <input id="filter-has-phone" aria-label="Filter Has Phone" type="checkbox" checked={!!filters.hasPhone} onChange={(e) => setFilters(f => ({ ...f, hasPhone: e.target.checked ? true : undefined }))} />
           </div>
         </div>
       )}
@@ -991,11 +1006,11 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             >
               <button
                 type="button"
-                aria-label="Sort by Tier"
+                aria-label="Sort by Rating"
                 onClick={() => cycleSort('score')}
                 className="inline-flex items-center gap-1 hover:text-foreground"
               >
-                Tier {sortKey === 'score' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
+                Rating {sortKey === 'score' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
               </button>
             </th>
             <th className="text-left p-2 font-medium tracking-wide" style={{ width: '70px', minWidth: '60px' }}>LinkedIn</th>
@@ -1013,12 +1028,11 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             const industry = getLeadIndustry(lead);
             
             return (
-              <tr key={index} className="border-b border-border transition-colors hover:bg-accent/30">
+              <tr key={index} className="border-b border-border transition-colors hover:bg-[#f47146]/10">
                 <td className="p-2" style={{ width: '140px', minWidth: '120px' }}>
                   <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className="font-medium text-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis"
-                      style={{ maxWidth: '120px' }}
+                      className="font-medium text-foreground break-words"
                       title={lead.name}
                     >
                       {lead.name}
@@ -1028,8 +1042,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                 <td className="p-2" style={{ width: '180px', minWidth: '150px' }}>
                   <div className="min-w-0">
                     <span
-                      className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis inline-block"
-                      style={{ maxWidth: '160px' }}
+                      className="text-foreground/80 break-words"
                       title={lead.title || 'N/A'}
                     >
                       {lead.title || 'N/A'}
@@ -1039,8 +1052,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                 <td className="p-2" style={{ width: '200px', minWidth: '160px' }}>
                   <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className="text-foreground/80 truncate whitespace-nowrap overflow-hidden text-ellipsis"
-                      style={{ maxWidth: '180px' }}
+                      className="text-foreground/80 break-words"
                       title={displayCompany}
                     >
                       {displayCompany}
@@ -1050,8 +1062,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                 <td className="p-2" style={{ width: '130px', minWidth: '110px' }}>
                   <div className="min-w-0">
                     <span
-                      className="text-foreground/80 text-xs leading-tight truncate whitespace-nowrap overflow-hidden text-ellipsis inline-block"
-                      style={{ maxWidth: '110px' }}
+                      className="text-foreground/80 text-xs leading-tight break-words inline-block"
                       title={industry || 'N/A'}
                     >
                       {industry || 'N/A'}
@@ -1069,8 +1080,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                   {lead.email ? (
                     <a
                       href={`mailto:${lead.email}`}
-                      className="text-primary hover:underline truncate whitespace-nowrap overflow-hidden text-ellipsis inline-block"
-                      style={{ maxWidth: '200px' }}
+                      className="text-primary hover:underline break-words inline-block"
                       title={lead.email}
                     >
                       {lead.email}
@@ -1100,12 +1110,8 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     const tierInfo = getTierInfo(tier);
                     
                     return (
-                      <div 
-                        className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold text-white"
-                        style={{ backgroundColor: tierInfo.color }}
-                        title={`${tierInfo.label}: ${score}/100 - ${tierInfo.action}`}
-                      >
-                        {tier}
+                      <div className="flex items-center justify-center">
+                        {renderStars(score)}
                       </div>
                     );
                   })()}
@@ -1118,7 +1124,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                       rel="noopener noreferrer"
                       aria-label={`Open LinkedIn profile for ${lead.name}`}
                       onClick={(e) => e.stopPropagation()}
-                      className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "p-1 h-7 w-7")}
+                      className="inline-flex items-center justify-center rounded-full w-7 h-7 bg-surface border border-stroke shadow-[2px_2px_4px_#7b7b79,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] hover:text-[#f47146] active:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] active:text-[#f47146] transition-all duration-180 text-foreground focus:outline-none focus:ring-2 focus:ring-[#f47146] focus:ring-offset-2"
                     >
                       <Linkedin className="h-3 w-3" />
                     </a>
@@ -1134,7 +1140,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                       rel="noopener noreferrer"
                       aria-label={`Open company website for ${displayCompany}`}
                       onClick={(e) => e.stopPropagation()}
-                      className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "p-1 h-7 w-7")}
+                      className="inline-flex items-center justify-center rounded-full w-7 h-7 bg-surface border border-stroke shadow-[2px_2px_4px_#7b7b79,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] hover:text-[#f47146] active:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] active:text-[#f47146] transition-all duration-180 text-foreground focus:outline-none focus:ring-2 focus:ring-[#f47146] focus:ring-offset-2"
                     >
                       <ExternalLink className="h-3 w-3" />
                     </a>
@@ -1150,7 +1156,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                       rel="noopener noreferrer"
                       aria-label={`Open company LinkedIn for ${displayCompany}`}
                       onClick={(e) => e.stopPropagation()}
-                      className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "p-1 h-7 w-7")}
+                      className="inline-flex items-center justify-center rounded-full w-7 h-7 bg-surface border border-stroke shadow-[2px_2px_4px_#7b7b79,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] hover:text-[#f47146] active:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] active:text-[#f47146] transition-all duration-180 text-foreground focus:outline-none focus:ring-2 focus:ring-[#f47146] focus:ring-offset-2"
                     >
                       <Linkedin className="h-3 w-3" />
                     </a>
@@ -1182,6 +1188,16 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
           })}
         </tbody>
       </table>
+      </div>
+      {/* Bottom scroll indicator */}
+      <div className="overflow-x-auto overflow-y-hidden border-t border-border" style={{ height: '12px' }} onScroll={(e) => {
+        // Sync with main table
+        const mainTable = e.currentTarget.previousElementSibling as HTMLElement;
+        if (mainTable) {
+          mainTable.scrollLeft = e.currentTarget.scrollLeft;
+        }
+      }}>
+        <div style={{ width: '1400px', height: '1px' }}></div>
       </div>
     </div>
   );

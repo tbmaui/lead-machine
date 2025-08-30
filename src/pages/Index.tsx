@@ -3,22 +3,13 @@ import OverviewSection from "@/components/OverviewSection";
 import LeadGenForm from "@/components/LeadGenForm";
 import QuickStartInstructions from "@/components/QuickStartInstructions";
 import LeadScoreCalculation from "@/components/LeadScoreCalculation";
-import Logo from "@/components/Logo";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Enhanced header with gradient stroke */}
-      <header className="neu-flat neu-gradient-stroke mx-4 rounded-lg">
-        <div className="relative flex justify-center items-center p-0">
-          <Logo />
-          <div className="absolute right-2 top-2">
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
-
       {/* Hero section with improved spacing */}
       <HeroSection />
       
@@ -38,7 +29,7 @@ const Index = () => {
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Start Your Lead Search</h2>
           </div>
-          <LeadGenForm />
+          {user && <LeadGenForm userId={user.id} />}
         </section>
       </main>
     </div>

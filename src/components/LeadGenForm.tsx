@@ -9,8 +9,12 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useLeadGeneration } from "@/hooks/useLeadGeneration";
 import LeadGenResults from "./LeadGenResults";
 
-const LeadGenForm = () => {
-  const { currentJob, leads, loading, startLeadGeneration, resetJob } = useLeadGeneration();
+interface LeadGenFormProps {
+  userId: string;
+}
+
+const LeadGenForm = ({ userId }: LeadGenFormProps) => {
+  const { currentJob, leads, loading, startLeadGeneration, resetJob } = useLeadGeneration(userId);
   
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
   const industryOptions = [

@@ -32,7 +32,7 @@ export interface Lead {
   organization_url?: string;
 }
 
-export const useLeadGeneration = (userId?: string) => {
+export const useLeadGeneration = (userId: string) => {
   const [currentJob, setCurrentJob] = useState<LeadGenJob | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,14 +43,10 @@ export const useLeadGeneration = (userId?: string) => {
   const { toast } = useToast();
 
   // Subscribe to real-time updates for jobs as soon as we have a jobId
-  // Add fallback polling for anonymous users to handle RLS issues with realtime
   useEffect(() => {
-    if (!jobIdForSubscription) return;
+    if (!jobIdForSubscription || !userId) return;
 
     console.log('Setting up real-time subscription for job:', jobIdForSubscription);
-    
-    let pollingInterval: number | null = null;
-    let isPolling = false;
 
     const handleJobUpdate = (updatedJob: any) => {
       console.log('Job update received:', updatedJob);
@@ -131,51 +127,13 @@ export const useLeadGeneration = (userId?: string) => {
           description: `Found ${updatedJob.total_leads_found} leads`,
         });
         fetchLeads(updatedJob.id);
-        // Stop polling when completed
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          pollingInterval = null;
-        }
       } else if (updatedJob.status === 'failed') {
         toast({
           title: "Lead generation failed",
           description: updatedJob.error_message || "An error occurred",
           variant: "destructive",
         });
-        // Stop polling when failed
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          pollingInterval = null;
-        }
       }
-    };
-
-    // Set up polling as fallback for anonymous users
-    const startPolling = () => {
-      if (isPolling) return;
-      isPolling = true;
-      console.log('Starting polling fallback for job updates');
-      
-      pollingInterval = window.setInterval(async () => {
-        try {
-          const { data, error } = await supabase
-            .from('lead_gen_jobs')
-            .select('*')
-            .eq('id', jobIdForSubscription)
-            .maybeSingle();
-
-          if (error) {
-            console.error('Polling error:', error);
-            return;
-          }
-
-          if (data && (!currentJob || data.updated_at !== currentJob.updated_at)) {
-            handleJobUpdate(data);
-          }
-        } catch (err) {
-          console.error('Polling exception:', err);
-        }
-      }, 3000); // Poll every 3 seconds
     };
     
     const jobChannel = supabase
@@ -194,40 +152,19 @@ export const useLeadGeneration = (userId?: string) => {
       )
       .subscribe((status) => {
         console.log('Job subscription status:', status);
-        
-        // If subscription fails (common with RLS + anonymous users), start polling
-        if (status === 'SUBSCRIPTION_ERROR' || status === 'CLOSED') {
-          console.log('Realtime subscription failed, falling back to polling');
-          startPolling();
-        }
       });
 
-    // Start polling immediately for anonymous users as primary strategy
-    const timeout = setTimeout(() => {
-      console.log('Starting polling as primary strategy for anonymous users');
-      startPolling();
-    }, 1000);
-
     return () => {
-      console.log('Cleaning up job subscription and polling');
+      console.log('Cleaning up job subscription');
       supabase.removeChannel(jobChannel);
-      if (pollingInterval) {
-        clearInterval(pollingInterval);
-      }
-      clearTimeout(timeout);
     };
-  }, [jobIdForSubscription, toast, currentJob]);
+  }, [jobIdForSubscription, toast, currentJob, userId]);
 
   // Subscribe to real-time updates for leads as soon as we have a jobId
-  // Add fallback polling for anonymous users
   useEffect(() => {
-    if (!jobIdForSubscription) return;
+    if (!jobIdForSubscription || !userId) return;
 
     console.log('Setting up real-time subscription for leads:', jobIdForSubscription);
-    
-    let leadsPollingInterval: number | null = null;
-    let isLeadsPolling = false;
-    let lastLeadCount = 0;
 
     const handleNewLead = (lead: Lead) => {
       console.log('New lead received:', lead);
@@ -237,38 +174,6 @@ export const useLeadGeneration = (userId?: string) => {
         organization_url: lead.organization_url
       });
       setLeads(prev => [...prev, lead]);
-    };
-
-    // Set up polling for leads
-    const startLeadsPolling = () => {
-      if (isLeadsPolling) return;
-      isLeadsPolling = true;
-      console.log('Starting polling fallback for leads updates');
-      
-      leadsPollingInterval = window.setInterval(async () => {
-        try {
-          const { data, error } = await supabase
-            .from('leads')
-            .select('*')
-            .eq('job_id', jobIdForSubscription)
-            .order('created_at', { ascending: true });
-
-          if (error) {
-            console.error('Leads polling error:', error);
-            return;
-          }
-
-          if (data && data.length > lastLeadCount) {
-            // Only add new leads (not already in state)
-            const newLeads = data.slice(lastLeadCount);
-            console.log(`Found ${newLeads.length} new leads via polling`);
-            newLeads.forEach(handleNewLead);
-            lastLeadCount = data.length;
-          }
-        } catch (err) {
-          console.error('Leads polling exception:', err);
-        }
-      }, 5000); // Poll every 5 seconds for leads
     };
     
     const leadsChannel = supabase
@@ -287,33 +192,18 @@ export const useLeadGeneration = (userId?: string) => {
       )
       .subscribe((status) => {
         console.log('Leads subscription status:', status);
-        
-        // If subscription fails, start polling
-        if (status === 'SUBSCRIPTION_ERROR' || status === 'CLOSED') {
-          console.log('Realtime leads subscription failed, falling back to polling');
-          startLeadsPolling();
-        }
       });
 
-    // Start polling immediately for anonymous users as primary strategy
-    const timeout = setTimeout(() => {
-      console.log('Starting leads polling as primary strategy for anonymous users');
-      startLeadsPolling();
-    }, 2000);
-
     return () => {
-      console.log('Cleaning up leads subscription and polling');
+      console.log('Cleaning up leads subscription');
       supabase.removeChannel(leadsChannel);
-      if (leadsPollingInterval) {
-        clearInterval(leadsPollingInterval);
-      }
-      clearTimeout(timeout);
     };
-  }, [jobIdForSubscription]);
+  }, [jobIdForSubscription, userId]);
 
   const startLeadGeneration = async (jobCriteria: any) => {
-    // Use provided userId or generate proper UUID for anonymous user
-    const effectiveUserId = userId || crypto.randomUUID();
+    if (!userId) {
+      throw new Error('User must be authenticated to generate leads');
+    }
 
     setLoading(true);
     setLeads([]); // Clear previous leads
@@ -324,7 +214,7 @@ export const useLeadGeneration = (userId?: string) => {
       const response = await supabase.functions.invoke('trigger-lead-generation', {
         body: {
           jobCriteria,
-          userId: effectiveUserId
+          userId: userId
         }
       });
 
