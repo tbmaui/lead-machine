@@ -24,26 +24,26 @@ const LeadGenStats = ({ leads }: LeadGenStatsProps) => {
     {
       number: totalLeads,
       label: "Total Leads",
-      bgColor: "bg-blue-50",
-      textColor: "text-blue-600"
+      bgColor: "bg-[hsl(140_25%_88%)]",
+      textColor: "text-[hsl(140_25%_35%)]"
     },
     {
       number: verifiedPhones,
       label: "Verified Phones",
-      bgColor: "bg-green-50",
-      textColor: "text-green-600"
+      bgColor: "bg-[hsl(140_25%_88%)]",
+      textColor: "text-[hsl(140_25%_35%)]"
     },
     {
       number: verifiedEmails,
       label: "Verified Emails",
-      bgColor: "bg-purple-50",
-      textColor: "text-purple-600"
+      bgColor: "bg-[hsl(40_40%_88%)]",
+      textColor: "text-[hsl(40_40%_35%)]"
     },
     {
       number: uniqueCompanies,
       label: "Unique Companies",
-      bgColor: "bg-gray-50",
-      textColor: "text-gray-600"
+      bgColor: "bg-[hsl(40_40%_88%)]",
+      textColor: "text-[hsl(40_40%_35%)]"
     }
   ];
 

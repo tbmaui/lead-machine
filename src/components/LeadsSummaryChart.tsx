@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import type { Lead } from "@/hooks/useLeadGeneration";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   ChartContainer,
   ChartLegend,
@@ -148,46 +147,26 @@ const TITLE_COLORS = [
 ];
 
 const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
-  const [mode, setMode] = useState<ChartMode>("tiers"); // Set tiers as default mode
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  // Move all hooks before any early returns to fix React Hook Rules violation
-  const qualityData = useMemo(() => computeQualityBreakdown(leads || []), [leads]);
-  const titleData = useMemo(() => computeTitlesBreakdown(leads || []), [leads]);
+  // Only need tier data now since we're removing other modes
   const tierData = useMemo(() => computeTiersBreakdown(leads || []), [leads]);
   const total = useMemo(() => leads?.length || 0, [leads]);
   
   const hasData = useMemo(() => {
-    const data = mode === "quality" ? qualityData : mode === "titles" ? titleData : tierData;
-    return data.some((s) => s.value > 0);
-  }, [mode, qualityData, titleData, tierData]);
+    return tierData.some((s) => s.value > 0);
+  }, [tierData]);
 
   const chartConfig = useMemo(() => {
-    if (mode === "quality") {
-      return {
-        Both: { label: "Both", color: QUALITY_COLORS.both },
-        "Has Email": { label: "Has Email", color: QUALITY_COLORS.emailOnly },
-        "Has Phone": { label: "Has Phone", color: QUALITY_COLORS.phoneOnly },
-        Neither: { label: "Neither", color: QUALITY_COLORS.neither },
-      } as const;
-    }
-    if (mode === "tiers") {
-      const config: Record<string, { label: string; color: string }> = {};
-      tierData.forEach((slice) => {
-        config[slice.name] = { 
-          label: slice.name, // Just use the friendly label 
-          color: slice.color 
-        };
-      });
-      return config;
-    }
-    // titles mode
     const config: Record<string, { label: string; color: string }> = {};
-    titleData.forEach((slice, idx) => {
-      config[slice.name] = { label: slice.name, color: TITLE_COLORS[idx % TITLE_COLORS.length] };
+    tierData.forEach((slice) => {
+      config[slice.name] = { 
+        label: slice.name, // Just use the friendly label 
+        color: slice.color 
+      };
     });
     return config;
-  }, [mode, titleData, tierData]);
+  }, [tierData]);
 
   // Early return after all hooks are called  
   if (!leads) return null;
@@ -225,14 +204,9 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
   };
 
   return (
-    <div className="neu-card neu-gradient-stroke p-6 max-w-sm mx-auto" role="img" aria-label={mode === "quality" ? "Lead quality summary donut chart" : mode === "titles" ? "Title distribution donut chart" : "Lead tier distribution donut chart"}>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Lead Summary</h3>
-        <ToggleGroup type="single" value={mode} onValueChange={(v) => v && setMode(v as ChartMode)} className="neu-flat">
-          <ToggleGroupItem value="tiers" aria-label="Show tier breakdown" className="neu-button text-xs">Tiers</ToggleGroupItem>
-          <ToggleGroupItem value="quality" aria-label="Show quality breakdown" className="neu-button text-xs">Quality</ToggleGroupItem>
-          <ToggleGroupItem value="titles" aria-label="Show titles breakdown" className="neu-button text-xs">Titles</ToggleGroupItem>
-        </ToggleGroup>
+    <div className="neu-card neu-gradient-stroke p-6 max-w-sm mx-auto" role="img" aria-label="Lead tier distribution donut chart">
+      <div className="flex items-center justify-center mb-4">
+        <h3 className="text-lg font-semibold text-foreground">Lead Tiers</h3>
       </div>
 
       {!hasData ? (
@@ -242,7 +216,7 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
           <PieChart width={280} height={280}>
             <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
             <Pie
-              data={mode === "quality" ? qualityData : mode === "titles" ? titleData : tierData}
+              data={tierData}
               dataKey="value"
               nameKey="name"
               innerRadius={60}
@@ -250,16 +224,12 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
               paddingAngle={2}
               isAnimationActive={false}
               label={renderSliceLabel}
-              labelLine={false}
+              labelLine={true}
               
               activeIndex={activeIndex === null ? undefined : activeIndex}
             >
-              {(mode === "quality" ? qualityData : mode === "titles" ? titleData : tierData).map((entry, index) => {
-                const color = mode === "quality"
-                  ? QUALITY_COLORS[(entry as QualitySlice).key]
-                  : mode === "tiers" 
-                  ? (entry as TierSlice).color
-                  : TITLE_COLORS[index % TITLE_COLORS.length];
+              {tierData.map((entry, index) => {
+                const color = (entry as TierSlice).color;
                 return <Cell key={entry.name} fill={color} />;
               })}
               <Label

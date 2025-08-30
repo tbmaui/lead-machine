@@ -13,7 +13,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, Settings, LogOut, Loader2 } from "lucide-react";
 import Logo from "@/components/Logo";
-import Switch from "@/components/ui/sky-toggle";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface AuthenticatedLayoutProps {
   children: ReactNode;
@@ -68,8 +68,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Switch />
-              
+              <ThemeToggle />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { Slider } from "@/components/ui/slider";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useLeadGeneration } from "@/hooks/useLeadGeneration";
@@ -148,7 +148,7 @@ const LeadGenForm = ({ userId }: LeadGenFormProps) => {
                 <div className="p-4 space-y-3">
                   {industryOptions.map((industry) => (
                     <div key={industry} className="flex items-center space-x-3">
-                      <Checkbox
+                      <CustomCheckbox
                         id={industry}
                         checked={selectedIndustries.includes(industry)}
                         onCheckedChange={() => handleIndustryToggle(industry)}
@@ -191,7 +191,7 @@ const LeadGenForm = ({ userId }: LeadGenFormProps) => {
                 <div className="p-4 space-y-3">
                   {companySizeOptions.map((size) => (
                     <div key={size} className="flex items-center space-x-3">
-                      <Checkbox
+                      <CustomCheckbox
                         id={size}
                         checked={selectedCompanySizes.includes(size)}
                         onCheckedChange={() => handleCompanySizeToggle(size)}
@@ -232,7 +232,7 @@ const LeadGenForm = ({ userId }: LeadGenFormProps) => {
               <div className="p-4 space-y-3">
                 {jobTitleOptions.map((title) => (
                   <div key={title} className="flex items-center space-x-3">
-                    <Checkbox
+                    <CustomCheckbox
                       id={title}
                       checked={selectedJobTitles.includes(title)}
                       onCheckedChange={() => handleJobTitleToggle(title)}
@@ -260,31 +260,20 @@ const LeadGenForm = ({ userId }: LeadGenFormProps) => {
               value={leadCount}
               onValueChange={setLeadCount}
               max={1000}
-              min={1}
+              min={100}
               step={1}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>1</span>
+              <span>100</span>
               <span className="font-medium text-xl text-foreground neu-flat px-3 py-1 rounded-lg">
                 {leadCount[0]}
               </span>
-              <span>500</span>
               <span className="ml-auto">1000</span>
             </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <Button
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            variant="ghost"
-            className="flex items-center gap-2 text-sm font-medium w-full justify-center"
-          >
-            {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            Advanced Targeting Options
-          </Button>
-        </div>
 
         <Button 
           onClick={handleGenerate}
