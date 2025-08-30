@@ -20,9 +20,8 @@ interface LeadGenResultsProps {
 
 const LeadGenResults = ({ job, leads, onNewSearch, showingResults }: LeadGenResultsProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  // DEBUG: Force loading animation to always show for testing
-  const isProcessing = true; // TEMPORARY: Always show loading animation
-  // const isProcessing = job.status === 'pending' || job.status === 'processing' || job.status === 'searching' || job.status === 'enriching' || job.status === 'validating' || job.status === 'finalizing';
+  // Show processing view for all non-completed states  
+  const isProcessing = job.status === 'pending' || job.status === 'processing' || job.status === 'searching' || job.status === 'enriching' || job.status === 'validating' || job.status === 'finalizing';
   
   console.log("LeadGenResults render:", { 
     jobStatus: job.status, 
@@ -66,9 +65,12 @@ const LeadGenResults = ({ job, leads, onNewSearch, showingResults }: LeadGenResu
 
   if (isProcessing) {
     return (
-      <div className="relative space-y-6 min-h-[400px]">
+      <div className="relative space-y-6 min-h-[400px] border-4 border-red-500" style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)' }}>
+        {/* DEBUG: Red border and background to confirm this renders */}
+        <div className="absolute inset-0 bg-blue-500/20 border-4 border-blue-500 border-dashed z-0" />
+        
         {/* Animated background for loading state */}
-        <LoadingBackground className="absolute inset-0 z-0" />
+        <LoadingBackground className="absolute inset-0 z-1" />
         
         {/* Content with relative positioning */}
         <div className="relative z-10 space-y-6">
