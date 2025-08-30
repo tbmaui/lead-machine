@@ -90,6 +90,12 @@ const LeadGenForm = ({ userId }: LeadGenFormProps) => {
   };
 
   if (currentJob) {
+    console.log("LeadGenForm: Showing LeadGenResults with:", {
+      jobStatus: currentJob.status,
+      jobProgress: currentJob.progress,
+      showingResults,
+      leadsCount: leads.length
+    });
     return <LeadGenResults job={currentJob} leads={leads} onNewSearch={handleNewSearch} showingResults={showingResults} />;
   }
 
