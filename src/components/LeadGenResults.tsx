@@ -66,9 +66,9 @@ const LeadGenResults = ({ job, leads, onNewSearch, showingResults }: LeadGenResu
 
   if (isProcessing) {
     return (
-      <div className="relative space-y-6">
+      <div className="relative space-y-6 min-h-[400px]">
         {/* Animated background for loading state */}
-        <LoadingBackground className="absolute inset-0 -mx-4 -my-6" />
+        <LoadingBackground className="absolute inset-0 z-0" />
         
         {/* Content with relative positioning */}
         <div className="relative z-10 space-y-6">
