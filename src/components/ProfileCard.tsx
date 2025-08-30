@@ -52,7 +52,7 @@ export function ProfileCard({ onClose }: ProfileCardProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-sm neu-card relative overflow-hidden">
+      <Card className="w-full max-w-sm neu-card relative overflow-hidden shadow-none border-0">
         <CardContent className="p-0">
           {/* Header with controls */}
           <div className="relative p-6 pb-4">
