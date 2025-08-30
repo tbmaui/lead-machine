@@ -14,11 +14,13 @@ interface LeadGenResultsProps {
   job: LeadGenJob;
   leads: Lead[];
   onNewSearch: () => void;
+  showingResults?: boolean;
 }
 
-const LeadGenResults = ({ job, leads, onNewSearch }: LeadGenResultsProps) => {
+const LeadGenResults = ({ job, leads, onNewSearch, showingResults }: LeadGenResultsProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const isProcessing = job.status === 'pending' || job.status === 'processing' || job.status === 'searching' || job.status === 'enriching' || job.status === 'validating' || job.status === 'finalizing';
+  // Show processing view until results are ready to be shown
+  const isProcessing = !showingResults && (job.status !== 'completed' || job.progress < 100);
 
   const steps = [
     "Initializing search parameters...",

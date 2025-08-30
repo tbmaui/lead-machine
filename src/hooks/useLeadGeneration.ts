@@ -37,9 +37,11 @@ export const useLeadGeneration = (userId: string) => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
   const [jobIdForSubscription, setJobIdForSubscription] = useState<string | null>(null);
+  const [showingResults, setShowingResults] = useState(false);
   const simulationTimeoutsRef = useRef<number[]>([]);
   const simulationActiveRef = useRef<boolean>(false);
   const pendingUpdateRef = useRef<{ job: any; status: LeadGenJob['status']; progress: number } | null>(null);
+  const completionTimeoutRef = useRef<number | null>(null);
   const { toast } = useToast();
 
   // Subscribe to real-time updates for jobs as soon as we have a jobId
@@ -115,19 +117,35 @@ export const useLeadGeneration = (userId: string) => {
         return; // Defer applying the real update immediately; simulation will catch up
       }
 
+      // Handle completion status with smooth 100% progress and pause
+      if (updatedJob.status === 'completed') {
+        // First, set progress to 100% and show completion
+        setCurrentJob({
+          ...(updatedJob as LeadGenJob),
+          status,
+          progress: 100,
+        });
+        
+        // Then wait 2-3 seconds before showing results
+        completionTimeoutRef.current = window.setTimeout(() => {
+          toast({
+            title: "Lead generation completed!",
+            description: `Found ${updatedJob.total_leads_found} leads`,
+          });
+          fetchLeads(updatedJob.id);
+          setShowingResults(true);
+        }, 2500); // 2.5 second pause for user satisfaction
+        
+        return;
+      }
+      
       setCurrentJob({
         ...(updatedJob as LeadGenJob),
         status,
         progress: mergedProgress,
       });
       
-      if (updatedJob.status === 'completed') {
-        toast({
-          title: "Lead generation completed!",
-          description: `Found ${updatedJob.total_leads_found} leads`,
-        });
-        fetchLeads(updatedJob.id);
-      } else if (updatedJob.status === 'failed') {
+      if (updatedJob.status === 'failed') {
         toast({
           title: "Lead generation failed",
           description: updatedJob.error_message || "An error occurred",
@@ -157,6 +175,11 @@ export const useLeadGeneration = (userId: string) => {
     return () => {
       console.log('Cleaning up job subscription');
       supabase.removeChannel(jobChannel);
+      // Clear completion timeout when subscription cleanup
+      if (completionTimeoutRef.current) {
+        clearTimeout(completionTimeoutRef.current);
+        completionTimeoutRef.current = null;
+      }
     };
   }, [jobIdForSubscription, toast, currentJob, userId]);
 
@@ -317,12 +340,25 @@ export const useLeadGeneration = (userId: string) => {
     setCurrentJob(null);
     setLeads([]);
     setJobIdForSubscription(null);
+    setShowingResults(false);
+    
+    // Clear any pending completion timeout
+    if (completionTimeoutRef.current) {
+      clearTimeout(completionTimeoutRef.current);
+      completionTimeoutRef.current = null;
+    }
+    
+    // Clear any simulation timeouts
+    simulationTimeoutsRef.current.forEach((id) => clearTimeout(id));
+    simulationTimeoutsRef.current = [];
+    simulationActiveRef.current = false;
   };
 
   return {
     currentJob,
     leads,
     loading,
+    showingResults,
     startLeadGeneration,
     resetJob,
     fetchLeads

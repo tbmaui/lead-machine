@@ -26,7 +26,9 @@
       "Bash(npm run build:*)",
       "Bash(npm run env:check:*)",
       "Bash(VITE_SUPABASE_URL=https://ooucjycpduxmnkxhjgtk.supabase.co VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vdWNqeWNwZHV4bW5reGhqZ3RrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzNTA5NzQsImV4cCI6MjA3MDkyNjk3NH0.ucEz7CZK2iy9Ut0xJnkZHIIi1N1SD5zMEztWraITMvg npm run build:prod)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

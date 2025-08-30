@@ -14,7 +14,7 @@ interface LeadGenFormProps {
 }
 
 const LeadGenForm = ({ userId }: LeadGenFormProps) => {
-  const { currentJob, leads, loading, startLeadGeneration, resetJob } = useLeadGeneration(userId);
+  const { currentJob, leads, loading, showingResults, startLeadGeneration, resetJob } = useLeadGeneration(userId);
   
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
   const industryOptions = [
@@ -90,7 +90,7 @@ const LeadGenForm = ({ userId }: LeadGenFormProps) => {
   };
 
   if (currentJob) {
-    return <LeadGenResults job={currentJob} leads={leads} onNewSearch={handleNewSearch} />;
+    return <LeadGenResults job={currentJob} leads={leads} onNewSearch={handleNewSearch} showingResults={showingResults} />;
   }
 
   return (
