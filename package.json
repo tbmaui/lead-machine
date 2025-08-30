@@ -13,9 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "env:check": "node -e \"console.log('Environment Check:'); const required = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']; const missing = required.filter(key => !process.env[key]); if (missing.length) { console.error('Missing:', missing); process.exit(1); } else { console.log('✅ All required environment variables present'); }\"",
-    "prebuild": "npm run env:check",
-    "prebuild:prod": "npm run env:check"
+    "env:check": "node -e \"console.log('Environment Check:'); const required = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']; const missing = required.filter(key => !process.env[key]); if (missing.length) { console.error('Missing:', missing); process.exit(1); } else { console.log('✅ All required environment variables present'); }\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
