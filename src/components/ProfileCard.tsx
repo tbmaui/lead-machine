@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,34 +9,36 @@ import {
   Camera,
   Edit3,
   Save,
-  X
+  X,
+  Loader2
 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 
 interface ProfileCardProps {
   onClose: () => void;
 }
 
 export function ProfileCard({ onClose }: ProfileCardProps) {
-  const { user } = useAuth();
+  const { profile, updateProfile, isLoading } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User",
-    title: "Lead Generation Expert", 
-    bio: "Passionate about connecting businesses with quality leads",
-    avatar: user?.user_metadata?.avatar_url || ""
-  });
-
-  const [editData, setEditData] = useState(profileData);
+  const [editData, setEditData] = useState(profile);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSave = () => {
-    setProfileData(editData);
-    setIsEditing(false);
+  // Update edit data when profile changes (e.g., on component mount)
+  useEffect(() => {
+    setEditData(profile);
+  }, [profile]);
+
+  const handleSave = async () => {
+    const success = await updateProfile(editData);
+    if (success) {
+      setIsEditing(false);
+    }
+    // Error handling is done in the useProfile hook via toast
   };
 
   const handleCancel = () => {
-    setEditData(profileData);
+    setEditData(profile);
     setIsEditing(false);
   };
 
@@ -56,7 +58,7 @@ export function ProfileCard({ onClose }: ProfileCardProps) {
     fileInputRef.current?.click();
   };
 
-  const userInitials = profileData.name
+  const userInitials = profile.name
     .split(' ')
     .map(name => name[0])
     .join('')
@@ -93,7 +95,7 @@ export function ProfileCard({ onClose }: ProfileCardProps) {
             <div className="neu-element rounded-full p-2 relative">
               <div className="neu-inset rounded-full p-1">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={isEditing ? editData.avatar : profileData.avatar} alt={profileData.name} />
+                  <AvatarImage src={isEditing ? editData.avatar : profile.avatar} alt={profile.name} />
                   <AvatarFallback className="text-2xl font-semibold neu-flat">
                     {userInitials}
                   </AvatarFallback>
@@ -124,10 +126,10 @@ export function ProfileCard({ onClose }: ProfileCardProps) {
             {!isEditing ? (
               <>
                 <div className="text-center space-y-3 py-4">
-                  <h2 className="text-xl font-semibold">{profileData.name}</h2>
-                  <p className="text-muted-foreground font-medium">{profileData.title}</p>
+                  <h2 className="text-xl font-semibold">{profile.name}</h2>
+                  <p className="text-muted-foreground font-medium">{profile.title}</p>
                   <p className="text-sm text-muted-foreground px-4 leading-relaxed">
-                    {profileData.bio}
+                    {profile.bio}
                   </p>
                 </div>
               </>
@@ -164,14 +166,23 @@ export function ProfileCard({ onClose }: ProfileCardProps) {
 
                 {/* Save/Cancel Buttons */}
                 <div className="flex space-x-3 pt-2">
-                  <Button onClick={handleSave} className="neu-button flex-1">
-                    <Save className="h-4 w-4 mr-2" />
-                    Save
+                  <Button 
+                    onClick={handleSave} 
+                    className="neu-button flex-1"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    {isLoading ? 'Saving...' : 'Save'}
                   </Button>
                   <Button 
                     variant="outline" 
                     onClick={handleCancel}
                     className="neu-button-outline flex-1"
+                    disabled={isLoading}
                   >
                     Cancel
                   </Button>

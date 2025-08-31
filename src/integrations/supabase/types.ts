@@ -27,6 +27,7 @@ export type Database = {
           total_leads_found: number | null
           updated_at: string
           user_id: string
+          user_profile_snapshot: Json | null
           webhook_url: string | null
         }
         Insert: {
@@ -41,6 +42,7 @@ export type Database = {
           total_leads_found?: number | null
           updated_at?: string
           user_id: string
+          user_profile_snapshot?: Json | null
           webhook_url?: string | null
         }
         Update: {
@@ -55,9 +57,54 @@ export type Database = {
           total_leads_found?: number | null
           updated_at?: string
           user_id?: string
+          user_profile_snapshot?: Json | null
           webhook_url?: string | null
         }
         Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          id: string
+          full_name: string | null
+          title: string | null
+          bio: string | null
+          avatar_url: string | null
+          phone: string | null
+          company: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          full_name?: string | null
+          title?: string | null
+          bio?: string | null
+          avatar_url?: string | null
+          phone?: string | null
+          company?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          full_name?: string | null
+          title?: string | null
+          bio?: string | null
+          avatar_url?: string | null
+          phone?: string | null
+          company?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads: {
         Row: {

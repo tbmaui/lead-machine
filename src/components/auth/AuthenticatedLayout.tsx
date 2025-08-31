@@ -1,5 +1,6 @@
 import { ReactNode, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -10,10 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Settings, LogOut, Loader2, History } from "lucide-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
+import Footer from "@/components/Footer";
 import { SearchHistory } from "@/components/SearchHistory";
 import { ProfileCard } from "@/components/ProfileCard";
 
@@ -24,6 +26,7 @@ interface AuthenticatedLayoutProps {
 
 export function AuthenticatedLayout({ children, onRestoreSearch }: AuthenticatedLayoutProps) {
   const { user, signOut } = useAuth();
+  const { profile } = useProfile();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -38,15 +41,20 @@ export function AuthenticatedLayout({ children, onRestoreSearch }: Authenticated
     // If successful, the auth state change will redirect automatically
   };
 
-  const userInitials = user?.email
-    ? user.email
-        .split("@")[0]
-        .split(".")
+  const userInitials = profile.name
+    ? profile.name
+        .split(" ")
         .map((name) => name[0])
         .join("")
         .toUpperCase()
         .slice(0, 2)
-    : "U";
+    : user?.email
+        ?.split("@")[0]
+        .split(".")
+        .map((name) => name[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2) || "U";
 
   if (isSigningOut) {
     return (
@@ -78,6 +86,7 @@ export function AuthenticatedLayout({ children, onRestoreSearch }: Authenticated
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
+                      <AvatarImage src={profile.avatar} alt={profile.name} />
                       <AvatarFallback className="text-xs">
                         {userInitials}
                       </AvatarFallback>
@@ -88,7 +97,7 @@ export function AuthenticatedLayout({ children, onRestoreSearch }: Authenticated
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        {user?.user_metadata?.full_name || "User"}
+                        {profile.name || "User"}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user?.email}
@@ -145,9 +154,11 @@ export function AuthenticatedLayout({ children, onRestoreSearch }: Authenticated
         </div>
       </header>
       
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-4 py-6 min-h-[calc(100vh-200px)]">
         {children}
       </main>
+
+      <Footer />
 
       {/* Profile Modal */}
       {showProfile && (

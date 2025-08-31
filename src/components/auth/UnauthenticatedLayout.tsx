@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import Logo from "@/components/Logo";
+import Footer from "@/components/Footer";
 
 interface UnauthenticatedLayoutProps {
   children: ReactNode;
@@ -25,6 +26,7 @@ export function UnauthenticatedLayout({ children }: UnauthenticatedLayoutProps) 
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
