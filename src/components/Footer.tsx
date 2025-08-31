@@ -5,24 +5,24 @@ const Footer = () => {
   
   return (
     <footer className="border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-12">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
           
-          {/* Copyright Section */}
+          {/* Future Foundry AI Section */}
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-foreground">Lead Machine</h4>
+            <h4 className="text-sm font-semibold text-foreground">Future Foundry AI</h4>
             <div className="space-y-2 text-xs text-muted-foreground">
-              <p>© {currentYear} Complete Controller</p>
-              <p>America's Bookkeeping Experts</p>
+              <p>Your Unfair Advantage in the Age of AI</p>
+              <p>© {currentYear} Future Foundry AI</p>
               <p>All rights reserved.</p>
             </div>
           </div>
 
-          {/* Development & Distribution */}
+          {/* Lead Machine */}
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-foreground">Technology Partner</h4>
+            <h4 className="text-sm font-semibold text-foreground">Lead Machine</h4>
             <div className="space-y-2 text-xs text-muted-foreground">
-              <p>Software developed and distributed by</p>
+              <p>Professional lead generation platform</p>
               <p className="font-medium text-foreground">
                 <a 
                   href="https://futurefoundryai.com" 
@@ -30,11 +30,10 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 hover:text-primary transition-colors"
                 >
-                  Future Foundry AI
+                  Visit futurefoundryai.com
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </p>
-              <p>Enterprise AI Solutions & Custom Software Development</p>
             </div>
           </div>
 
@@ -72,9 +71,9 @@ const Footer = () => {
 
         {/* Bottom Legal Notice */}
         <div className="border-t border-border/20 mt-8 pt-6">
-          <div className="text-xs text-muted-foreground space-y-2">
+          <div className="text-xs text-muted-foreground space-y-2 text-center">
             <p>
-              <strong>Software License & Distribution:</strong> This software is proprietary to Complete Controller and developed by Future Foundry AI. 
+              <strong>Software License:</strong> This software is proprietary to Future Foundry AI. 
               Unauthorized reproduction, distribution, or modification is strictly prohibited.
             </p>
             <p>
@@ -82,7 +81,7 @@ const Footer = () => {
               Users are responsible for compliance with data protection requirements in their jurisdiction.
             </p>
             <p>
-              <strong>Support & Maintenance:</strong> Technical support and software maintenance provided by Future Foundry AI under service agreement with Complete Controller.
+              <strong>Support:</strong> Technical support and software maintenance provided by Future Foundry AI.
             </p>
           </div>
         </div>
