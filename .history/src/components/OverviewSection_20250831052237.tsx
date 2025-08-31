@@ -3,8 +3,8 @@ import { Target, Search, Zap, Link, DollarSign, BarChart3, TrendingUp, Globe, Ch
 const OverviewSection = () => {
   return (
     <div className="space-y-8">
-      {/* Two-Column Feature Grid - Centered with hero section */}
-      <div className="neu-card neu-gradient-stroke p-8 mx-auto max-w-4xl">
+      {/* Two-Column Feature Grid - No nested cards */}
+      <div className="neu-card neu-gradient-stroke p-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
         {/* Smart Star Rating System Column */}

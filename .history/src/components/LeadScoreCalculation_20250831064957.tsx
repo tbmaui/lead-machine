@@ -2,7 +2,7 @@ import { Star, Users, Mail, Phone, Building } from "lucide-react";
 
 const LeadScoreCalculation = () => {
   return (
-    <div className="neu-card neu-gradient-stroke p-8 mx-auto max-w-4xl">
+    <div className="neu-card neu-gradient-stroke p-8">
       <div className="space-y-8">
         {/* Full-Width Header Section */}
         <div className="text-center">

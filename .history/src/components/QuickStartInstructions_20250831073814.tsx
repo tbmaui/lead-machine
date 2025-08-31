@@ -1,6 +1,6 @@
 const QuickStartInstructions = () => {
   return (
-    <div className="neu-card neu-gradient-stroke p-8 mx-auto max-w-4xl">
+    <div className="neu-card neu-gradient-stroke p-8">
       <h3 className="text-lg font-semibold mb-6 text-center">Quick Start Instructions</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="flex flex-col items-center text-center space-y-3">
