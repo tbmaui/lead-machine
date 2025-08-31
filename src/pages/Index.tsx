@@ -19,7 +19,7 @@ const Index = ({ restoredSearch, onSearchRestored }: IndexProps) => {
       <HeroSection />
       
       {/* Main content area with single-layer neumorphic cards */}
-      <main className="mx-auto w-full max-w-[1600px] px-4 md:px-6 space-y-8">
+      <main className="mx-auto w-full max-w-[1600px] px-4 md:px-6 space-y-8 mt-12">
         {/* Overview Section - Direct neumorphic card */}
         <OverviewSection />
         

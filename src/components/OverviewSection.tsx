@@ -84,29 +84,6 @@ const OverviewSection = () => {
         </div>
       </div>
       </div>
-      
-      {/* Performance Stats Card */}
-      <div className="neu-card neu-gradient-stroke p-8">
-        <div className="text-center space-y-4">
-          <p className="text-sm font-medium text-muted-foreground">
-            <strong>Tier A:</strong> Call Now | <strong>Tier B:</strong> 24-48hrs | <strong>Tier C:</strong> 3-5 days | <strong>Tier D:</strong> Nurture | <strong>Tier E:</strong> Archive
-          </p>
-          <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">3x</div>
-              <div className="text-xs text-muted-foreground">Higher Response Rates</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">15-25%</div>
-              <div className="text-xs text-muted-foreground">Quality Lead Conversion</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">25%</div>
-              <div className="text-xs text-muted-foreground">Faster Deal Closure</div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

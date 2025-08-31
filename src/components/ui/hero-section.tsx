@@ -12,21 +12,21 @@ function HeroSection() {
   const OriginalHeroSection = () => (
     <div className="w-full bg-background">
       <div className="container mx-auto px-4">
-        <div className="flex gap-12 py-16 lg:py-32 items-center justify-center flex-col max-w-6xl mx-auto">
+        <div className="flex gap-16 py-16 lg:py-32 items-center justify-center flex-col max-w-6xl mx-auto">
           
           {/* Enhanced typography hierarchy */}
-          <div className="flex gap-6 flex-col text-center">
+          <div className="flex gap-8 flex-col text-center">
             <h1 className="text-4xl md:text-6xl lg:text-7xl max-w-5xl mx-auto tracking-tight font-bold bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent leading-tight">
               Welcome to the Lead Machine
             </h1>
-            <div className="space-y-4 max-w-4xl mx-auto">
-              <h2 className="text-xl md:text-2xl lg:text-3xl leading-relaxed tracking-tight text-primary font-semibold">
-                Your Source for Intelligent Lead Generation
+            <div className="space-y-6 max-w-4xl mx-auto">
+              <h2 className="text-xl md:text-2xl lg:text-3xl leading-relaxed tracking-tight font-semibold" style={{ color: '#91bfa5' }}>
+                Revolutionizing top of the funnel outreach.
               </h2>
               <h3 className="text-lg md:text-xl lg:text-2xl leading-relaxed tracking-tight text-foreground font-normal">
                 Stop chasing cold leads. Start closing hot prospects.
               </h3>
-              <p className="text-base md:text-lg text-muted-foreground max-w-3xl mx-auto">
+              <p className="text-base md:text-lg max-w-3xl mx-auto" style={{ color: 'black' }}>
                 Our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
               </p>
             </div>
@@ -70,21 +70,18 @@ function HeroSection() {
 
         {/* Original Content Layout */}
         <div className="relative z-10 container mx-auto px-4">
-          <div className="flex gap-12 py-8 lg:py-12 items-center justify-center flex-col max-w-6xl mx-auto">
+          <div className="flex gap-16 py-8 lg:py-12 items-center justify-center flex-col max-w-6xl mx-auto">
             
             {/* Streamlined typography hierarchy - Cleaned up content */}
-            <div className="flex gap-6 flex-col text-center">
+            <div className="flex gap-8 flex-col text-center">
               <h1 className="text-4xl md:text-6xl lg:text-7xl max-w-5xl mx-auto tracking-tight font-bold bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent leading-tight">
                 Welcome to the Lead Machine
               </h1>
-              <div className="space-y-4 max-w-4xl mx-auto">
-                <h2 className="text-xl md:text-2xl lg:text-3xl leading-relaxed tracking-tight text-primary font-semibold">
-                  Your Source for Intelligent Lead Generation
+              <div className="space-y-6 max-w-4xl mx-auto">
+                <h2 className="text-xl md:text-2xl lg:text-3xl leading-relaxed tracking-tight font-semibold" style={{ color: '#91bfa5' }}>
+                  Revolutionizing top of the funnel outreach.
                 </h2>
-                <h3 className="text-lg md:text-xl lg:text-2xl leading-relaxed tracking-tight text-foreground font-normal">
-                  Stop chasing cold leads. Start closing hot prospects.
-                </h3>
-                <p className="text-base md:text-lg text-muted-foreground max-w-3xl mx-auto">
+                <p className="text-base md:text-lg max-w-3xl mx-auto" style={{ color: 'black' }}>
                   Our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
                 </p>
               </div>
