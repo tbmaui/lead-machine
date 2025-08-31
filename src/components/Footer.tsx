@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { ExternalLink } from "lucide-react";
+import { TermsOfService } from "@/components/legal/TermsOfService";
 
 const Footer = () => {
+  const [showTerms, setShowTerms] = useState(false);
   const currentYear = new Date().getFullYear();
   
   return (
@@ -52,7 +55,7 @@ const Footer = () => {
               <p>
                 <button 
                   className="hover:text-primary transition-colors cursor-pointer"
-                  onClick={() => window.open('#', '_blank')}
+                  onClick={() => setShowTerms(true)}
                 >
                   Terms of Service
                 </button>
@@ -86,6 +89,11 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
+      {/* Terms of Service Modal */}
+      {showTerms && (
+        <TermsOfService onClose={() => setShowTerms(false)} />
+      )}
     </footer>
   );
 };
