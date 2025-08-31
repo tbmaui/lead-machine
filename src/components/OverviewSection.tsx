@@ -11,7 +11,7 @@ const OverviewSection = () => {
         <div className="space-y-6">
           <div className="flex items-center gap-2 mb-4">
             <Star className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Smart Star Rating System</h3>
+            <h3 className="text-xl font-semibold">Smart Star Rating System</h3>
           </div>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
@@ -49,7 +49,7 @@ const OverviewSection = () => {
         <div className="space-y-6">
           <div className="flex items-center gap-2 mb-4">
             <Search className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">Multi-Source Data Discovery</h3>
+            <h3 className="text-xl font-semibold">Multi-Source Data Discovery</h3>
           </div>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
