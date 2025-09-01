@@ -51,7 +51,7 @@ serve(async (req) => {
     
     console.log('Sending payload to N8n:', JSON.stringify(n8nPayload, null, 2));
     
-    const n8nResponse = await fetch('https://playground.automateanythingacademy.com/webhook-test/lead-intake', {
+    const n8nResponse = await fetch('https://playground.automateanythingacademy.com/webhook/lead-intake', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
