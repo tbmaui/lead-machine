@@ -903,7 +903,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
           <tr className="border-b border-border text-muted-foreground">
             <th
               className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
-              style={{ width: '140px', minWidth: '120px', position: 'relative' }}
+              style={{ width: '84px', minWidth: '70px', position: 'relative' }}
               aria-sort={sortKey === 'name' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -931,7 +931,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             </th>
             <th
               className="text-left p-2 font-medium uppercase tracking-wide"
-              style={{ width: '200px', minWidth: '160px' }}
+              style={{ width: '120px', minWidth: '100px' }}
               aria-sort={sortKey === 'company' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -945,7 +945,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             </th>
             <th
               className="text-left p-2 font-medium uppercase tracking-wide"
-              style={{ width: '130px', minWidth: '110px' }}
+              style={{ width: '78px', minWidth: '65px' }}
               aria-sort={sortKey === 'industry' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -987,7 +987,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             </th>
             <th
               className="text-left p-2 font-medium uppercase tracking-wide"
-              style={{ width: '120px', minWidth: '100px' }}
+              style={{ width: '72px', minWidth: '60px' }}
               aria-sort={sortKey === 'location' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -1029,7 +1029,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
             
             return (
               <tr key={index} className="border-b border-border transition-colors hover:bg-[#f47146]/10">
-                <td className="p-2" style={{ width: '140px', minWidth: '120px' }}>
+                <td className="p-2" style={{ width: '84px', minWidth: '70px' }}>
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       className="font-medium text-foreground break-words"
@@ -1049,7 +1049,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '200px', minWidth: '160px' }}>
+                <td className="p-2" style={{ width: '120px', minWidth: '100px' }}>
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       className="text-foreground/80 break-words"
@@ -1059,7 +1059,7 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '130px', minWidth: '110px' }}>
+                <td className="p-2" style={{ width: '78px', minWidth: '65px' }}>
                   <div className="min-w-0">
                     <span
                       className="text-foreground/80 text-xs leading-tight break-words inline-block"
@@ -1077,19 +1077,21 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
                   )}
                 </td>
                 <td className="p-2" style={{ width: '220px', minWidth: '180px' }}>
-                  {lead.email ? (
-                    <a
-                      href={`mailto:${lead.email}`}
-                      className="text-primary hover:underline break-words inline-block"
-                      title={lead.email}
-                    >
-                      {lead.email}
-                    </a>
-                  ) : (
-                    <span className="text-muted-foreground">N/A</span>
-                  )}
+                  <div className="min-w-0 max-w-full">
+                    {lead.email ? (
+                      <a
+                        href={`mailto:${lead.email}`}
+                        className="text-primary hover:underline inline-block truncate max-w-full"
+                        title={lead.email}
+                      >
+                        {lead.email}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">N/A</span>
+                    )}
+                  </div>
                 </td>
-                <td className="p-2" style={{ width: '120px', minWidth: '100px' }}>
+                <td className="p-2" style={{ width: '72px', minWidth: '60px' }}>
                   <div className="min-w-0">
                     {(() => {
                       const location = getLocation(lead);
