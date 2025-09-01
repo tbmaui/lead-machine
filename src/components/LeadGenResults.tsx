@@ -74,7 +74,7 @@ const LeadGenResults = ({ job, leads, onNewSearch, showingResults }: LeadGenResu
     return (
       <div className="relative space-y-6 min-h-[400px] animate-in fade-in duration-700">
         {/* Simple loading animation - EXTENDED ABOVE */}
-        <div className="fixed top-[20vh] left-0 right-0 bottom-0 z-0">
+        <div className="absolute inset-0 z-0">
           <SimpleLoadingAnimation />
         </div>
         
