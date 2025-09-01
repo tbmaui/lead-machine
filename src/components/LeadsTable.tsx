@@ -1,5 +1,5 @@
 import { Lead } from "@/hooks/useLeadGeneration";
-import { ExternalLink, Linkedin, Copy, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { ExternalLink, Linkedin, Copy, ChevronUp, ChevronDown, ChevronsUpDown, ArrowLeft } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
@@ -11,12 +11,13 @@ import { calculateLeadScore, getLeadTier, getTierInfo, getLeadIndustry } from "@
 
 interface LeadsTableProps {
   leads: Lead[];
+  onNewSearch?: () => void;
 }
 
 type SortKey = "name" | "title" | "company" | "industry" | "phone" | "email" | "location" | "score";
 type SortDirection = "asc" | "desc";
 
-const LeadsTable = ({ leads }: LeadsTableProps) => {
+const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection | null>(null);
   const [filters, setFilters] = useState<Filters>({
@@ -867,6 +868,16 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
           )}
         </div>
         <div className="flex items-center gap-2">
+          {onNewSearch && (
+            <button
+              type="button"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+              onClick={onNewSearch}
+            >
+              <ArrowLeft className="h-3 w-3 mr-1" />
+              New Search
+            </button>
+          )}
           <button
             type="button"
             className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
@@ -1190,16 +1201,6 @@ const LeadsTable = ({ leads }: LeadsTableProps) => {
           })}
         </tbody>
       </table>
-      </div>
-      {/* Bottom scroll indicator */}
-      <div className="overflow-x-auto overflow-y-hidden border-t border-border" style={{ height: '12px' }} onScroll={(e) => {
-        // Sync with main table
-        const mainTable = e.currentTarget.previousElementSibling as HTMLElement;
-        if (mainTable) {
-          mainTable.scrollLeft = e.currentTarget.scrollLeft;
-        }
-      }}>
-        <div style={{ width: '1400px', height: '1px' }}></div>
       </div>
     </div>
   );

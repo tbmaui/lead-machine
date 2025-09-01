@@ -87,9 +87,9 @@ const LeadGenResults = ({ job, leads, onNewSearch, showingResults }: LeadGenResu
                   <span className="text-white text-xs font-bold">⏳</span>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1" style={{ color: '#f36334' }}>Processing Your Lead Search</h3>
-                  <p className="text-sm" style={{ color: '#f36334' }}>
-                    This comprehensive process can take up to 5 minutes as we search, verify, and enrich your leads across multiple platforms. Please hang tight - it's worth the wait for high-quality results!
+                  <h3 className="font-semibold mb-1" style={{ color: '#91bfa5' }}>Processing Your Lead Search</h3>
+                  <p className="text-sm" style={{ color: '#91bfa5' }}>
+                    This comprehensive process can take up to 5 minutes as we search, verify, and enrich your leads across multiple platforms. Please hang tight for high-quality results!
                   </p>
                 </div>
               </div>
@@ -141,7 +141,7 @@ const LeadGenResults = ({ job, leads, onNewSearch, showingResults }: LeadGenResu
           <LeadGenStats leads={displayLeads} />
           <LeadsSummaryChart leads={displayLeads} />
           {job.job_criteria && <SearchCriteriaDisplay criteria={job.job_criteria} />}
-          <LeadsTable leads={displayLeads} />
+          <LeadsTable leads={displayLeads} onNewSearch={onNewSearch} />
         </CardContent>
       </Card>
       
