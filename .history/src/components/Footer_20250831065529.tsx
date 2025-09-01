@@ -12,7 +12,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
           
           {/* Future Foundry AI Section */}
-          <div className="space-y-3 text-left md:text-left">
+          <div className="space-y-3">
             <h4 className="text-sm font-semibold text-foreground">Future Foundry AI</h4>
             <div className="space-y-2 text-xs text-muted-foreground">
               <p>Your Unfair Advantage in the Age of AI</p>
@@ -22,18 +22,18 @@ const Footer = () => {
           </div>
 
           {/* Lead Machine */}
-          <div className="space-y-3 flex flex-col items-center text-center">
+          <div className="space-y-3">
             <h4 className="text-sm font-semibold text-foreground">Lead Machine</h4>
             <div className="space-y-2 text-xs text-muted-foreground">
-              <p>Professional Lead Generation Platform</p>
+              <p>Professional lead generation platform</p>
               <p className="font-medium text-foreground">
-                <a
-                  href="https://futurefoundry.ai"
-                  target="_blank"
+                <a 
+                  href="https://futurefoundryai.com" 
+                  target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 hover:text-primary transition-colors justify-center"
+                  className="inline-flex items-center gap-1 hover:text-primary transition-colors"
                 >
-                  Visit futurefoundry.ai
+                  Visit futurefoundryai.com
                   <ExternalLink className="h-3 w-3" />
                 </a>
               </p>
@@ -41,11 +41,11 @@ const Footer = () => {
           </div>
 
           {/* Legal Information */}
-          <div className="space-y-3 flex flex-col items-end text-right md:items-end md:text-right">
+          <div className="space-y-3">
             <h4 className="text-sm font-semibold text-foreground">Legal</h4>
             <div className="space-y-2 text-xs text-muted-foreground">
               <p>
-                <button
+                <button 
                   className="hover:text-primary transition-colors cursor-pointer"
                   onClick={() => window.open('#', '_blank')}
                 >
@@ -53,7 +53,7 @@ const Footer = () => {
                 </button>
               </p>
               <p>
-                <button
+                <button 
                   className="hover:text-primary transition-colors cursor-pointer"
                   onClick={() => setShowTerms(true)}
                 >
@@ -61,7 +61,7 @@ const Footer = () => {
                 </button>
               </p>
               <p>
-                <button
+                <button 
                   className="hover:text-primary transition-colors cursor-pointer"
                   onClick={() => window.open('#', '_blank')}
                 >

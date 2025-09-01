@@ -365,7 +365,7 @@
     background: hsl(var(--card));
     border-radius: calc(var(--radius) - 2px);
     border: 1px solid #e6e7ea; /* slightly cooler light gray stroke */
-    box-shadow: inset 2px 2px 16px #bfc2ca, inset -2px -2px 16px #ffffff, 0 2px 8px rgba(16,24,40,0.04);
+    box-shadow: inset 8px 8px 16px #7b7b79, inset -8px -8px 16px #ffffff, 0 2px 8px rgba(16,24,40,0.04);
     padding: 1rem;
     display: grid;
     gap: 0.5rem;

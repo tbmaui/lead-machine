@@ -358,44 +358,8 @@
     border-radius: var(--radius);
     box-shadow: var(--neu-shadow-medium);
     position: relative;
-  }
-  
-  /* Tiered Conversion Signals boxed/inset style */
-  .neu-tier-box {
-    background: hsl(var(--card));
-    border-radius: calc(var(--radius) - 2px);
-    border: 1px solid #e6e7ea; /* slightly cooler light gray stroke */
-    box-shadow: inset 2px 2px 16px #bfc2ca, inset -2px -2px 16px #ffffff, 0 2px 8px rgba(16,24,40,0.04);
-    padding: 1rem;
-    display: grid;
-    gap: 0.5rem;
     overflow: hidden;
-  }
-  
-  /* Each tier row spaced and separated to create breathing room */
-  .neu-tier-box .tier-row {
-    display: grid;
-    grid-template-columns: 60% 40%;
-    gap: 0.75rem;
-    padding: 0.5rem 0;
-    align-items: center;
-    border-bottom: 1px solid rgba(0,0,0,0.04);
-  }
-  
-  .neu-tier-box .tier-row:last-child {
-    border-bottom: none;
-  }
-  
-  /* Ensure label and description align nicely */
-  .neu-tier-box .tier-row > :first-child {
-    text-align: left;
-    font-weight: 600;
-  }
-  
-  .neu-tier-box .tier-row > :last-child {
-    text-align: left;
-    color: inherit;
-    opacity: 0.95;
+    transition: all 0.3s ease;
   }
 
   /* Enhanced gradient stroke outline - applied to ALL elements */
@@ -436,12 +400,7 @@
 
   /* Enhanced button styling - NEUMORPHIC ELEMENT 4 */
   .neu-button-enhanced {
-    /* Expanded neu-element (avoid @apply for classes with nested rules) */
-    background: hsl(var(--card));
-    border-radius: var(--radius);
-    box-shadow: var(--neu-shadow-medium);
-    position: relative;
-
+    @apply neu-element;
     padding: 0.75rem 1.5rem;
     font-weight: 500;
     cursor: pointer;
@@ -451,32 +410,26 @@
     gap: 0.5rem;
     min-width: 120px;
     color: hsl(var(--foreground));
+    position: relative;
     z-index: 2;
   }
-  
+
   .neu-button-enhanced:hover:not(:disabled) {
     box-shadow: var(--neu-shadow-strong);
     transform: translateY(-1px);
   }
-  
+
   .neu-button-enhanced:active:not(:disabled) {
-    /* Expanded neu-pressed */
-    box-shadow: var(--neu-shadow-pressed);
-    transform: translateY(1px);
+    @apply neu-pressed;
   }
-  
+
   .neu-button-enhanced:disabled {
     @apply opacity-50 cursor-not-allowed;
   }
 
   /* Enhanced input styling - NEUMORPHIC ELEMENT 4 */
   .neu-input-enhanced {
-    /* Expanded neu-element (avoid @apply for classes with nested rules) */
-    background: hsl(var(--card));
-    border-radius: var(--radius);
-    box-shadow: var(--neu-shadow-medium);
-    position: relative;
-
+    @apply neu-element;
     background: hsl(var(--input));
     color: hsl(var(--foreground));
     border: none;
@@ -492,12 +445,8 @@
 
   /* Enhanced card styling - NEUMORPHIC ELEMENT 4 */
   .neu-card-enhanced {
-    /* Expanded neu-element (avoid @apply for classes with nested rules) */
+    @apply neu-element;
     background: hsl(var(--card));
-    border-radius: var(--radius);
-    box-shadow: var(--neu-shadow-medium);
-    position: relative;
-
     color: hsl(var(--card-foreground));
     padding: 1.5rem;
   }
