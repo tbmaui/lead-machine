@@ -12,6 +12,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const location = useLocation();
 
+  // Check if this is a demo mode request
+  const searchParams = new URLSearchParams(location.search);
+  const isDemoMode = searchParams.get('demo') === 'true';
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -27,7 +31,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  if (!user) {
+  // Allow demo mode without authentication, or normal access with authentication
+  if (!user && !isDemoMode) {
     // Redirect to login page with the current location
     return <Navigate to="/login" state={{ from: location }} replace />;
   }

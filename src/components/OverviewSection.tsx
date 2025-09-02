@@ -1,5 +1,6 @@
 import { Target, Search, Zap, Link, DollarSign, BarChart3, TrendingUp, Globe, CheckCircle, Infinity, Star, MoveRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { StarBorder } from "@/components/ui/star-border";
 import { useNavigate } from "react-router-dom";
 import { CTA_VARIANTS, selectCTAVariant, trackCTAClick } from "@/lib/cta-variants";
 import { useAuth } from "@/hooks/useAuth";
@@ -149,26 +150,20 @@ const OverviewSection = () => {
             </p>
           </div>
           
-          {/* CTA with benefit messaging */}
-          <div className="flex flex-col items-center gap-3">
-            <Button
+          {/* CTA Button */}
+          <div className="flex flex-col items-center">
+            <StarBorder
               onClick={handleCTAClick}
-              className="neu-button neu-gradient-stroke px-8 py-3 text-lg font-semibold min-h-[44px]"
+              className="cursor-pointer"
+              color="#466359"
+              speed="4s"
               aria-label={contextualCTA.description}
             >
-              {contextualCTA.copy}
-              <MoveRight className="ml-2 h-5 w-5" />
-            </Button>
-            {contextualCTA.urgency && (
-              <span className="text-sm font-medium text-muted-foreground">
-                {contextualCTA.urgency}
+              <span className="flex items-center justify-center gap-2 text-lg font-semibold">
+                {contextualCTA.copy}
+                <MoveRight className="h-5 w-5" />
               </span>
-            )}
-            {contextualCTA.riskReversal && (
-              <span className="text-xs text-muted-foreground">
-                {contextualCTA.riskReversal}
-              </span>
-            )}
+            </StarBorder>
           </div>
         </div>
       </div>

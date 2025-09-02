@@ -1,37 +1,6 @@
-import { Star, Users, Mail, Phone, Building, Calculator } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { CTA_VARIANTS, selectCTAVariant, trackCTAClick } from "@/lib/cta-variants";
-import { useAuth } from "@/hooks/useAuth";
+import { Star, Users, Mail, Phone, Building } from "lucide-react";
 
 const LeadScoreCalculation = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  
-  // Progressive enhancement: Ensure CTA works even if variant system fails
-  let educationalCTA;
-  try {
-    educationalCTA = selectCTAVariant(CTA_VARIANTS.educational, 'session-based', user?.id);
-  } catch (error) {
-    console.warn('CTA variant selection failed, using default:', error);
-    educationalCTA = {
-      id: 'default-educational',
-      copy: 'Try Score Calculator',
-      description: 'See how your leads would score',
-      urgency: 'Live scoring demo',
-      riskReversal: 'Educational preview only'
-    };
-  }
-
-  const handleCTAClick = () => {
-    try {
-      trackCTAClick(educationalCTA, 'education', user?.id);
-    } catch (error) {
-      console.warn('CTA tracking failed:', error);
-    }
-    navigate('/search?demo=true');
-  };
-
   return (
     <div className="neu-card neu-gradient-stroke p-8 mx-auto max-w-4xl">
       <div className="space-y-8">
@@ -148,34 +117,6 @@ const LeadScoreCalculation = () => {
               Scores aren't just numbers—they're next steps. Your reps know exactly who to call, who to warm up, and who to skip—maximizing time and ROI.
               This data-driven approach transforms your sales process from guesswork into a precision instrument for revenue generation.
             </p>
-          </div>
-        </div>
-        
-        {/* Educational CTA Section */}
-        <div className="neu-element neu-green p-6 text-center">
-          <div className="space-y-4">
-            <div className="flex items-center justify-center gap-2">
-              <Calculator className="h-5 w-5 text-primary" />
-              <h4 className="text-lg font-semibold text-foreground">See Our Scoring in Action</h4>
-            </div>
-            <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-              {educationalCTA.description || "Preview how our scoring system evaluates and ranks your leads"}
-            </p>
-            <div className="flex flex-col items-center gap-2">
-              <Button
-                onClick={handleCTAClick}
-                className="neu-button neu-gradient-stroke px-6 py-2 font-semibold min-h-[44px]"
-                aria-label={educationalCTA.description}
-              >
-                {educationalCTA.copy}
-              </Button>
-              {educationalCTA.urgency && (
-                <span className="text-xs text-muted-foreground">{educationalCTA.urgency}</span>
-              )}
-              {educationalCTA.riskReversal && (
-                <span className="text-xs text-muted-foreground">{educationalCTA.riskReversal}</span>
-              )}
-            </div>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { StarBorder } from "@/components/ui/star-border";
 import { MoveRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +11,7 @@ const QuickStartInstructions = () => {
       <h3 className="text-lg font-semibold mb-6 text-center">Quick Start Instructions</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="flex flex-col items-center text-center space-y-3">
-          <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">
+          <div className="w-8 h-8 border-2 border-foreground bg-transparent text-primary rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">
             1
           </div>
           <div>
@@ -22,7 +23,7 @@ const QuickStartInstructions = () => {
         </div>
 
         <div className="flex flex-col items-center text-center space-y-3">
-          <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">
+          <div className="w-8 h-8 border-2 border-foreground bg-transparent text-primary rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">
             2
           </div>
           <div>
@@ -34,7 +35,7 @@ const QuickStartInstructions = () => {
         </div>
 
         <div className="flex flex-col items-center text-center space-y-3">
-          <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">
+          <div className="w-8 h-8 border-2 border-foreground bg-transparent text-primary rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">
             3
           </div>
           <div>
@@ -48,14 +49,18 @@ const QuickStartInstructions = () => {
       
       {/* Start Generating Leads CTA */}
       <div className="flex justify-center mt-8">
-        <Button
+        <StarBorder
           onClick={() => navigate('/search')}
-          className="neu-button neu-gradient-stroke px-8 py-3 text-lg font-semibold"
+          className="cursor-pointer"
+          color="#466359"
+          speed="4s"
           aria-label="Start generating leads now"
         >
-          Start Generating Leads
-          <MoveRight className="ml-2 h-5 w-5" />
-        </Button>
+          <span className="flex items-center justify-center gap-2 text-lg font-semibold">
+            Start Generating Leads
+            <MoveRight className="h-5 w-5" />
+          </span>
+        </StarBorder>
       </div>
     </div>
   );
