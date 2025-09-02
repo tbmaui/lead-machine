@@ -14,7 +14,7 @@ export interface TierInfo {
 // Complete Controller Design System colors for tiers
 const TIER_COLORS = {
   S: '#DAA520', // goldenrod (5-star leads)
-  A: '#91bfa5', // --cc-sea (Warm leads)  
+  A: '#466359', // Updated green color (Warm leads)  
   B: '#f36334', // --cc-tomato (3-star leads)
   C: '#5d5d5f', // --cc-dim2 (Low priority)
   D: '#7c797c'  // --cc-gray (Disqualified)

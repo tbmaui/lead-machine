@@ -63,8 +63,8 @@ export function RegisterForm({ onSuccess, onSignIn }: RegisterFormProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center space-y-4">
-          <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle className="h-6 w-6 text-green-600" />
+          <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#46635920' }}>
+            <CheckCircle className="h-6 w-6" style={{ color: '#466359' }} />
           </div>
           <p className="text-muted-foreground">{success}</p>
           <Button

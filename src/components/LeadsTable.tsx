@@ -3,7 +3,7 @@ import { ExternalLink, Linkedin, Copy, ChevronUp, ChevronDown, ChevronsUpDown, A
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useCallback } from "react";
 import { applyFilters, type Filters } from "@/lib/filters";
 import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
@@ -29,6 +29,68 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
   });
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const debouncedText = useDebouncedValue(filters.text, 200);
+
+  // Column width management
+  const [columnWidths, setColumnWidths] = useState({
+    number: 40,
+    name: 84,
+    title: 180,
+    company: 120,
+    industry: 78,
+    phone: 120, // Reduced from 150
+    email: 140, // Reduced from 220 to 140
+    location: 72,
+    rating: 80,
+    linkedin: 70,
+    website: 70,
+    companyLinkedIn: 70,
+    summary: 250
+  });
+
+  const tableRef = useRef<HTMLTableElement>(null);
+  const resizingColumn = useRef<string | null>(null);
+  const startX = useRef(0);
+  const startWidth = useRef(0);
+
+  // Handle column resize start
+  const handleResizeStart = useCallback((columnKey: string, e: React.MouseEvent) => {
+    // Only handle if clicking on the right edge (resize handle area)
+    const rect = e.currentTarget.getBoundingClientRect();
+    const isResizeArea = e.clientX > rect.right - 10; // 10px resize area
+    
+    if (!isResizeArea) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    resizingColumn.current = columnKey;
+    startX.current = e.clientX;
+    startWidth.current = columnWidths[columnKey as keyof typeof columnWidths];
+    
+    document.addEventListener('mousemove', handleResizeMove);
+    document.addEventListener('mouseup', handleResizeEnd);
+    document.body.style.cursor = 'col-resize';
+  }, [columnWidths]);
+
+  // Handle column resize move
+  const handleResizeMove = useCallback((e: MouseEvent) => {
+    if (!resizingColumn.current) return;
+    
+    const diff = e.clientX - startX.current;
+    const newWidth = Math.max(50, startWidth.current + diff); // Minimum 50px
+    
+    setColumnWidths(prev => ({
+      ...prev,
+      [resizingColumn.current!]: newWidth
+    }));
+  }, []);
+
+  // Handle column resize end
+  const handleResizeEnd = useCallback(() => {
+    resizingColumn.current = null;
+    document.removeEventListener('mousemove', handleResizeMove);
+    document.removeEventListener('mouseup', handleResizeEnd);
+    document.body.style.cursor = 'default';
+  }, [handleResizeMove]);
 
   // Memoize lead scores for performance with large datasets
   const leadsWithScores = useMemo(() => {
@@ -66,13 +128,13 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
   const getPhoneStatusColor = (phone?: string) => {
     if (!phone || phone.trim() === '') return 'bg-gray-300';
     // Simple verification logic - in real app this would come from backend
-    return Math.random() > 0.3 ? 'bg-green-500' : 'bg-orange-500';
+    return Math.random() > 0.3 ? 'bg-[#466359]' : 'bg-orange-500';
   };
 
   const getEmailStatusColor = (email?: string) => {
     if (!email || email.trim() === '') return 'bg-gray-300';
     // Simple verification logic - in real app this would come from backend
-    return Math.random() > 0.3 ? 'bg-green-500' : 'bg-orange-500';
+    return Math.random() > 0.3 ? 'bg-[#466359]' : 'bg-orange-500';
   };
 
   const renderStars = (score: number) => {
@@ -87,8 +149,8 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
       
       switch (rating) {
         case 5: return 'text-[#dfb809]'; // Golden Rod - Highest quality
-        case 4: return 'text-[#a9ccb8]'; // Light Sea Green - High quality  
-        case 3: return 'text-[#6f927e]'; // Dark Sea Green - Medium quality
+        case 4: return 'text-[#466359]'; // Updated green - High quality  
+        case 3: return 'text-[#466359]'; // Updated green - Medium quality
         case 2: return 'text-[#f47146]'; // Tomato - Lower quality
         case 1: return 'text-[#fbc8b7]'; // Peach Puff - Lowest quality
         default: return 'text-gray-300';
@@ -730,12 +792,29 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
   return (
     <div className="neu-card text-xs">
       <style>{`
-        .resize-table .resize-handle {
-          resize: horizontal;
-          overflow: hidden;
+        .resize-table th {
+          position: relative;
+          user-select: none;
         }
-        .resize-table .resize-handle:hover {
-          border-right: 2px solid hsl(var(--border));
+        .resize-table .resize-handle::after {
+          content: '';
+          position: absolute;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          width: 8px;
+          cursor: col-resize;
+          background: transparent;
+          z-index: 10;
+        }
+        .resize-table .resize-handle::after:hover {
+          background: hsl(var(--border));
+        }
+        .resize-table th:hover {
+          background-color: hsl(var(--muted) / 0.3);
+        }
+        .resize-table th:hover::after {
+          background: hsl(var(--border));
         }
       `}</style>
       {/* Top scroll indicator - sleek slider design */}
@@ -934,19 +1013,20 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
           </div>
         </div>
       )}
-      <table className="w-full border-collapse resize-table" style={{ minWidth: '1440px', tableLayout: 'auto' }}>
+      <table ref={tableRef} className="w-full border-collapse resize-table" style={{ minWidth: '1440px', tableLayout: 'fixed' }}>
         <thead>
           <tr className="border-b border-border text-muted-foreground">
             <th
               className="text-center p-2 font-medium uppercase tracking-wide"
-              style={{ width: '40px', minWidth: '40px' }}
+              style={{ width: `${columnWidths.number}px`, minWidth: `${columnWidths.number}px` }}
             >
               #
             </th>
             <th
               className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
-              style={{ width: '84px', minWidth: '10px', position: 'relative' }}
+              style={{ width: `${columnWidths.name}px`, minWidth: '50px', position: 'relative' }}
               aria-sort={sortKey === 'name' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+              onMouseDown={(e) => handleResizeStart('name', e)}
             >
               <button
                 type="button"
@@ -959,8 +1039,9 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
             </th>
             <th
               className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
-              style={{ width: '180px', minWidth: '10px' }}
+              style={{ width: `${columnWidths.title}px`, minWidth: '50px' }}
               aria-sort={sortKey === 'title' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+              onMouseDown={(e) => handleResizeStart('title', e)}
             >
               <button
                 type="button"
@@ -973,8 +1054,9 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
             </th>
             <th
               className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
-              style={{ width: '120px', minWidth: '10px' }}
+              style={{ width: `${columnWidths.company}px`, minWidth: '50px' }}
               aria-sort={sortKey === 'company' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+              onMouseDown={(e) => handleResizeStart('company', e)}
             >
               <button
                 type="button"
@@ -987,8 +1069,9 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
             </th>
             <th
               className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
-              style={{ width: '78px', minWidth: '10px' }}
+              style={{ width: `${columnWidths.industry}px`, minWidth: '50px' }}
               aria-sort={sortKey === 'industry' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+              onMouseDown={(e) => handleResizeStart('industry', e)}
             >
               <button
                 type="button"
@@ -1001,8 +1084,9 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
             </th>
             <th
               className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
-              style={{ width: '150px', minWidth: '10px' }}
+              style={{ width: `${columnWidths.phone}px`, minWidth: '50px' }}
               aria-sort={sortKey === 'phone' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+              onMouseDown={(e) => handleResizeStart('phone', e)}
             >
               <button
                 type="button"
@@ -1015,8 +1099,9 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
             </th>
             <th
               className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
-              style={{ width: '220px', minWidth: '10px' }}
+              style={{ width: `${columnWidths.email}px`, minWidth: '50px' }}
               aria-sort={sortKey === 'email' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+              onMouseDown={(e) => handleResizeStart('email', e)}
             >
               <button
                 type="button"
@@ -1029,8 +1114,9 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
             </th>
             <th
               className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
-              style={{ width: '72px', minWidth: '10px' }}
+              style={{ width: `${columnWidths.location}px`, minWidth: '50px' }}
               aria-sort={sortKey === 'location' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+              onMouseDown={(e) => handleResizeStart('location', e)}
             >
               <button
                 type="button"
@@ -1043,8 +1129,9 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
             </th>
             <th
               className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
-              style={{ width: '80px', minWidth: '10px' }}
+              style={{ width: `${columnWidths.rating}px`, minWidth: '50px' }}
               aria-sort={sortKey === 'score' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
+              onMouseDown={(e) => handleResizeStart('rating', e)}
             >
               <button
                 type="button"
@@ -1055,10 +1142,26 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                 Rating {sortKey === 'score' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
               </button>
             </th>
-            <th className="text-left p-2 font-medium tracking-wide resize-handle" style={{ width: '70px', minWidth: '10px' }}>LinkedIn</th>
-            <th className="text-left p-2 font-medium tracking-wide resize-handle" style={{ width: '70px', minWidth: '10px' }}>Website</th>
-            <th className="text-left p-2 font-medium tracking-wide resize-handle" style={{ width: '70px', minWidth: '10px' }}>Co. LinkedIn</th>
-            <th className="text-left p-2 font-medium tracking-wide resize-handle" style={{ width: '250px', minWidth: '10px' }}>Summary</th>
+            <th 
+              className="text-left p-2 font-medium tracking-wide resize-handle" 
+              style={{ width: `${columnWidths.linkedin}px`, minWidth: '50px' }}
+              onMouseDown={(e) => handleResizeStart('linkedin', e)}
+            >LinkedIn</th>
+            <th 
+              className="text-left p-2 font-medium tracking-wide resize-handle" 
+              style={{ width: `${columnWidths.website}px`, minWidth: '50px' }}
+              onMouseDown={(e) => handleResizeStart('website', e)}
+            >Website</th>
+            <th 
+              className="text-left p-2 font-medium tracking-wide resize-handle" 
+              style={{ width: `${columnWidths.companyLinkedIn}px`, minWidth: '50px' }}
+              onMouseDown={(e) => handleResizeStart('companyLinkedIn', e)}
+            >Co. LinkedIn</th>
+            <th 
+              className="text-left p-2 font-medium tracking-wide resize-handle" 
+              style={{ width: `${columnWidths.summary}px`, minWidth: '50px' }}
+              onMouseDown={(e) => handleResizeStart('summary', e)}
+            >Summary</th>
           </tr>
         </thead>
         <tbody>
@@ -1071,10 +1174,10 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
             
             return (
               <tr key={index} className="border-b border-border transition-colors hover:bg-[#f47146]/10">
-                <td className="p-2 text-center text-muted-foreground" style={{ width: '40px', minWidth: '40px' }}>
+                <td className="p-2 text-center text-muted-foreground" style={{ width: `${columnWidths.number}px`, minWidth: `${columnWidths.number}px` }}>
                   {index + 1}
                 </td>
-                <td className="p-2" style={{ width: '84px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.name}px`, minWidth: '50px' }}>
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       className="font-medium text-foreground break-words"
@@ -1084,7 +1187,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '180px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.title}px`, minWidth: '50px' }}>
                   <div className="min-w-0">
                     <span
                       className="text-foreground/80 break-words"
@@ -1094,7 +1197,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '120px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.company}px`, minWidth: '50px' }}>
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       className="text-foreground/80 break-words"
@@ -1104,7 +1207,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '78px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.industry}px`, minWidth: '50px' }}>
                   <div className="min-w-0">
                     <span
                       className="text-foreground/80 text-xs leading-tight break-words inline-block"
@@ -1114,7 +1217,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '150px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.phone}px`, minWidth: '50px' }}>
                   <div className="min-w-0 max-w-full">
                     {getDisplayPhone(lead) ? (
                       <span className="text-foreground/80 text-xs inline-block truncate max-w-full" title={getDisplayPhone(lead)}>{getDisplayPhone(lead)}</span>
@@ -1123,7 +1226,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     )}
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '220px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.email}px`, minWidth: '50px' }}>
                   <div className="min-w-0 max-w-full">
                     {lead.email ? (
                       <a
@@ -1138,7 +1241,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     )}
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '72px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.location}px`, minWidth: '50px' }}>
                   <div className="min-w-0">
                     {(() => {
                       const location = getLocation(lead);
@@ -1152,7 +1255,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     })()}
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '80px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.rating}px`, minWidth: '50px' }}>
                   {(() => {
                     const score = (lead as any).calculatedScore || 0;
                     const tier = getLeadTier(score);
@@ -1165,7 +1268,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     );
                   })()}
                 </td>
-                <td className="p-2" style={{ width: '70px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.linkedin}px`, minWidth: '50px' }}>
                   {contactLinkedIn ? (
                     <a
                       href={contactLinkedIn}
@@ -1181,7 +1284,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
-                <td className="p-2" style={{ width: '70px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.website}px`, minWidth: '50px' }}>
                   {companyWebsite ? (
                     <a
                       href={companyWebsite}
@@ -1197,7 +1300,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
-                <td className="p-2" style={{ width: '70px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.companyLinkedIn}px`, minWidth: '50px' }}>
                   {companyLinkedIn ? (
                     <a
                       href={companyLinkedIn}
@@ -1213,7 +1316,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
-                <td className="p-2" style={{ width: '250px', minWidth: '10px' }}>
+                <td className="p-2" style={{ width: `${columnWidths.summary}px`, minWidth: '50px' }}>
                   <div className="min-w-0 max-w-full">
                     <div
                       className="text-foreground/80 text-xs leading-normal"

@@ -131,7 +131,7 @@ interface LeadsSummaryChartProps {
 }
 
 const QUALITY_COLORS: Record<QualitySlice["key"], string> = {
-  both: "#16a34a", // green-600
+  both: "#466359", // Updated green color
   emailOnly: "#f59e0b", // amber-500
   phoneOnly: "#3b82f6", // blue-500
   neither: "#9ca3af", // gray-400

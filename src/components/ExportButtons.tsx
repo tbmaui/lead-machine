@@ -165,7 +165,7 @@ const ExportButtons = ({ leads }: ExportButtonsProps) => {
         className={`neu-button-enhanced neu-gradient-stroke-thick neu-orange rounded-full font-medium ${pressed.csv ? "neu-pressed" : ""}`}
       >
         <Download className="h-4 w-4 mr-2" />
-        <span style={{ color: pressed.csv ? "hsl(var(--brand-green))" : undefined }}>Export CSV</span>
+        <span style={{ color: pressed.csv ? "#466359" : undefined }}>Export CSV</span>
       </Button>
       <Button
         onClick={exportToExcel}

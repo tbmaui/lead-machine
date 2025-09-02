@@ -30,7 +30,7 @@ export function SearchHistory({ onRestoreSearch, onClose }: SearchHistoryProps) 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className="h-3 w-3 text-green-500" />;
+        return <CheckCircle className="h-3 w-3" style={{ color: '#466359' }} />;
       case 'failed':
         return <XCircle className="h-3 w-3 text-red-500" />;
       default:

@@ -84,13 +84,13 @@ export function StatusBar({ status, progress, steps }: StatusBarProps) {
                     className={cn(
                       "w-2.5 h-2.5 rounded-full",
                       isActive && "bg-primary animate-pulse",
-                      isDone && "bg-green-500",
+                      isDone && `bg-[#466359]`,
                       isFuture && "bg-muted-foreground/40"
                     )}
                     aria-hidden
                   />
                   <span className={cn("transition-colors", isActive && "font-medium")}>{label}</span>
-                  {isDone && <Check className="ml-auto h-4 w-4 text-green-600 opacity-90 transition-opacity" />}
+                  {isDone && <Check className="ml-auto h-4 w-4 opacity-90 transition-opacity" style={{ color: '#466359' }} />}
                 </div>
 
                 {/* micro per-step progress strip */}
@@ -98,7 +98,7 @@ export function StatusBar({ status, progress, steps }: StatusBarProps) {
                   <div
                     className={cn(
                       "h-full transition-[width] duration-300",
-                      isDone && "bg-green-500/70",
+                      isDone && "bg-[#466359]/70",
                       isActive && "bg-primary/70",
                       isFuture && "bg-muted/60"
                     )}
@@ -115,12 +115,12 @@ export function StatusBar({ status, progress, steps }: StatusBarProps) {
               )}
             >
               <div className="flex items-center gap-2 text-sm">
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500" aria-hidden />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#466359' }} aria-hidden />
                 <span className="transition-colors">Completed</span>
-                <Check className="ml-auto h-4 w-4 text-green-600 opacity-90" />
+                <Check className="ml-auto h-4 w-4 opacity-90" style={{ color: '#466359' }} />
               </div>
               <div className="absolute bottom-0 left-0 right-0 h-1 rounded-b-md overflow-hidden" aria-hidden>
-                <div className="h-full bg-green-500/70" style={{ width: '100%' }} />
+                <div className="h-full" style={{ backgroundColor: '#466359', opacity: 0.7, width: '100%' }} />
               </div>
             </div>
           )}

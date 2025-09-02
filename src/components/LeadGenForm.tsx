@@ -241,7 +241,7 @@ const LeadGenForm = ({ userId, restoredSearch, onSearchRestored }: LeadGenFormPr
 
         <div className="space-y-3">
           <label className="neu-label">
-            <span className="neu-field-indicator bg-green-500"></span>
+            <span className="neu-field-indicator" style={{ backgroundColor: '#466359' }}></span>
             Target Job Titles
           </label>
           <Popover>

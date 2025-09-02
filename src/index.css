@@ -17,7 +17,7 @@
     --popover-foreground: 220 20% 25%;
 
     /* Softer Brand Colors - NEUMORPHIC ELEMENT 4 Integration */
-    --brand-green: 140 25% 78%;
+    --brand-green: 153 20% 39%;
     --brand-orange: 40 40% 80%;
     --primary: var(--brand-green);
     --primary-foreground: 220 20% 25%;
@@ -92,7 +92,7 @@
     --popover-foreground: 220 10% 88%;
 
     /* Softer Brand Colors - NEUMORPHIC ELEMENT 4 Dark Theme */
-    --brand-green: 140 30% 65%;
+    --brand-green: 153 20% 45%;
     --brand-orange: 40 50% 70%;
     --primary: var(--brand-green);
     --primary-foreground: 220 15% 15%;
