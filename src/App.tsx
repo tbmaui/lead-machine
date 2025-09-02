@@ -10,6 +10,9 @@ import { AuthenticatedLayout } from "@/components/auth/AuthenticatedLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import DataProcessingAgreement from "./pages/DataProcessingAgreement";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +37,9 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/data-processing-agreement" element={<DataProcessingAgreement />} />
             <Route
               path="/"
               element={

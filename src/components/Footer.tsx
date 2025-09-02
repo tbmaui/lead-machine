@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { ExternalLink } from "lucide-react";
-import { TermsOfService } from "@/components/legal/TermsOfService";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
-  const [showTerms, setShowTerms] = useState(false);
   const currentYear = new Date().getFullYear();
   
   return (
@@ -45,28 +43,34 @@ const Footer = () => {
             <h4 className="text-sm font-semibold text-foreground">Legal</h4>
             <div className="space-y-2 text-xs text-muted-foreground">
               <p>
-                <button
+                <Link
+                  to="/privacy-policy"
                   className="hover:text-primary transition-colors cursor-pointer"
-                  onClick={() => window.open('#', '_blank')}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Privacy Policy
-                </button>
+                </Link>
               </p>
               <p>
-                <button
+                <Link
+                  to="/terms-of-service"
                   className="hover:text-primary transition-colors cursor-pointer"
-                  onClick={() => setShowTerms(true)}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Terms of Service
-                </button>
+                </Link>
               </p>
               <p>
-                <button
+                <Link
+                  to="/data-processing-agreement"
                   className="hover:text-primary transition-colors cursor-pointer"
-                  onClick={() => window.open('#', '_blank')}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Data Processing Agreement
-                </button>
+                </Link>
               </p>
             </div>
           </div>
@@ -89,11 +93,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-
-      {/* Terms of Service Modal */}
-      {showTerms && (
-        <TermsOfService onClose={() => setShowTerms(false)} />
-      )}
     </footer>
   );
 };
