@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { statusToProgress } from '@/lib/status';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { saveSearchState, loadSearchState, clearSearchState, STORAGE_KEYS } from '@/lib/session-storage';
 
 export interface LeadGenJob {
   id: string;
@@ -32,7 +33,7 @@ export interface Lead {
   organization_url?: string;
 }
 
-export const useLeadGeneration = (userId: string) => {
+export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = true) => {
   const [currentJob, setCurrentJob] = useState<LeadGenJob | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,52 @@ export const useLeadGeneration = (userId: string) => {
   const pendingUpdateRef = useRef<{ job: any; status: LeadGenJob['status']; progress: number } | null>(null);
   const completionTimeoutRef = useRef<number | null>(null);
   const { toast } = useToast();
+
+  // Restore state from storage on mount
+  useEffect(() => {
+    if (!restoreFromStorage || !userId) return;
+
+    try {
+      // Restore current job
+      const savedJob = loadSearchState<LeadGenJob>(STORAGE_KEYS.CURRENT_JOB);
+      if (savedJob) {
+        setCurrentJob(savedJob);
+        setJobIdForSubscription(savedJob.id);
+        if (savedJob.status === 'completed') {
+          setShowingResults(true);
+        }
+      }
+
+      // Restore leads
+      const savedLeads = loadSearchState<Lead[]>(STORAGE_KEYS.SEARCH_RESULTS);
+      if (savedLeads) {
+        setLeads(savedLeads);
+      }
+    } catch (error) {
+      console.warn('Error restoring state from storage:', error);
+    }
+  }, [userId, restoreFromStorage]);
+
+  // Auto-save state changes
+  useEffect(() => {
+    if (!restoreFromStorage) return;
+    
+    if (currentJob) {
+      saveSearchState(STORAGE_KEYS.CURRENT_JOB, currentJob);
+    } else {
+      clearSearchState(STORAGE_KEYS.CURRENT_JOB);
+    }
+  }, [currentJob, restoreFromStorage]);
+
+  useEffect(() => {
+    if (!restoreFromStorage) return;
+    
+    if (leads.length > 0) {
+      saveSearchState(STORAGE_KEYS.SEARCH_RESULTS, leads);
+    } else {
+      clearSearchState(STORAGE_KEYS.SEARCH_RESULTS);
+    }
+  }, [leads, restoreFromStorage]);
 
   // Subscribe to real-time updates for jobs as soon as we have a jobId
   useEffect(() => {

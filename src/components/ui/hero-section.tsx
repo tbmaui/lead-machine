@@ -4,9 +4,43 @@ import { useHeroV2 } from "@/lib/feature-flags";
 import { HeroBackgroundPaths } from "@/components/ui/hero-background-paths";
 import { AnimatedBackgroundPaths } from "@/components/ui/animated-background-paths";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { CTA_VARIANTS, selectCTAVariant, trackCTAClick } from "@/lib/cta-variants";
+import { useAuth } from "@/hooks/useAuth";
 
 function HeroSection() {
   const isHeroV2Enabled = useHeroV2();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Progressive enhancement: Use try-catch to ensure CTAs work even if variant system fails
+  let primaryCTA, secondaryCTA;
+  try {
+    primaryCTA = selectCTAVariant(CTA_VARIANTS.primary, 'session-based', user?.id);
+    secondaryCTA = selectCTAVariant(CTA_VARIANTS.secondary, 'session-based', user?.id);
+  } catch (error) {
+    console.warn('CTA variant selection failed, using defaults:', error);
+    primaryCTA = { id: 'default-primary', copy: 'Get Leads Now', urgency: 'Free for first 100 leads', riskReversal: 'No credit card required' };
+    secondaryCTA = { id: 'default-secondary', copy: 'Try It Free', urgency: 'No commitment required', riskReversal: 'See results in 30 seconds' };
+  }
+
+  const handlePrimaryCTAClick = () => {
+    try {
+      trackCTAClick(primaryCTA, 'hero', user?.id);
+    } catch (error) {
+      console.warn('CTA tracking failed:', error);
+    }
+    navigate('/search');
+  };
+
+  const handleSecondaryCTAClick = () => {
+    try {
+      trackCTAClick(secondaryCTA, 'hero', user?.id);
+    } catch (error) {
+      console.warn('CTA tracking failed:', error);
+    }
+    navigate('/search?demo=true');
+  };
 
   // Original hero section (when feature gate is disabled)
   const OriginalHeroSection = () => (
@@ -26,6 +60,14 @@ function HeroSection() {
               <p className="text-base md:text-lg max-w-3xl mx-auto" style={{ color: 'black' }}>
                 The unfair advantage for high-quota sales teams, our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
               </p>
+              {/* Trust signals */}
+              <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+                <span className="font-semibold">Join 500+ sales teams</span>
+                <span className="text-muted-foreground">•</span>
+                <span>100k+ leads generated daily</span>
+                <span className="text-muted-foreground">•</span>
+                <span>95% data accuracy</span>
+              </div>
             </div>
           </div>
           
@@ -51,6 +93,46 @@ function HeroSection() {
                 <h4 className="font-semibold text-foreground">CRM-Ready Export</h4>
                 <p className="text-sm text-muted-foreground">Built for daily volume with seamless CRM integration</p>
               </div>
+            </div>
+          </div>
+          
+          {/* CTA Buttons with urgency and risk reversal */}
+          <div className="flex flex-col gap-6 items-center justify-center w-full max-w-2xl">
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center w-full">
+              <div className="flex flex-col items-center gap-2">
+                <Button
+                  onClick={handlePrimaryCTAClick}
+                  className="neu-button neu-gradient-stroke w-full sm:w-auto px-8 py-3 text-lg font-semibold min-h-[44px]"
+                  aria-label={primaryCTA.description || "Start generating leads"}
+                >
+                  {primaryCTA.copy}
+                  <MoveRight className="ml-2 h-5 w-5" />
+                </Button>
+                {primaryCTA.urgency && (
+                  <span className="text-xs text-muted-foreground font-medium">{primaryCTA.urgency}</span>
+                )}
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Button
+                  onClick={handleSecondaryCTAClick}
+                  variant="outline"
+                  className="neu-button w-full sm:w-auto px-8 py-3 text-lg font-semibold min-h-[44px]"
+                  aria-label={secondaryCTA.description || "Try demo version"}
+                >
+                  {secondaryCTA.copy}
+                </Button>
+                {secondaryCTA.urgency && (
+                  <span className="text-xs text-muted-foreground font-medium">{secondaryCTA.urgency}</span>
+                )}
+              </div>
+            </div>
+            {/* Risk reversal messaging */}
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
+              <span>{primaryCTA.riskReversal || "No credit card required"}</span>
+              <span>•</span>
+              <span>Setup in under 5 minutes</span>
+              <span>•</span>
+              <span>Cancel anytime</span>
             </div>
           </div>
         </div>
@@ -81,6 +163,14 @@ function HeroSection() {
                 <p className="text-base md:text-lg max-w-3xl mx-auto" style={{ color: 'black' }}>
                   The unfair advantage for high-quota sales teams, our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
                 </p>
+                {/* Trust signals */}
+                <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+                  <span className="font-semibold">Join 500+ sales teams</span>
+                  <span className="text-muted-foreground">•</span>
+                  <span>100k+ leads generated daily</span>
+                  <span className="text-muted-foreground">•</span>
+                  <span>95% data accuracy</span>
+                </div>
               </div>
             </div>
             
@@ -104,6 +194,45 @@ function HeroSection() {
                   <p className="text-sm text-muted-foreground">CRM-ready export built for daily volume and seamless integration</p>
                 </div>
               </div>
+            </div>
+          
+          {/* CTA Buttons with urgency and risk reversal */}
+          <div className="flex flex-col gap-6 items-center justify-center w-full max-w-2xl">
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center w-full">
+              <div className="flex flex-col items-center gap-2">
+                <Button
+                  onClick={handlePrimaryCTAClick}
+                  className="neu-button neu-gradient-stroke w-full sm:w-auto px-8 py-3 text-lg font-semibold min-h-[44px]"
+                  aria-label={primaryCTA.description || "Start generating leads"}
+                >
+                  {primaryCTA.copy}
+                  <MoveRight className="ml-2 h-5 w-5" />
+                </Button>
+                {primaryCTA.urgency && (
+                  <span className="text-xs text-muted-foreground font-medium">{primaryCTA.urgency}</span>
+                )}
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Button
+                  onClick={handleSecondaryCTAClick}
+                  variant="outline"
+                  className="neu-button w-full sm:w-auto px-8 py-3 text-lg font-semibold min-h-[44px]"
+                  aria-label={secondaryCTA.description || "Try demo version"}
+                >
+                  {secondaryCTA.copy}
+                </Button>
+                {secondaryCTA.urgency && (
+                  <span className="text-xs text-muted-foreground font-medium">{secondaryCTA.urgency}</span>
+                )}
+              </div>
+            </div>
+            {/* Risk reversal messaging */}
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
+              <span>{primaryCTA.riskReversal || "No credit card required"}</span>
+              <span>•</span>
+              <span>Setup in under 5 minutes</span>
+              <span>•</span>
+              <span>Cancel anytime</span>
             </div>
           </div>
         </div>

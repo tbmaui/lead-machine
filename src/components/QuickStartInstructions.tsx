@@ -1,4 +1,10 @@
+import { Button } from "@/components/ui/button";
+import { MoveRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 const QuickStartInstructions = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="neu-card neu-gradient-stroke p-8 mx-auto max-w-4xl">
       <h3 className="text-lg font-semibold mb-6 text-center">Quick Start Instructions</h3>
@@ -38,6 +44,18 @@ const QuickStartInstructions = () => {
             </p>
           </div>
         </div>
+      </div>
+      
+      {/* Start Generating Leads CTA */}
+      <div className="flex justify-center mt-8">
+        <Button
+          onClick={() => navigate('/search')}
+          className="neu-button neu-gradient-stroke px-8 py-3 text-lg font-semibold"
+          aria-label="Start generating leads now"
+        >
+          Start Generating Leads
+          <MoveRight className="ml-2 h-5 w-5" />
+        </Button>
       </div>
     </div>
   );

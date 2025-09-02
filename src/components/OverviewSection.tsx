@@ -1,6 +1,59 @@
-import { Target, Search, Zap, Link, DollarSign, BarChart3, TrendingUp, Globe, CheckCircle, Infinity, Star } from "lucide-react";
+import { Target, Search, Zap, Link, DollarSign, BarChart3, TrendingUp, Globe, CheckCircle, Infinity, Star, MoveRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { CTA_VARIANTS, selectCTAVariant, trackCTAClick } from "@/lib/cta-variants";
+import { useAuth } from "@/hooks/useAuth";
 
 const OverviewSection = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  // Progressive enhancement: Ensure CTA works even if variant system fails
+  let contextualCTA;
+  try {
+    contextualCTA = selectCTAVariant([
+      {
+        id: 'start-first-campaign',
+        copy: 'Start Your First Campaign',
+        description: 'Begin generating quality leads today',
+        urgency: 'Get 50 free leads to test quality',
+        riskReversal: 'No commitment required'
+      },
+      {
+        id: 'discover-leads-now',
+        copy: 'Discover Leads Now',
+        description: 'Find your ideal prospects instantly',
+        urgency: 'Setup takes less than 2 minutes',
+        riskReversal: 'Free trial available'
+      },
+      {
+        id: 'build-your-pipeline',
+        copy: 'Build Your Pipeline',
+        description: 'Start filling your sales pipeline',
+        urgency: 'Join thousands of sales teams',
+        riskReversal: '100% satisfaction guaranteed'
+      }
+    ], 'session-based', user?.id);
+  } catch (error) {
+    console.warn('CTA variant selection failed, using default:', error);
+    contextualCTA = {
+      id: 'default-contextual',
+      copy: 'Start Your First Campaign',
+      description: 'Begin generating quality leads today',
+      urgency: 'Get 50 free leads to test quality',
+      riskReversal: 'No commitment required'
+    };
+  }
+
+  const handleCTAClick = () => {
+    try {
+      trackCTAClick(contextualCTA, 'overview', user?.id);
+    } catch (error) {
+      console.warn('CTA tracking failed:', error);
+    }
+    navigate('/search');
+  };
+
   return (
     <div className="space-y-8">
       {/* Two-Column Feature Grid - Centered with hero section */}
@@ -83,6 +136,41 @@ const OverviewSection = () => {
           </div>
         </div>
       </div>
+      </div>
+      
+      {/* Strategic CTA Placement After Feature Explanation */}
+      <div className="neu-card neu-green p-8 mx-auto max-w-4xl text-center">
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <h3 className="text-2xl font-semibold text-foreground">Ready to Find Your Next Customers?</h3>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Our multi-source discovery engine and smart star rating system help you identify and prioritize
+              the highest quality leads for your sales team.
+            </p>
+          </div>
+          
+          {/* CTA with benefit messaging */}
+          <div className="flex flex-col items-center gap-3">
+            <Button
+              onClick={handleCTAClick}
+              className="neu-button neu-gradient-stroke px-8 py-3 text-lg font-semibold min-h-[44px]"
+              aria-label={contextualCTA.description}
+            >
+              {contextualCTA.copy}
+              <MoveRight className="ml-2 h-5 w-5" />
+            </Button>
+            {contextualCTA.urgency && (
+              <span className="text-sm font-medium text-muted-foreground">
+                {contextualCTA.urgency}
+              </span>
+            )}
+            {contextualCTA.riskReversal && (
+              <span className="text-xs text-muted-foreground">
+                {contextualCTA.riskReversal}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

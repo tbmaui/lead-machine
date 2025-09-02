@@ -8,14 +8,24 @@ import { Slider } from "@/components/ui/slider";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useLeadGeneration } from "@/hooks/useLeadGeneration";
 import LeadGenResults from "./LeadGenResults";
+import { updateURL } from "@/lib/url-params";
 
 interface LeadGenFormProps {
   userId: string;
   restoredSearch?: {job: any, leads: any[]} | null;
   onSearchRestored?: () => void;
+  demoMode?: boolean;
+  urlRestoredCriteria?: Partial<{
+    targetLocation: string;
+    selectedIndustries: string[];
+    selectedCompanySizes: string[];
+    selectedJobTitles: string[];
+    leadCount: number[];
+    employeeRange?: [number, number];
+  }> | null;
 }
 
-const LeadGenForm = ({ userId, restoredSearch, onSearchRestored }: LeadGenFormProps) => {
+const LeadGenForm = ({ userId, restoredSearch, onSearchRestored, demoMode = false, urlRestoredCriteria }: LeadGenFormProps) => {
   const { currentJob, leads, loading, showingResults, startLeadGeneration, resetJob, restoreSearchData } = useLeadGeneration(userId);
   
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
@@ -44,11 +54,20 @@ const LeadGenForm = ({ userId, restoredSearch, onSearchRestored }: LeadGenFormPr
   ];
   const companySizeOptions = ["1-50", "51-200", "201-500", "501-1000"];
   
-  const [targetLocation, setTargetLocation] = useState("");
-  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
-  const [selectedCompanySizes, setSelectedCompanySizes] = useState<string[]>(["1-50"]);
-  const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
-  const [leadCount, setLeadCount] = useState([100]);
+  // Enhanced demo configuration with comprehensive parameters
+  const demoConfig = demoMode ? {
+    location: "Austin, TX",
+    industries: ["Professional Services", "Healthcare"],
+    companySizes: ["1-50", "51-200"],
+    jobTitles: ["CEO", "Owner", "VP", "President"],
+    employeeRange: [10, 200]
+  } : null;
+
+  const [targetLocation, setTargetLocation] = useState(demoConfig?.location || "");
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>(demoConfig?.industries || []);
+  const [selectedCompanySizes, setSelectedCompanySizes] = useState<string[]>(demoConfig?.companySizes || ["1-50"]);
+  const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(demoConfig?.jobTitles || ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
+  const [leadCount, setLeadCount] = useState(demoConfig?.employeeRange || [100]);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Handle restored search data
@@ -61,6 +80,54 @@ const LeadGenForm = ({ userId, restoredSearch, onSearchRestored }: LeadGenFormPr
       }
     }
   }, [restoredSearch, restoreSearchData, onSearchRestored]);
+
+  // Handle URL parameter restoration
+  useEffect(() => {
+    if (!urlRestoredCriteria) return;
+
+    try {
+      if (urlRestoredCriteria.targetLocation) {
+        setTargetLocation(urlRestoredCriteria.targetLocation);
+      }
+      if (urlRestoredCriteria.selectedIndustries && urlRestoredCriteria.selectedIndustries.length > 0) {
+        setSelectedIndustries(urlRestoredCriteria.selectedIndustries);
+      }
+      if (urlRestoredCriteria.selectedCompanySizes && urlRestoredCriteria.selectedCompanySizes.length > 0) {
+        setSelectedCompanySizes(urlRestoredCriteria.selectedCompanySizes);
+      }
+      if (urlRestoredCriteria.selectedJobTitles && urlRestoredCriteria.selectedJobTitles.length > 0) {
+        setSelectedJobTitles(urlRestoredCriteria.selectedJobTitles);
+      }
+      if (urlRestoredCriteria.leadCount && urlRestoredCriteria.leadCount.length > 0) {
+        setLeadCount(urlRestoredCriteria.leadCount);
+      }
+      console.log('Restored search criteria from URL:', urlRestoredCriteria);
+    } catch (error) {
+      console.warn('Error applying URL restored criteria:', error);
+    }
+  }, [urlRestoredCriteria]);
+
+  // Update URL when form state changes (bidirectional sync)
+  useEffect(() => {
+    // Don't update URL during initial restoration or if showing results
+    if (showingResults || loading) return;
+
+    const criteria = {
+      targetLocation,
+      selectedIndustries,
+      selectedCompanySizes,
+      selectedJobTitles,
+      leadCount
+    };
+
+    // Only update URL if form has meaningful data
+    const hasData = targetLocation.trim() || selectedIndustries.length > 0 || 
+                   selectedCompanySizes.length > 1 || selectedJobTitles.length !== jobTitleOptions.length;
+    
+    if (hasData) {
+      updateURL(criteria, demoMode);
+    }
+  }, [targetLocation, selectedIndustries, selectedCompanySizes, selectedJobTitles, leadCount, demoMode, showingResults, loading, jobTitleOptions.length]);
 
   const handleJobTitleToggle = (title: string) => {
     setSelectedJobTitles(prev => 

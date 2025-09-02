@@ -8,6 +8,7 @@ import { useState } from "react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AuthenticatedLayout } from "@/components/auth/AuthenticatedLayout";
 import Index from "./pages/Index";
+import Search from "./pages/Search";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -45,10 +46,17 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <AuthenticatedLayout onRestoreSearch={handleRestoreSearch}>
-                    <Index 
-                      restoredSearch={restoredSearch}
-                      onSearchRestored={() => setRestoredSearch(null)}
-                    />
+                    <Index />
+                  </AuthenticatedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/search"
+              element={
+                <ProtectedRoute>
+                  <AuthenticatedLayout onRestoreSearch={handleRestoreSearch}>
+                    <Search />
                   </AuthenticatedLayout>
                 </ProtectedRoute>
               }

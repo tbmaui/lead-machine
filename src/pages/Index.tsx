@@ -1,17 +1,14 @@
 import { HeroSection } from "@/components/ui/hero-section";
 import OverviewSection from "@/components/OverviewSection";
-import LeadGenForm from "@/components/LeadGenForm";
 import QuickStartInstructions from "@/components/QuickStartInstructions";
 import LeadScoreCalculation from "@/components/LeadScoreCalculation";
-import { useAuth } from "@/hooks/useAuth";
 
+// Interface left for future extensibility
 interface IndexProps {
-  restoredSearch?: {job: any, leads: any[]} | null;
-  onSearchRestored?: () => void;
+  // Properties can be added here in the future
 }
 
-const Index = ({ restoredSearch, onSearchRestored }: IndexProps) => {
-  const { user } = useAuth();
+const Index = (_props: IndexProps) => {
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,20 +25,6 @@ const Index = ({ restoredSearch, onSearchRestored }: IndexProps) => {
         
         {/* Quick Start Instructions - Direct neumorphic card */}
         <QuickStartInstructions />
-        
-        {/* Lead generation section with responsive width */}
-        <section className="w-full">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Start Your Lead Search</h2>
-          </div>
-          {user && (
-            <LeadGenForm 
-              userId={user.id} 
-              restoredSearch={restoredSearch}
-              onSearchRestored={onSearchRestored}
-            />
-          )}
-        </section>
       </main>
     </div>
   );
