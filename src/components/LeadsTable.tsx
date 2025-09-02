@@ -817,15 +817,18 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
           background: hsl(var(--border));
         }
       `}</style>
-      {/* Top scroll indicator - sleek slider design */}
+      {/* Top scroll indicator with neumorphic design */}
       <div 
-        className="relative flex items-center justify-center py-2 border-b border-border" 
-        style={{ height: '32px' }}
+        className="relative flex flex-col items-center justify-center py-3 border-b border-border" 
+        style={{ minHeight: '48px' }}
       >
+        <div className="text-xs text-muted-foreground mb-2 text-center">
+          ← Slide to view all columns →
+        </div>
         <div 
-          className="relative w-full max-w-md h-2 bg-gray-700 rounded-full overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing" 
+          className="neu-slider-track relative w-full max-w-md overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing" 
           onScroll={(e) => {
-            // Sync with main table and other sliders
+            // Sync with main table and bottom slider
             const scrollLeft = e.currentTarget.scrollLeft;
             const mainTable = e.currentTarget.closest('.neu-card')?.querySelector('div[class*="overflow-x-auto overflow-y-hidden"]:not([role="scrollbar"])') as HTMLElement;
             if (mainTable) {
@@ -845,7 +848,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
         >
           <div style={{ width: '1440px', height: '1px' }}></div>
           <div className="absolute inset-0 flex items-center">
-            <div className="w-20 h-1.5 bg-gray-400 rounded-full mx-auto"></div>
+            <div className="neu-slider-thumb w-16 h-3 mx-auto"></div>
           </div>
         </div>
       </div>
@@ -1342,15 +1345,15 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
       </table>
       </div>
       
-      {/* Bottom scroll indicator - sleek slider design */}
+      {/* Bottom scroll indicator with neumorphic design */}
       <div 
-        className="relative flex items-center justify-center py-2 border-t border-border" 
-        style={{ height: '32px' }}
+        className="relative flex flex-col items-center justify-center py-3 border-t border-border" 
+        style={{ minHeight: '48px' }}
       >
         <div 
-          className="relative w-full max-w-md h-2 bg-gray-700 rounded-full overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing" 
+          className="neu-slider-track relative w-full max-w-md overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing" 
           onScroll={(e) => {
-            // Sync with main table and other sliders
+            // Sync with main table and top slider
             const scrollLeft = e.currentTarget.scrollLeft;
             const mainTable = e.currentTarget.closest('.neu-card')?.querySelector('div[class*="overflow-x-auto overflow-y-hidden"]:not([role="scrollbar"])') as HTMLElement;
             if (mainTable) {
@@ -1370,8 +1373,11 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
         >
           <div style={{ width: '1440px', height: '1px' }}></div>
           <div className="absolute inset-0 flex items-center">
-            <div className="w-20 h-1.5 bg-gray-400 rounded-full mx-auto"></div>
+            <div className="neu-slider-thumb w-16 h-3 mx-auto"></div>
           </div>
+        </div>
+        <div className="text-xs text-muted-foreground mt-2 text-center">
+          ← Slide to view all columns →
         </div>
       </div>
     </div>

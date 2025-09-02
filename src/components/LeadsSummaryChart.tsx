@@ -160,8 +160,17 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
   const chartConfig = useMemo(() => {
     const config: Record<string, { label: string; color: string }> = {};
     tierData.forEach((slice) => {
+      // Map tiers to star labels for tooltip
+      const tierToStars: Record<LeadTier, string> = {
+        S: '5-star',
+        A: '4-star', 
+        B: '3-star',
+        C: '2-star',
+        D: '1-star'
+      };
+      const starLabel = tierToStars[(slice as TierSlice).tier];
       config[slice.name] = { 
-        label: slice.name, // Just use the friendly label 
+        label: starLabel, // Use star labels for tooltips
         color: slice.color 
       };
     });
@@ -212,15 +221,15 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
       {!hasData ? (
         <div className="text-muted-foreground text-sm text-center py-8">No data to display.</div>
       ) : (
-        <ChartContainer className="w-full aspect-square max-w-[280px] mx-auto" config={chartConfig}>
-          <PieChart width={280} height={280}>
+        <ChartContainer className="w-full aspect-square max-w-[320px] mx-auto" config={chartConfig}>
+          <PieChart width={320} height={320}>
             <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
             <Pie
               data={tierData}
               dataKey="value"
               nameKey="name"
-              innerRadius={60}
-              outerRadius={100}
+              innerRadius={70}
+              outerRadius={115}
               paddingAngle={2}
               isAnimationActive={false}
               label={renderSliceLabel}
@@ -235,7 +244,7 @@ const LeadsSummaryChart = ({ leads }: LeadsSummaryChartProps) => {
               <Label
                 position="center"
                 content={() => (
-                  <text x={140} y={140} textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-xl font-bold">
+                  <text x={160} y={160} textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-xl font-bold">
                     {total.toLocaleString()}
                   </text>
                 )}
