@@ -165,21 +165,31 @@ const LeadGenForm = ({ userId, restoredSearch, onSearchRestored }: LeadGenFormPr
               </PopoverTrigger>
               <PopoverContent className="neu-popover w-full p-0 z-50" align="start">
                 <div className="p-4 space-y-3">
-                  {industryOptions.map((industry) => (
-                    <div key={industry} className="flex items-center space-x-3">
-                      <CustomCheckbox
-                        id={industry}
-                        checked={selectedIndustries.includes(industry)}
-                        onCheckedChange={() => handleIndustryToggle(industry)}
-                      />
-                      <label
-                        htmlFor={industry}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                      >
-                        {industry}
-                      </label>
-                    </div>
-                  ))}
+                  {industryOptions.map((industry) => {
+                    const enabledIndustries = ["Construction", "Healthcare", "Legal Services"];
+                    const isEnabled = enabledIndustries.includes(industry);
+                    
+                    return (
+                      <div key={industry} className="flex items-center space-x-3">
+                        <CustomCheckbox
+                          id={industry}
+                          checked={selectedIndustries.includes(industry)}
+                          onCheckedChange={isEnabled ? () => handleIndustryToggle(industry) : undefined}
+                          disabled={!isEnabled}
+                        />
+                        <label
+                          htmlFor={industry}
+                          className={`text-sm font-medium leading-none ${
+                            isEnabled 
+                              ? "cursor-pointer" 
+                              : "cursor-not-allowed opacity-50 text-gray-400"
+                          }`}
+                        >
+                          {industry}
+                        </label>
+                      </div>
+                    );
+                  })}
                 </div>
               </PopoverContent>
             </Popover>
