@@ -98,11 +98,6 @@ export const SearchPageHeader = ({
           ))}
         </nav>
 
-        {/* Page title and description */}
-        <div className="ml-4">
-          <h1 className="text-xl font-semibold text-foreground">{getStepTitle()}</h1>
-          <p className="text-sm text-muted-foreground">{getStepDescription()}</p>
-        </div>
       </div>
 
       {/* Right side - Action shortcuts */}

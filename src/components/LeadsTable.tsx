@@ -1161,9 +1161,8 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
               onMouseDown={(e) => handleResizeStart('companyLinkedIn', e)}
             >Co. LinkedIn</th>
             <th 
-              className="text-left p-2 font-medium tracking-wide resize-handle" 
+              className="text-left p-2 font-medium tracking-wide" 
               style={{ width: `${columnWidths.summary}px`, minWidth: '50px' }}
-              onMouseDown={(e) => handleResizeStart('summary', e)}
             >Summary</th>
           </tr>
         </thead>

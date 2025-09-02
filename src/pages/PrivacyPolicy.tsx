@@ -1,10 +1,17 @@
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const PrivacyPolicy = () => {
+  const navigate = useNavigate();
+  
   const handleBackToApp = () => {
-    window.history.back();
+    // Try to go back in history, but fallback to home if no history
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
   };
 
   return (

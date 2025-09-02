@@ -1,9 +1,17 @@
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const DataProcessingAgreement = () => {
+  const navigate = useNavigate();
+  
   const handleBackToApp = () => {
-    window.history.back();
+    // Try to go back in history, but fallback to home if no history
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
   };
 
   return (
