@@ -11,14 +11,12 @@ interface SearchPageHeaderProps {
   currentStep?: 'setup' | 'searching' | 'results';
   showBackNav?: boolean;
   breadcrumbs?: Breadcrumb[];
-  isDemoMode?: boolean;
 }
 
 export const SearchPageHeader = ({
   currentStep = 'setup',
   showBackNav = true,
-  breadcrumbs,
-  isDemoMode = false
+  breadcrumbs
 }: SearchPageHeaderProps) => {
   const navigate = useNavigate();
 
@@ -107,15 +105,8 @@ export const SearchPageHeader = ({
         </div>
       </div>
 
-      {/* Right side - Demo mode indicator and action shortcuts */}
+      {/* Right side - Action shortcuts */}
       <div className="flex items-center gap-4">
-        {isDemoMode && (
-          <div className="neu-element neu-green px-4 py-2 text-sm font-medium rounded-md">
-            <span className="text-primary">✨ Demo Mode</span>
-            <span className="text-muted-foreground ml-2">Preview with sample data</span>
-          </div>
-        )}
-
         {/* Keyboard shortcut hints */}
         <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
           <kbd className="px-2 py-1 bg-muted rounded text-xs">Esc</kbd>

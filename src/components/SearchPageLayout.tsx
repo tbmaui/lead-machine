@@ -7,15 +7,13 @@ interface SearchPageLayoutProps {
   currentStep?: 'setup' | 'searching' | 'results';
   showBackNav?: boolean;
   breadcrumbs?: Array<{label: string, href?: string}>;
-  isDemoMode?: boolean;
 }
 
 export const SearchPageLayout = ({ 
   children, 
   currentStep = 'setup', 
   showBackNav = true, 
-  breadcrumbs,
-  isDemoMode = false
+  breadcrumbs
 }: SearchPageLayoutProps) => {
   return (
     <div className="min-h-screen bg-background">
@@ -26,7 +24,6 @@ export const SearchPageLayout = ({
             currentStep={currentStep}
             showBackNav={showBackNav}
             breadcrumbs={breadcrumbs}
-            isDemoMode={isDemoMode}
           />
         </div>
       </header>

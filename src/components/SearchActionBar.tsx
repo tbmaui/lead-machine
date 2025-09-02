@@ -13,7 +13,6 @@ import {
 
 interface SearchActionBarProps {
   currentStep: 'setup' | 'searching' | 'results';
-  onLoadDemo?: () => void;
   onLoadPrevious?: () => void;
   onClearForm?: () => void;
   onPauseSearch?: () => void;
@@ -27,7 +26,6 @@ interface SearchActionBarProps {
 
 export const SearchActionBar = ({
   currentStep,
-  onLoadDemo,
   onLoadPrevious,
   onClearForm,
   onPauseSearch,
@@ -43,19 +41,11 @@ export const SearchActionBar = ({
     <div className="flex gap-3 justify-center">
       <Button
         variant="outline"
-        onClick={onLoadDemo}
-        className="neu-element flex items-center gap-2"
-      >
-        <Play className="w-4 h-4" />
-        Load Demo Template
-      </Button>
-      <Button
-        variant="outline"
         onClick={onLoadPrevious}
         className="neu-element flex items-center gap-2"
       >
         <Clock className="w-4 h-4" />
-        Load Previous Search
+        Search History
       </Button>
       <Button
         variant="outline"

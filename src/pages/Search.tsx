@@ -15,11 +15,8 @@ const Search = () => {
   const [restoredSearch, setRestoredSearch] = useState<{job: unknown, leads: unknown[]} | null>(null);
   const [urlRestoredCriteria, setUrlRestoredCriteria] = useState<Partial<SearchCriteria> | null>(null);
 
-  // Check for demo mode
-  const isDemoMode = searchParams.get('demo') === 'true';
-
   // Get lead generation state to determine workflow step
-  const { currentJob, leads } = useLeadGeneration(user?.id || 'demo-user');
+  const { currentJob, leads } = useLeadGeneration(user?.id);
 
   // Determine current workflow step
   const getCurrentStep = (): 'setup' | 'searching' | 'results' => {
@@ -54,8 +51,8 @@ const Search = () => {
     setRestoredSearch(null);
   };
 
-  // Show loading if no user yet (during auth check) - except in demo mode
-  if (!user && !isDemoMode) {
+  // Show loading if no user yet (during auth check)
+  if (!user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-muted-foreground">Loading...</div>
@@ -66,7 +63,6 @@ const Search = () => {
   return (
     <SearchPageLayout 
       currentStep={currentStep}
-      isDemoMode={isDemoMode}
       showBackNav={true}
     >
       {/* Progress indicator for active searches */}
@@ -81,7 +77,6 @@ const Search = () => {
       {/* Context-aware action bar */}
       <SearchActionBar 
         currentStep={currentStep}
-        onLoadDemo={() => navigate('/search?demo=true')}
         onLoadPrevious={() => {/* TODO: Implement load previous search */}}
         onClearForm={() => {/* TODO: Implement clear form */}}
         onPauseSearch={() => {/* TODO: Implement pause search */}}
@@ -93,28 +88,11 @@ const Search = () => {
         canPause={false}
       />
 
-      {/* Demo mode banner */}
-      {isDemoMode && currentStep === 'setup' && (
-        <div className="neu-card neu-gradient-stroke p-4 mb-6">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">🎯</span>
-            <div className="flex-1">
-              <h3 className="font-semibold text-foreground mb-1">Demo Mode Active</h3>
-              <p className="text-sm text-muted-foreground">
-                We've pre-filled search criteria to demonstrate lead discovery capabilities. 
-                Feel free to modify the parameters or click "Start Lead Generation" to see sample results.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Main lead generation form */}
       <LeadGenForm 
-        userId={user?.id || 'demo-user'}
+        userId={user.id}
         restoredSearch={restoredSearch}
         onSearchRestored={handleSearchRestored}
-        demoMode={isDemoMode}
         urlRestoredCriteria={urlRestoredCriteria}
       />
     </SearchPageLayout>

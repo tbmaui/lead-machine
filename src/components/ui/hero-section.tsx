@@ -40,7 +40,7 @@ function HeroSection() {
     } catch (error) {
       console.warn('CTA tracking failed:', error);
     }
-    navigate('/search?demo=true');
+    navigate('/search');
   };
 
   // Original hero section (when feature gate is disabled)

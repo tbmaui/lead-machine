@@ -14,7 +14,6 @@ interface LeadGenFormProps {
   userId: string;
   restoredSearch?: {job: any, leads: any[]} | null;
   onSearchRestored?: () => void;
-  demoMode?: boolean;
   urlRestoredCriteria?: Partial<{
     targetLocation: string;
     selectedIndustries: string[];
@@ -25,7 +24,7 @@ interface LeadGenFormProps {
   }> | null;
 }
 
-const LeadGenForm = ({ userId, restoredSearch, onSearchRestored, demoMode = false, urlRestoredCriteria }: LeadGenFormProps) => {
+const LeadGenForm = ({ userId, restoredSearch, onSearchRestored, urlRestoredCriteria }: LeadGenFormProps) => {
   const { currentJob, leads, loading, showingResults, startLeadGeneration, resetJob, restoreSearchData } = useLeadGeneration(userId);
   
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
@@ -54,20 +53,11 @@ const LeadGenForm = ({ userId, restoredSearch, onSearchRestored, demoMode = fals
   ];
   const companySizeOptions = ["1-50", "51-200", "201-500", "501-1000"];
   
-  // Enhanced demo configuration with comprehensive parameters
-  const demoConfig = demoMode ? {
-    location: "Austin, TX",
-    industries: ["Professional Services", "Healthcare"],
-    companySizes: ["1-50", "51-200"],
-    jobTitles: ["CEO", "Owner", "VP", "President"],
-    employeeRange: [10, 200]
-  } : null;
-
-  const [targetLocation, setTargetLocation] = useState(demoConfig?.location || "");
-  const [selectedIndustries, setSelectedIndustries] = useState<string[]>(demoConfig?.industries || []);
-  const [selectedCompanySizes, setSelectedCompanySizes] = useState<string[]>(demoConfig?.companySizes || ["1-50"]);
-  const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(demoConfig?.jobTitles || ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
-  const [leadCount, setLeadCount] = useState(demoConfig?.employeeRange || [100]);
+  const [targetLocation, setTargetLocation] = useState("");
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  const [selectedCompanySizes, setSelectedCompanySizes] = useState<string[]>(["1-50"]);
+  const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
+  const [leadCount, setLeadCount] = useState([100]);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Handle restored search data
@@ -125,9 +115,9 @@ const LeadGenForm = ({ userId, restoredSearch, onSearchRestored, demoMode = fals
                    selectedCompanySizes.length > 1 || selectedJobTitles.length !== jobTitleOptions.length;
     
     if (hasData) {
-      updateURL(criteria, demoMode);
+      updateURL(criteria, false);
     }
-  }, [targetLocation, selectedIndustries, selectedCompanySizes, selectedJobTitles, leadCount, demoMode, showingResults, loading, jobTitleOptions.length]);
+  }, [targetLocation, selectedIndustries, selectedCompanySizes, selectedJobTitles, leadCount, showingResults, loading, jobTitleOptions.length]);
 
   const handleJobTitleToggle = (title: string) => {
     setSelectedJobTitles(prev => 
