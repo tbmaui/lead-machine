@@ -87,8 +87,8 @@ function HeroSection() {
             {/* NEUMORPHIC ELEMENT 4 Enhanced feature cards - Streamlined */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
               <div className="neu-element flex items-start gap-4 p-6 transition-all duration-300 hover:transform hover:-translate-y-1">
-                <div className="neu-element p-3 flex-shrink-0" style={{ backgroundColor: '#f36334' }}>
-                  <Target className="w-5 h-5" />
+                <div className="neu-element neu-green p-3 flex-shrink-0">
+                  <Target className="w-5 h-5" style={{ color: '#f36334' }} />
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-foreground text-lg">Outbound Optimized</h4>
@@ -96,8 +96,8 @@ function HeroSection() {
                 </div>
               </div>
               <div className="neu-element flex items-start gap-4 p-6 transition-all duration-300 hover:transform hover:-translate-y-1">
-                <div className="neu-element p-3 flex-shrink-0" style={{ backgroundColor: '#f36334' }}>
-                  <Zap className="w-5 h-5" />
+                <div className="neu-element neu-orange p-3 flex-shrink-0">
+                  <Zap className="w-5 h-5" style={{ color: '#f36334' }} />
                 </div>
                 <div className="space-y-2">
                   <h4 className="font-semibold text-foreground text-lg">Enterprise Ready</h4>
