@@ -730,36 +730,61 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
   return (
     <div className="neu-card text-xs">
       <style>{`
-        .resize-table th {
+        .resize-table .resize-handle {
           resize: horizontal;
           overflow: hidden;
         }
-        .resize-table th:hover {
+        .resize-table .resize-handle:hover {
           border-right: 2px solid hsl(var(--border));
         }
       `}</style>
-      {/* Top scroll indicator */}
-      <div className="overflow-x-auto overflow-y-hidden border-b border-border" style={{ height: '12px' }} onScroll={(e) => {
-        // Sync with main table
-        const mainTable = e.currentTarget.nextElementSibling as HTMLElement;
-        if (mainTable) {
-          mainTable.scrollLeft = e.currentTarget.scrollLeft;
-        }
-      }}>
-        <div style={{ width: '1400px', height: '1px' }}></div>
+      {/* Top scroll indicator - sleek slider design */}
+      <div 
+        className="relative flex items-center justify-center py-2 border-b border-border" 
+        style={{ height: '32px' }}
+      >
+        <div 
+          className="relative w-full max-w-md h-2 bg-gray-700 rounded-full overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing" 
+          onScroll={(e) => {
+            // Sync with main table and other sliders
+            const scrollLeft = e.currentTarget.scrollLeft;
+            const mainTable = e.currentTarget.closest('.neu-card')?.querySelector('div[class*="overflow-x-auto overflow-y-hidden"]:not([role="scrollbar"])') as HTMLElement;
+            if (mainTable) {
+              mainTable.scrollLeft = scrollLeft;
+            }
+            // Sync other sliders
+            const otherSliders = document.querySelectorAll('[role="scrollbar"]');
+            otherSliders.forEach(slider => {
+              if (slider !== e.currentTarget) {
+                (slider as HTMLElement).scrollLeft = scrollLeft;
+              }
+            });
+          }}
+          title="← Drag to scroll horizontally and view all columns →"
+          role="scrollbar"
+          aria-label="Horizontal scroll to view more columns"
+        >
+          <div style={{ width: '1440px', height: '1px' }}></div>
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-20 h-1.5 bg-gray-400 rounded-full mx-auto"></div>
+          </div>
+        </div>
       </div>
-      <div className="overflow-x-auto overflow-y-hidden" onScroll={(e) => {
-        // Sync top scrollbar
-        const topScrollbar = e.currentTarget.previousElementSibling as HTMLElement;
-        if (topScrollbar) {
-          topScrollbar.scrollLeft = e.currentTarget.scrollLeft;
-        }
-        // Sync bottom scrollbar  
-        const bottomScrollbar = e.currentTarget.nextElementSibling as HTMLElement;
-        if (bottomScrollbar) {
-          bottomScrollbar.scrollLeft = e.currentTarget.scrollLeft;
-        }
-      }}>
+      <div 
+        className="relative overflow-x-auto overflow-y-hidden" 
+        onScroll={(e) => {
+          // Sync both slider scrollbars
+          const scrollLeft = e.currentTarget.scrollLeft;
+          const sliders = document.querySelectorAll('[role="scrollbar"]');
+          sliders.forEach(slider => {
+            if (slider !== e.currentTarget) {
+              (slider as HTMLElement).scrollLeft = scrollLeft;
+            }
+          });
+        }}
+      >
+        {/* Right fade indicator to show more columns */}
+        <div className="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-white/90 to-transparent pointer-events-none z-10"></div>
       <div className="flex items-center justify-between p-3 border-b border-border">
         <div className="flex items-center gap-2 flex-wrap">
           <div className="text-xs text-muted-foreground mr-2">
@@ -909,12 +934,18 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
           </div>
         </div>
       )}
-      <table className="w-full border-collapse resize-table" style={{ minWidth: '1400px', tableLayout: 'fixed' }}>
+      <table className="w-full border-collapse resize-table" style={{ minWidth: '1440px', tableLayout: 'auto' }}>
         <thead>
           <tr className="border-b border-border text-muted-foreground">
             <th
+              className="text-center p-2 font-medium uppercase tracking-wide"
+              style={{ width: '40px', minWidth: '40px' }}
+            >
+              #
+            </th>
+            <th
               className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
-              style={{ width: '84px', minWidth: '70px', position: 'relative' }}
+              style={{ width: '84px', minWidth: '10px', position: 'relative' }}
               aria-sort={sortKey === 'name' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -927,8 +958,8 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide"
-              style={{ width: '180px', minWidth: '150px' }}
+              className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
+              style={{ width: '180px', minWidth: '10px' }}
               aria-sort={sortKey === 'title' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -941,8 +972,8 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide"
-              style={{ width: '120px', minWidth: '100px' }}
+              className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
+              style={{ width: '120px', minWidth: '10px' }}
               aria-sort={sortKey === 'company' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -955,8 +986,8 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide"
-              style={{ width: '78px', minWidth: '65px' }}
+              className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
+              style={{ width: '78px', minWidth: '10px' }}
               aria-sort={sortKey === 'industry' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -969,8 +1000,8 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide"
-              style={{ width: '150px', minWidth: '130px' }}
+              className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
+              style={{ width: '150px', minWidth: '10px' }}
               aria-sort={sortKey === 'phone' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -983,8 +1014,8 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide"
-              style={{ width: '220px', minWidth: '180px' }}
+              className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
+              style={{ width: '220px', minWidth: '10px' }}
               aria-sort={sortKey === 'email' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -997,8 +1028,8 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide"
-              style={{ width: '72px', minWidth: '60px' }}
+              className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
+              style={{ width: '72px', minWidth: '10px' }}
               aria-sort={sortKey === 'location' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -1011,8 +1042,8 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
               </button>
             </th>
             <th
-              className="text-left p-2 font-medium uppercase tracking-wide"
-              style={{ width: '80px', minWidth: '70px' }}
+              className="text-left p-2 font-medium uppercase tracking-wide resize-handle"
+              style={{ width: '80px', minWidth: '10px' }}
               aria-sort={sortKey === 'score' ? (sortDirection === 'asc' ? 'ascending' : sortDirection === 'desc' ? 'descending' : 'none') : 'none'}
             >
               <button
@@ -1024,10 +1055,10 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                 Rating {sortKey === 'score' ? (sortDirection === 'asc' ? <ChevronUp className="h-3 w-3" /> : sortDirection === 'desc' ? <ChevronDown className="h-3 w-3" /> : <ChevronsUpDown className="h-3 w-3" />) : <ChevronsUpDown className="h-3 w-3 opacity-50" />}
               </button>
             </th>
-            <th className="text-left p-2 font-medium tracking-wide" style={{ width: '70px', minWidth: '60px' }}>LinkedIn</th>
-            <th className="text-left p-2 font-medium tracking-wide" style={{ width: '70px', minWidth: '60px' }}>Website</th>
-            <th className="text-left p-2 font-medium tracking-wide" style={{ width: '70px', minWidth: '60px' }}>Co. LinkedIn</th>
-            <th className="text-left p-2 font-medium tracking-wide" style={{ width: '250px', minWidth: '200px' }}>Summary</th>
+            <th className="text-left p-2 font-medium tracking-wide resize-handle" style={{ width: '70px', minWidth: '10px' }}>LinkedIn</th>
+            <th className="text-left p-2 font-medium tracking-wide resize-handle" style={{ width: '70px', minWidth: '10px' }}>Website</th>
+            <th className="text-left p-2 font-medium tracking-wide resize-handle" style={{ width: '70px', minWidth: '10px' }}>Co. LinkedIn</th>
+            <th className="text-left p-2 font-medium tracking-wide resize-handle" style={{ width: '250px', minWidth: '10px' }}>Summary</th>
           </tr>
         </thead>
         <tbody>
@@ -1040,7 +1071,10 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
             
             return (
               <tr key={index} className="border-b border-border transition-colors hover:bg-[#f47146]/10">
-                <td className="p-2" style={{ width: '84px', minWidth: '70px' }}>
+                <td className="p-2 text-center text-muted-foreground" style={{ width: '40px', minWidth: '40px' }}>
+                  {index + 1}
+                </td>
+                <td className="p-2" style={{ width: '84px', minWidth: '10px' }}>
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       className="font-medium text-foreground break-words"
@@ -1050,7 +1084,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '180px', minWidth: '150px' }}>
+                <td className="p-2" style={{ width: '180px', minWidth: '10px' }}>
                   <div className="min-w-0">
                     <span
                       className="text-foreground/80 break-words"
@@ -1060,7 +1094,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '120px', minWidth: '100px' }}>
+                <td className="p-2" style={{ width: '120px', minWidth: '10px' }}>
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       className="text-foreground/80 break-words"
@@ -1070,7 +1104,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '78px', minWidth: '65px' }}>
+                <td className="p-2" style={{ width: '78px', minWidth: '10px' }}>
                   <div className="min-w-0">
                     <span
                       className="text-foreground/80 text-xs leading-tight break-words inline-block"
@@ -1080,14 +1114,16 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     </span>
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '150px', minWidth: '130px' }}>
-                  {getDisplayPhone(lead) ? (
-                    <span className="text-foreground/80 whitespace-nowrap text-xs">{getDisplayPhone(lead)}</span>
-                  ) : (
-                    <span className="text-muted-foreground">N/A</span>
-                  )}
+                <td className="p-2" style={{ width: '150px', minWidth: '10px' }}>
+                  <div className="min-w-0 max-w-full">
+                    {getDisplayPhone(lead) ? (
+                      <span className="text-foreground/80 text-xs inline-block truncate max-w-full" title={getDisplayPhone(lead)}>{getDisplayPhone(lead)}</span>
+                    ) : (
+                      <span className="text-muted-foreground">N/A</span>
+                    )}
+                  </div>
                 </td>
-                <td className="p-2" style={{ width: '220px', minWidth: '180px' }}>
+                <td className="p-2" style={{ width: '220px', minWidth: '10px' }}>
                   <div className="min-w-0 max-w-full">
                     {lead.email ? (
                       <a
@@ -1102,7 +1138,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     )}
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '72px', minWidth: '60px' }}>
+                <td className="p-2" style={{ width: '72px', minWidth: '10px' }}>
                   <div className="min-w-0">
                     {(() => {
                       const location = getLocation(lead);
@@ -1116,7 +1152,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     })()}
                   </div>
                 </td>
-                <td className="p-2" style={{ width: '80px', minWidth: '70px' }}>
+                <td className="p-2" style={{ width: '80px', minWidth: '10px' }}>
                   {(() => {
                     const score = (lead as any).calculatedScore || 0;
                     const tier = getLeadTier(score);
@@ -1129,7 +1165,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     );
                   })()}
                 </td>
-                <td className="p-2" style={{ width: '70px', minWidth: '60px' }}>
+                <td className="p-2" style={{ width: '70px', minWidth: '10px' }}>
                   {contactLinkedIn ? (
                     <a
                       href={contactLinkedIn}
@@ -1145,7 +1181,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
-                <td className="p-2" style={{ width: '70px', minWidth: '60px' }}>
+                <td className="p-2" style={{ width: '70px', minWidth: '10px' }}>
                   {companyWebsite ? (
                     <a
                       href={companyWebsite}
@@ -1161,7 +1197,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
-                <td className="p-2" style={{ width: '70px', minWidth: '60px' }}>
+                <td className="p-2" style={{ width: '70px', minWidth: '10px' }}>
                   {companyLinkedIn ? (
                     <a
                       href={companyLinkedIn}
@@ -1177,7 +1213,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                     <span className="text-muted-foreground">N/A</span>
                   )}
                 </td>
-                <td className="p-2" style={{ width: '250px', minWidth: '200px' }}>
+                <td className="p-2" style={{ width: '250px', minWidth: '10px' }}>
                   <div className="min-w-0 max-w-full">
                     <div
                       className="text-foreground/80 text-xs leading-normal"
@@ -1201,6 +1237,39 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
           })}
         </tbody>
       </table>
+      </div>
+      
+      {/* Bottom scroll indicator - sleek slider design */}
+      <div 
+        className="relative flex items-center justify-center py-2 border-t border-border" 
+        style={{ height: '32px' }}
+      >
+        <div 
+          className="relative w-full max-w-md h-2 bg-gray-700 rounded-full overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing" 
+          onScroll={(e) => {
+            // Sync with main table and other sliders
+            const scrollLeft = e.currentTarget.scrollLeft;
+            const mainTable = e.currentTarget.closest('.neu-card')?.querySelector('div[class*="overflow-x-auto overflow-y-hidden"]:not([role="scrollbar"])') as HTMLElement;
+            if (mainTable) {
+              mainTable.scrollLeft = scrollLeft;
+            }
+            // Sync other sliders
+            const otherSliders = document.querySelectorAll('[role="scrollbar"]');
+            otherSliders.forEach(slider => {
+              if (slider !== e.currentTarget) {
+                (slider as HTMLElement).scrollLeft = scrollLeft;
+              }
+            });
+          }}
+          title="← Drag to scroll horizontally and view all columns →"
+          role="scrollbar"
+          aria-label="Horizontal scroll to view more columns"
+        >
+          <div style={{ width: '1440px', height: '1px' }}></div>
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-20 h-1.5 bg-gray-400 rounded-full mx-auto"></div>
+          </div>
+        </div>
       </div>
     </div>
   );
