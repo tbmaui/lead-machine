@@ -1,0 +1,8 @@
+# Netlify redirects file for Single Page Application (SPA) routing
+# This ensures all routes are handled by React Router instead of returning 404
+
+# Handle all routes by serving index.html (SPA fallback)
+/*    /index.html   200
+
+# Optional: Specific API or external redirects can go above the catch-all
+# /api/*  https://your-api-domain.com/api/:splat  200
