@@ -21,13 +21,10 @@ function HeroSection() {
             </h1>
             <div className="space-y-6 max-w-4xl mx-auto">
               <h2 className="text-xl md:text-2xl lg:text-3xl leading-relaxed tracking-tight font-semibold" style={{ color: '#91bfa5' }}>
-                Quality prospects at scale
+                Quality Prospects At Scale
               </h2>
-              <h4 className="text-lg md:text-xl lg:text-2xl leading-relaxed tracking-tight font-normal" style={{ color: '#91bfa5' }}>
-                The unfair advantage for high-quota sales teams
-              </h4>
               <p className="text-base md:text-lg max-w-3xl mx-auto" style={{ color: 'black' }}>
-                Our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
+                The unfair advantage for high-quota sales teams, our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
               </p>
             </div>
           </div>
@@ -79,13 +76,10 @@ function HeroSection() {
               </h1>
               <div className="space-y-6 max-w-4xl mx-auto">
                 <h2 className="text-xl md:text-2xl lg:text-3xl leading-relaxed tracking-tight font-semibold" style={{ color: '#91bfa5' }}>
-                  Quality prospects at scale
+                  Quality Prospects At Scale
                 </h2>
-                <h4 className="text-lg md:text-xl lg:text-2xl leading-relaxed tracking-tight font-normal" style={{ color: '#91bfa5' }}>
-                  The unfair advantage for high-quota sales teams
-                </h4>
                 <p className="text-base md:text-lg max-w-3xl mx-auto" style={{ color: 'black' }}>
-                  Our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
+                  The unfair advantage for high-quota sales teams, our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
                 </p>
               </div>
             </div>
@@ -97,7 +91,7 @@ function HeroSection() {
                   <Target className="w-5 h-5" />
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-foreground text-lg">Precision Targeting</h4>
+                  <h4 className="font-semibold text-foreground text-lg">Outbound Optimized</h4>
                   <p className="text-sm text-muted-foreground">Multi-platform verification with LinkedIn enrichment for maximum accuracy</p>
                 </div>
               </div>
