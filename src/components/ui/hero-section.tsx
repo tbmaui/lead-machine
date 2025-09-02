@@ -21,11 +21,11 @@ function HeroSection() {
             </h1>
             <div className="space-y-6 max-w-4xl mx-auto">
               <h2 className="text-xl md:text-2xl lg:text-3xl leading-relaxed tracking-tight font-semibold" style={{ color: '#91bfa5' }}>
-                Revolutionizing top of the funnel outreach.
+                Quality prospects at scale
               </h2>
-              <h3 className="text-lg md:text-xl lg:text-2xl leading-relaxed tracking-tight text-foreground font-normal">
-                Stop chasing cold leads. Start closing hot prospects.
-              </h3>
+              <h4 className="text-lg md:text-xl lg:text-2xl leading-relaxed tracking-tight font-normal" style={{ color: '#91bfa5' }}>
+                The unfair advantage for high-quota sales teams
+              </h4>
               <p className="text-base md:text-lg max-w-3xl mx-auto" style={{ color: 'black' }}>
                 Our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
               </p>
@@ -79,8 +79,11 @@ function HeroSection() {
               </h1>
               <div className="space-y-6 max-w-4xl mx-auto">
                 <h2 className="text-xl md:text-2xl lg:text-3xl leading-relaxed tracking-tight font-semibold" style={{ color: '#91bfa5' }}>
-                  Revolutionizing top of the funnel outreach.
+                  Quality prospects at scale
                 </h2>
+                <h4 className="text-lg md:text-xl lg:text-2xl leading-relaxed tracking-tight font-normal" style={{ color: '#91bfa5' }}>
+                  The unfair advantage for high-quota sales teams
+                </h4>
                 <p className="text-base md:text-lg max-w-3xl mx-auto" style={{ color: 'black' }}>
                   Our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
                 </p>
