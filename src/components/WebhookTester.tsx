@@ -35,6 +35,7 @@ const webhookTests: WebhookTest[] = [
     name: 'Lead Generation Started',
     payload: {
       action: 'lead_generation_started',
+      jobId: 'test-job-12345',
       userId: 'test-user-123',
       jobCriteria: {
         targetLocation: 'New York, NY',
@@ -51,7 +52,7 @@ const webhookTests: WebhookTest[] = [
     name: 'New Lead Found',
     payload: {
       action: 'new_lead_found',
-      jobId: 'test-job-456',
+      jobId: 'test-job-12345',
       leadData: {
         name: 'John Smith',
         title: 'CEO',
@@ -70,7 +71,7 @@ const webhookTests: WebhookTest[] = [
     name: 'Lead Generation Completed',
     payload: {
       action: 'lead_generation_completed',
-      jobId: 'test-job-456',
+      jobId: 'test-job-12345',
       totalLeads: 47,
       status: 'completed',
       userId: 'test-user-123',
@@ -82,7 +83,7 @@ const webhookTests: WebhookTest[] = [
     name: 'Lead Generation Failed',
     payload: {
       action: 'lead_generation_failed',
-      jobId: 'test-job-789',
+      jobId: 'test-job-67890',
       status: 'failed',
       userId: 'test-user-123',
       error: 'API rate limit exceeded',

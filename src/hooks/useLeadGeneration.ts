@@ -357,19 +357,6 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
     try {
       console.log('Starting lead generation with criteria:', jobCriteria);
       
-      // 🎯 Send data to N8N webhook for testing
-      const webhookResult = await sendToN8NWebhook({
-        action: 'lead_generation_started',
-        userId,
-        jobCriteria,
-        message: 'Lead generation initiated from local development environment'
-      });
-      
-      if (!webhookResult.success) {
-        console.warn('N8N webhook failed:', webhookResult.error);
-        // Don't throw error - continue with normal flow even if webhook fails
-      }
-      
       const response = await supabase.functions.invoke('trigger-lead-generation', {
         body: {
           jobCriteria,
@@ -383,6 +370,20 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
 
       const { jobId } = response.data;
       console.log('Lead generation job started:', jobId);
+      
+      // 🎯 Send data to N8N webhook for testing (now with actual jobId)
+      const webhookResult = await sendToN8NWebhook({
+        action: 'lead_generation_started',
+        jobId,
+        userId,
+        jobCriteria,
+        message: 'Lead generation initiated from local development environment'
+      });
+      
+      if (!webhookResult.success) {
+        console.warn('N8N webhook failed:', webhookResult.error);
+        // Don't throw error - continue with normal flow even if webhook fails
+      }
       // Immediately subscribe to job updates to avoid missing early updates
       setJobIdForSubscription(jobId);
 
