@@ -61,7 +61,7 @@ const LeadGenForm = forwardRef<LeadGenFormRef, LeadGenFormProps>(({ userId, rest
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedCompanySizes, setSelectedCompanySizes] = useState<string[]>(["1-50"]);
   const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
-  const [leadCount, setLeadCount] = useState([100]);
+  const [leadCount, setLeadCount] = useState([500]);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Expose clear form function to parent
@@ -71,7 +71,7 @@ const LeadGenForm = forwardRef<LeadGenFormRef, LeadGenFormProps>(({ userId, rest
       setSelectedIndustries([]);
       setSelectedCompanySizes(["1-50"]);
       setSelectedJobTitles(["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
-      setLeadCount([100]);
+      setLeadCount([500]);
       setShowAdvanced(false);
       resetJob();
     }
@@ -363,12 +363,12 @@ const LeadGenForm = forwardRef<LeadGenFormRef, LeadGenFormProps>(({ userId, rest
               value={leadCount}
               onValueChange={setLeadCount}
               max={1000}
-              min={100}
+              min={500}
               step={1}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>100</span>
+              <span>500</span>
               <span className="font-medium text-xl text-foreground neu-flat px-3 py-1 rounded-lg">
                 {leadCount[0]}
               </span>
