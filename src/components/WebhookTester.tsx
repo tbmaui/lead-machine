@@ -98,11 +98,11 @@ const workflowTests: WorkflowTest[] = [
     name: 'Tech Startup CEOs',
     description: 'Small tech companies in major cities - perfect for testing API integrations',
     jobCriteria: {
-      targetLocation: 'San Francisco, CA',
+      targetLocation: 'Atlanta, GA',
       selectedIndustries: ['Technology'],
       selectedCompanySizes: ['1-50', '51-200'],
       selectedJobTitles: ['CEO', 'CTO', 'Founder'],
-      leadCount: [25]
+      leadCount: [500]
     }
   },
   {
@@ -110,11 +110,11 @@ const workflowTests: WorkflowTest[] = [
     name: 'Healthcare Directors',
     description: 'Mid-size healthcare companies - good for testing enrichment workflows',
     jobCriteria: {
-      targetLocation: 'New York, NY',
+      targetLocation: 'Austin, TX',
       selectedIndustries: ['Healthcare'],
       selectedCompanySizes: ['51-200', '201-500'],
       selectedJobTitles: ['Director', 'VP of Operations', 'CEO'],
-      leadCount: [50]
+      leadCount: [600]
     }
   },
   {
@@ -122,11 +122,11 @@ const workflowTests: WorkflowTest[] = [
     name: 'Construction Business Owners',
     description: 'Small construction companies nationwide - tests location diversity',
     jobCriteria: {
-      targetLocation: 'United States',
+      targetLocation: 'Los Angeles, CA',
       selectedIndustries: ['Construction'],
       selectedCompanySizes: ['1-50'],
       selectedJobTitles: ['Owner', 'President', 'CEO'],
-      leadCount: [75]
+      leadCount: [550]
     }
   },
   {
@@ -134,35 +134,35 @@ const workflowTests: WorkflowTest[] = [
     name: 'Financial Services Executives',
     description: 'Large financial firms - high-value targets for workflow testing',
     jobCriteria: {
-      targetLocation: 'Chicago, IL',
+      targetLocation: 'New York, NY',
       selectedIndustries: ['Financial Services'],
       selectedCompanySizes: ['201-500', '501-1000'],
       selectedJobTitles: ['CFO', 'VP of Finance', 'Director'],
-      leadCount: [100]
+      leadCount: [750]
     }
   },
   {
     id: 'quick-test',
-    name: 'Quick Test (10 leads)',
-    description: 'Fast workflow test - minimal leads for rapid iteration',
+    name: 'Standard Test (500 leads)',
+    description: 'Standard workflow test - meets minimum scraper requirements',
     jobCriteria: {
-      targetLocation: 'Austin, TX',
+      targetLocation: 'Chicago, IL',
       selectedIndustries: ['Technology', 'Professional Services'],
       selectedCompanySizes: ['1-50'],
       selectedJobTitles: ['CEO', 'Owner'],
-      leadCount: [10]
+      leadCount: [500]
     }
   },
   {
     id: 'comprehensive-test',
-    name: 'Comprehensive Test (200 leads)',
+    name: 'Comprehensive Test (1000 leads)',
     description: 'Full workflow stress test - multiple industries and sizes',
     jobCriteria: {
-      targetLocation: 'Los Angeles, CA',
+      targetLocation: 'San Francisco, CA',
       selectedIndustries: ['Technology', 'Healthcare', 'Manufacturing', 'Professional Services'],
       selectedCompanySizes: ['1-50', '51-200', '201-500'],
       selectedJobTitles: ['CEO', 'CFO', 'Director', 'VP of Operations', 'Owner'],
-      leadCount: [200]
+      leadCount: [1000]
     }
   }
 ];
