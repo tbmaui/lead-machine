@@ -817,52 +817,42 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
           background: hsl(var(--border));
         }
       `}</style>
-      {/* Top scroll indicator with neumorphic design */}
+      {/* Top scroll indicator with neumorphic range slider */}
       <div 
-        className="relative flex flex-col items-center justify-center py-3 border-b border-border" 
-        style={{ minHeight: '48px' }}
+        className="relative flex flex-col items-center justify-center py-4 border-b border-border" 
+        style={{ minHeight: '80px' }}
       >
-        <div className="text-xs text-muted-foreground mb-2 text-center">
+        <div className="text-xs text-muted-foreground mb-3 text-center">
           ← Slide to view all columns →
         </div>
-        <div 
-          className="neu-slider-track relative w-full max-w-md overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing" 
-          onScroll={(e) => {
-            // Sync with main table and bottom slider
-            const scrollLeft = e.currentTarget.scrollLeft;
-            const mainTable = e.currentTarget.closest('.neu-card')?.querySelector('div[class*="overflow-x-auto overflow-y-hidden"]:not([role="scrollbar"])') as HTMLElement;
-            if (mainTable) {
-              mainTable.scrollLeft = scrollLeft;
-            }
-            // Sync other sliders
-            const otherSliders = document.querySelectorAll('[role="scrollbar"]');
-            otherSliders.forEach(slider => {
-              if (slider !== e.currentTarget) {
-                (slider as HTMLElement).scrollLeft = scrollLeft;
+        <div className="neu-range-slider">
+          <input
+            type="range"
+            min="0"
+            max="1440"
+            defaultValue="0"
+            className="neu-range-input"
+            onInput={(e) => {
+              const scrollLeft = parseInt(e.currentTarget.value);
+              const mainTable = e.currentTarget.closest('.neu-card')?.querySelector('div[class*="overflow-x-auto overflow-y-hidden"]:not(.neu-range-slider)') as HTMLElement;
+              if (mainTable) {
+                mainTable.scrollLeft = scrollLeft;
               }
-            });
-          }}
-          title="← Drag to scroll horizontally and view all columns →"
-          role="scrollbar"
-          aria-label="Horizontal scroll to view more columns"
-        >
-          <div style={{ width: '1440px', height: '1px' }}></div>
-          <div className="absolute inset-0 flex items-center">
-            <div className="neu-slider-thumb w-16 h-3 mx-auto"></div>
-          </div>
+            }}
+            title="← Drag to scroll horizontally and view all columns →"
+            aria-label="Horizontal scroll to view more columns"
+          />
         </div>
       </div>
       <div 
         className="relative overflow-x-auto overflow-y-hidden" 
         onScroll={(e) => {
-          // Sync both slider scrollbars
+          // Sync with range slider
           const scrollLeft = e.currentTarget.scrollLeft;
-          const sliders = document.querySelectorAll('[role="scrollbar"]');
-          sliders.forEach(slider => {
-            if (slider !== e.currentTarget) {
-              (slider as HTMLElement).scrollLeft = scrollLeft;
-            }
-          });
+          const rangeInput = document.querySelector('.neu-range-input') as HTMLInputElement;
+          if (rangeInput) {
+            rangeInput.value = scrollLeft.toString();
+          }
         }}
       >
         {/* Right fade indicator to show more columns */}
@@ -1342,42 +1332,6 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
           })}
         </tbody>
       </table>
-      </div>
-      
-      {/* Bottom scroll indicator with neumorphic design */}
-      <div 
-        className="relative flex flex-col items-center justify-center py-3 border-t border-border" 
-        style={{ minHeight: '48px' }}
-      >
-        <div 
-          className="neu-slider-track relative w-full max-w-md overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing" 
-          onScroll={(e) => {
-            // Sync with main table and top slider
-            const scrollLeft = e.currentTarget.scrollLeft;
-            const mainTable = e.currentTarget.closest('.neu-card')?.querySelector('div[class*="overflow-x-auto overflow-y-hidden"]:not([role="scrollbar"])') as HTMLElement;
-            if (mainTable) {
-              mainTable.scrollLeft = scrollLeft;
-            }
-            // Sync other sliders
-            const otherSliders = document.querySelectorAll('[role="scrollbar"]');
-            otherSliders.forEach(slider => {
-              if (slider !== e.currentTarget) {
-                (slider as HTMLElement).scrollLeft = scrollLeft;
-              }
-            });
-          }}
-          title="← Drag to scroll horizontally and view all columns →"
-          role="scrollbar"
-          aria-label="Horizontal scroll to view more columns"
-        >
-          <div style={{ width: '1440px', height: '1px' }}></div>
-          <div className="absolute inset-0 flex items-center">
-            <div className="neu-slider-thumb w-16 h-3 mx-auto"></div>
-          </div>
-        </div>
-        <div className="text-xs text-muted-foreground mt-2 text-center">
-          ← Slide to view all columns →
-        </div>
       </div>
     </div>
   );
