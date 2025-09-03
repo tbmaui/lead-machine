@@ -81,6 +81,7 @@ const Search = ({ restoredSearch: propsRestoredSearch, onSearchRestored: propsOn
   };
 
   const handleLoadPrevious = () => {
+    console.log('🔍 Search History button clicked - opening modal');
     setShowSearchHistoryModal(true);
   };
 
@@ -137,14 +138,24 @@ const Search = ({ restoredSearch: propsRestoredSearch, onSearchRestored: propsOn
 
       {/* Search History Modal */}
       <Dialog open={showSearchHistoryModal} onOpenChange={setShowSearchHistoryModal}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Search History</DialogTitle>
           </DialogHeader>
-          <SearchHistory 
-            onRestoreSearch={handleRestoreFromModal}
-            onClose={() => setShowSearchHistoryModal(false)}
-          />
+          <div className="space-y-4">
+            <SearchHistory 
+              onRestoreSearch={handleRestoreFromModal}
+              onClose={() => setShowSearchHistoryModal(false)}
+            />
+            <div className="flex justify-end pt-4 border-t">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowSearchHistoryModal(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 

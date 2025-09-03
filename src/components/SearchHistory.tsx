@@ -14,6 +14,12 @@ interface SearchHistoryProps {
 export function SearchHistory({ onRestoreSearch, onClose }: SearchHistoryProps) {
   const { user } = useAuth();
   const { searchHistory, loading, restoreSearch, formatSearchCriteria } = useSearchHistory(user?.id);
+  
+  console.log('🔍 SearchHistory component rendered:', { 
+    loading, 
+    historyCount: searchHistory.length, 
+    userId: user?.id 
+  });
 
   const handleRestoreSearch = async (item: SearchHistoryItem) => {
     if (item.status !== 'completed') {
