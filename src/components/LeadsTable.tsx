@@ -817,7 +817,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
           background: hsl(var(--border));
         }
       `}</style>
-      {/* Top scroll indicator with neumorphic range slider */}
+      {/* Top scroll indicator with neumorphic range slider design */}
       <div 
         className="relative flex flex-col items-center justify-center py-4 border-b border-border" 
         style={{ minHeight: '80px' }}
