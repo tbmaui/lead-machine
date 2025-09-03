@@ -50,7 +50,10 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <AuthenticatedLayout onRestoreSearch={handleRestoreSearch}>
-                    <Search />
+                    <Search 
+                      restoredSearch={restoredSearch}
+                      onSearchRestored={() => setRestoredSearch(null)}
+                    />
                   </AuthenticatedLayout>
                 </ProtectedRoute>
               }

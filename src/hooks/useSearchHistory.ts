@@ -25,6 +25,7 @@ export const useSearchHistory = (userId: string | undefined) => {
         .from('lead_gen_jobs')
         .select('id, job_criteria, total_leads_found, status, created_at, completed_at')
         .eq('user_id', userId)
+        .in('status', ['completed', 'failed']) // Only show completed or explicitly failed searches
         .order('created_at', { ascending: false })
         .limit(10); // Get last 10 searches
 

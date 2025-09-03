@@ -1,19 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import LeadGenForm from '@/components/LeadGenForm';
+import LeadGenForm, { LeadGenFormRef } from '@/components/LeadGenForm';
+import { SearchHistory } from '@/components/SearchHistory';
 import { decodeSearchParams, SearchCriteria } from '@/lib/url-params';
 import { SearchPageLayout } from '@/components/SearchPageLayout';
 import { SearchProgressIndicator } from '@/components/SearchProgressIndicator';
 import { SearchActionBar } from '@/components/SearchActionBar';
 import { useLeadGeneration } from '@/hooks/useLeadGeneration';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
-const Search = () => {
+interface SearchProps {
+  restoredSearch?: {job: any, leads: any[]} | null;
+  onSearchRestored?: () => void;
+}
+
+const Search = ({ restoredSearch: propsRestoredSearch, onSearchRestored: propsOnSearchRestored }: SearchProps = {}) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [restoredSearch, setRestoredSearch] = useState<{job: unknown, leads: unknown[]} | null>(null);
   const [urlRestoredCriteria, setUrlRestoredCriteria] = useState<Partial<SearchCriteria> | null>(null);
+  const [showSearchHistoryModal, setShowSearchHistoryModal] = useState(false);
+  const formRef = useRef<LeadGenFormRef>(null);
+
+  // Handle restored search from dropdown
+  useEffect(() => {
+    if (propsRestoredSearch) {
+      setRestoredSearch(propsRestoredSearch);
+    }
+  }, [propsRestoredSearch]);
 
   // Get lead generation state to determine workflow step
   const { currentJob, leads } = useLeadGeneration(user?.id);
@@ -49,6 +65,24 @@ const Search = () => {
 
   const handleSearchRestored = () => {
     setRestoredSearch(null);
+    if (propsOnSearchRestored) {
+      propsOnSearchRestored();
+    }
+  };
+
+  const handleClearForm = () => {
+    if (formRef.current) {
+      formRef.current.clearForm();
+    }
+  };
+
+  const handleLoadPrevious = () => {
+    setShowSearchHistoryModal(true);
+  };
+
+  const handleRestoreFromModal = (job: any, leads: any[]) => {
+    setRestoredSearch({ job, leads });
+    setShowSearchHistoryModal(false);
   };
 
   // Show loading if no user yet (during auth check)
@@ -77,8 +111,8 @@ const Search = () => {
       {/* Context-aware action bar */}
       <SearchActionBar 
         currentStep={currentStep}
-        onLoadPrevious={() => {/* TODO: Implement load previous search */}}
-        onClearForm={() => {/* TODO: Implement clear form */}}
+        onLoadPrevious={handleLoadPrevious}
+        onClearForm={handleClearForm}
         onPauseSearch={() => {/* TODO: Implement pause search */}}
         onCancelSearch={() => {/* TODO: Implement cancel search */}}
         onExportCSV={() => {/* TODO: Implement export CSV */}}
@@ -90,11 +124,25 @@ const Search = () => {
 
       {/* Main lead generation form */}
       <LeadGenForm 
+        ref={formRef}
         userId={user.id}
         restoredSearch={restoredSearch}
         onSearchRestored={handleSearchRestored}
         urlRestoredCriteria={urlRestoredCriteria}
       />
+
+      {/* Search History Modal */}
+      <Dialog open={showSearchHistoryModal} onOpenChange={setShowSearchHistoryModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Search History</DialogTitle>
+          </DialogHeader>
+          <SearchHistory 
+            onRestoreSearch={handleRestoreFromModal}
+            onClose={() => setShowSearchHistoryModal(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </SearchPageLayout>
   );
 };

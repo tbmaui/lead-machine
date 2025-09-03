@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 // Removed unused Card imports - using neu-form-section instead
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,11 @@ interface LeadGenFormProps {
   }> | null;
 }
 
-const LeadGenForm = ({ userId, restoredSearch, onSearchRestored, urlRestoredCriteria }: LeadGenFormProps) => {
+export interface LeadGenFormRef {
+  clearForm: () => void;
+}
+
+const LeadGenForm = forwardRef<LeadGenFormRef, LeadGenFormProps>(({ userId, restoredSearch, onSearchRestored, urlRestoredCriteria }, ref) => {
   const { currentJob, leads, loading, showingResults, startLeadGeneration, resetJob, restoreSearchData } = useLeadGeneration(userId);
   
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
@@ -59,6 +63,19 @@ const LeadGenForm = ({ userId, restoredSearch, onSearchRestored, urlRestoredCrit
   const [selectedJobTitles, setSelectedJobTitles] = useState<string[]>(["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
   const [leadCount, setLeadCount] = useState([100]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // Expose clear form function to parent
+  useImperativeHandle(ref, () => ({
+    clearForm: () => {
+      setTargetLocation("");
+      setSelectedIndustries([]);
+      setSelectedCompanySizes(["1-50"]);
+      setSelectedJobTitles(["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"]);
+      setLeadCount([100]);
+      setShowAdvanced(false);
+      resetJob();
+    }
+  }));
 
   // Handle restored search data
   useEffect(() => {
@@ -373,6 +390,6 @@ const LeadGenForm = ({ userId, restoredSearch, onSearchRestored, urlRestoredCrit
     </div>
     </div>
   );
-};
+});
 
 export default LeadGenForm;
