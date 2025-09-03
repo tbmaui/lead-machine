@@ -4,6 +4,41 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { saveSearchState, loadSearchState, clearSearchState, STORAGE_KEYS } from '@/lib/session-storage';
 
+// N8N Webhook URL for testing
+const N8N_WEBHOOK_URL = 'https://playground.automateanythingacademy.com/webhook-test/52a2a2ec-2055-4e1c-8ce7-75fe43bbd14c';
+
+// Helper function to send data to N8N webhook
+const sendToN8NWebhook = async (data: any) => {
+  try {
+    console.log('🎯 Sending data to N8N webhook:', data);
+    
+    const response = await fetch(N8N_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...data,
+        timestamp: new Date().toISOString(),
+        source: 'lead-machine-local-dev',
+        environment: 'development'
+      })
+    });
+
+    if (response.ok) {
+      const result = await response.text();
+      console.log('✅ N8N webhook response:', result);
+      return { success: true, response: result };
+    } else {
+      console.error('❌ N8N webhook error:', response.status, response.statusText);
+      return { success: false, error: `HTTP ${response.status}: ${response.statusText}` };
+    }
+  } catch (error) {
+    console.error('❌ N8N webhook network error:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+};
+
 export interface LeadGenJob {
   id: string;
   status: 'pending' | 'processing' | 'searching' | 'enriching' | 'validating' | 'finalizing' | 'completed' | 'failed';
@@ -166,6 +201,16 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
 
       // Handle completion status with smooth 100% progress and pause
       if (updatedJob.status === 'completed') {
+        // 🎯 Send completion data to N8N webhook
+        sendToN8NWebhook({
+          action: 'lead_generation_completed',
+          jobId: updatedJob.id,
+          totalLeads: updatedJob.total_leads_found,
+          status: 'completed',
+          userId,
+          message: 'Lead generation completed successfully'
+        });
+        
         // First, set progress to 100% and show completion
         setCurrentJob({
           ...(updatedJob as LeadGenJob),
@@ -184,6 +229,19 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
         }, 2500); // 2.5 second pause for user satisfaction
         
         return;
+      }
+      
+      // Handle failed status
+      if (updatedJob.status === 'failed') {
+        // 🎯 Send failure data to N8N webhook
+        sendToN8NWebhook({
+          action: 'lead_generation_failed',
+          jobId: updatedJob.id,
+          status: 'failed',
+          userId,
+          error: updatedJob.error_message || 'Unknown error',
+          message: 'Lead generation failed'
+        });
       }
       
       setCurrentJob({
@@ -243,6 +301,24 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
         organization_linkedin_url: lead.organization_linkedin_url,
         organization_url: lead.organization_url
       });
+      
+      // 🎯 Send new lead data to N8N webhook
+      sendToN8NWebhook({
+        action: 'new_lead_found',
+        jobId: lead.job_id,
+        leadData: {
+          name: lead.full_name,
+          title: lead.job_title,
+          company: lead.company_name,
+          linkedinUrl: lead.linkedin_url,
+          companyLinkedinUrl: lead.organization_linkedin_url,
+          companyUrl: lead.organization_url,
+          industry: lead.industry,
+          location: lead.location
+        },
+        message: 'New lead discovered'
+      });
+      
       setLeads(prev => [...prev, lead]);
     };
     
@@ -280,6 +356,19 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
 
     try {
       console.log('Starting lead generation with criteria:', jobCriteria);
+      
+      // 🎯 Send data to N8N webhook for testing
+      const webhookResult = await sendToN8NWebhook({
+        action: 'lead_generation_started',
+        userId,
+        jobCriteria,
+        message: 'Lead generation initiated from local development environment'
+      });
+      
+      if (!webhookResult.success) {
+        console.warn('N8N webhook failed:', webhookResult.error);
+        // Don't throw error - continue with normal flow even if webhook fails
+      }
       
       const response = await supabase.functions.invoke('trigger-lead-generation', {
         body: {
