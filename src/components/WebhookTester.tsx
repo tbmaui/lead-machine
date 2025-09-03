@@ -3,7 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Send, CheckCircle, XCircle, Clock, Play, Zap } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useLeadGeneration } from '@/hooks/useLeadGeneration';
 
 const N8N_WEBHOOK_URL = 'https://playground.automateanythingacademy.com/webhook-test/52a2a2ec-2055-4e1c-8ce7-75fe43bbd14c';
 
@@ -11,6 +14,19 @@ interface WebhookTest {
   id: string;
   name: string;
   payload: any;
+}
+
+interface WorkflowTest {
+  id: string;
+  name: string;
+  description: string;
+  jobCriteria: {
+    targetLocation: string;
+    selectedIndustries: string[];
+    selectedCompanySizes: string[];
+    selectedJobTitles: string[];
+    leadCount: number[];
+  };
 }
 
 const webhookTests: WebhookTest[] = [
@@ -75,8 +91,86 @@ const webhookTests: WebhookTest[] = [
   }
 ];
 
+const workflowTests: WorkflowTest[] = [
+  {
+    id: 'tech-startup',
+    name: 'Tech Startup CEOs',
+    description: 'Small tech companies in major cities - perfect for testing API integrations',
+    jobCriteria: {
+      targetLocation: 'San Francisco, CA',
+      selectedIndustries: ['Technology'],
+      selectedCompanySizes: ['1-50', '51-200'],
+      selectedJobTitles: ['CEO', 'CTO', 'Founder'],
+      leadCount: [25]
+    }
+  },
+  {
+    id: 'healthcare-directors',
+    name: 'Healthcare Directors',
+    description: 'Mid-size healthcare companies - good for testing enrichment workflows',
+    jobCriteria: {
+      targetLocation: 'New York, NY',
+      selectedIndustries: ['Healthcare'],
+      selectedCompanySizes: ['51-200', '201-500'],
+      selectedJobTitles: ['Director', 'VP of Operations', 'CEO'],
+      leadCount: [50]
+    }
+  },
+  {
+    id: 'construction-owners',
+    name: 'Construction Business Owners',
+    description: 'Small construction companies nationwide - tests location diversity',
+    jobCriteria: {
+      targetLocation: 'United States',
+      selectedIndustries: ['Construction'],
+      selectedCompanySizes: ['1-50'],
+      selectedJobTitles: ['Owner', 'President', 'CEO'],
+      leadCount: [75]
+    }
+  },
+  {
+    id: 'finance-executives',
+    name: 'Financial Services Executives',
+    description: 'Large financial firms - high-value targets for workflow testing',
+    jobCriteria: {
+      targetLocation: 'Chicago, IL',
+      selectedIndustries: ['Financial Services'],
+      selectedCompanySizes: ['201-500', '501-1000'],
+      selectedJobTitles: ['CFO', 'VP of Finance', 'Director'],
+      leadCount: [100]
+    }
+  },
+  {
+    id: 'quick-test',
+    name: 'Quick Test (10 leads)',
+    description: 'Fast workflow test - minimal leads for rapid iteration',
+    jobCriteria: {
+      targetLocation: 'Austin, TX',
+      selectedIndustries: ['Technology', 'Professional Services'],
+      selectedCompanySizes: ['1-50'],
+      selectedJobTitles: ['CEO', 'Owner'],
+      leadCount: [10]
+    }
+  },
+  {
+    id: 'comprehensive-test',
+    name: 'Comprehensive Test (200 leads)',
+    description: 'Full workflow stress test - multiple industries and sizes',
+    jobCriteria: {
+      targetLocation: 'Los Angeles, CA',
+      selectedIndustries: ['Technology', 'Healthcare', 'Manufacturing', 'Professional Services'],
+      selectedCompanySizes: ['1-50', '51-200', '201-500'],
+      selectedJobTitles: ['CEO', 'CFO', 'Director', 'VP of Operations', 'Owner'],
+      leadCount: [200]
+    }
+  }
+];
+
 export const WebhookTester = () => {
+  const { user } = useAuth();
+  const { startLeadGeneration, loading } = useLeadGeneration(user?.id || '');
   const [results, setResults] = useState<{[key: string]: 'pending' | 'success' | 'error' | null}>({});
+  const [workflowResults, setWorkflowResults] = useState<{[key: string]: 'pending' | 'success' | 'error' | null}>({});
   const [customPayload, setCustomPayload] = useState('{\n  "action": "custom_test",\n  "message": "Custom webhook test",\n  "data": {}\n}');
 
   const sendWebhook = async (test: WebhookTest) => {
@@ -146,6 +240,27 @@ export const WebhookTester = () => {
     }
   };
 
+  const triggerWorkflow = async (workflowTest: WorkflowTest) => {
+    if (!user) {
+      console.error('User must be logged in to trigger workflows');
+      return;
+    }
+
+    setWorkflowResults(prev => ({ ...prev, [workflowTest.id]: 'pending' }));
+
+    try {
+      console.log('🚀 Triggering complete workflow:', workflowTest.name, workflowTest.jobCriteria);
+      
+      await startLeadGeneration(workflowTest.jobCriteria);
+      
+      setWorkflowResults(prev => ({ ...prev, [workflowTest.id]: 'success' }));
+      console.log('✅ Workflow triggered successfully');
+    } catch (error) {
+      console.error('❌ Workflow trigger error:', error);
+      setWorkflowResults(prev => ({ ...prev, [workflowTest.id]: 'error' }));
+    }
+  };
+
   const getStatusIcon = (status: 'pending' | 'success' | 'error' | null) => {
     switch (status) {
       case 'pending':
@@ -173,80 +288,146 @@ export const WebhookTester = () => {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Send className="w-5 h-5" />
-          N8N Webhook Tester
-        </CardTitle>
-        <CardDescription>
-          Test webhook calls to your N8N workflow without triggering full lead generation
-        </CardDescription>
-        <div className="text-sm text-muted-foreground font-mono bg-muted p-2 rounded">
-          {N8N_WEBHOOK_URL}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Predefined Tests */}
-        <div className="grid gap-4 md:grid-cols-2">
-          {webhookTests.map((test) => (
-            <Card key={test.id} className="border">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium">{test.name}</CardTitle>
-                  <div className="flex items-center gap-2">
-                    {getStatusIcon(results[test.id])}
-                    {getStatusBadge(results[test.id])}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <Button 
-                  onClick={() => sendWebhook(test)}
-                  disabled={results[test.id] === 'pending'}
-                  size="sm"
-                  className="w-full"
-                >
-                  Send Test
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+    <div className="w-full max-w-6xl mx-auto">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="w-5 h-5" />
+            N8N Testing Suite
+          </CardTitle>
+          <CardDescription>
+            Test individual webhooks or trigger complete lead generation workflows
+          </CardDescription>
+          <div className="text-sm text-muted-foreground font-mono bg-muted p-2 rounded">
+            {N8N_WEBHOOK_URL}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="workflows" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="workflows" className="flex items-center gap-2">
+                <Play className="w-4 h-4" />
+                Complete Workflows
+              </TabsTrigger>
+              <TabsTrigger value="webhooks" className="flex items-center gap-2">
+                <Send className="w-4 h-4" />
+                Webhook Tests
+              </TabsTrigger>
+            </TabsList>
 
-        {/* Custom Payload Test */}
-        <Card className="border">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Custom Payload Test</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Textarea
-              value={customPayload}
-              onChange={(e) => setCustomPayload(e.target.value)}
-              placeholder="Enter custom JSON payload..."
-              rows={6}
-              className="font-mono text-sm"
-            />
-            <div className="flex items-center justify-between">
-              <Button 
-                onClick={sendCustomWebhook}
-                disabled={results['custom'] === 'pending'}
-                size="sm"
-              >
-                Send Custom Test
-              </Button>
-              <div className="flex items-center gap-2">
-                {getStatusIcon(results['custom'])}
-                {getStatusBadge(results['custom'])}
+            <TabsContent value="workflows" className="space-y-4 mt-6">
+              <div className="text-sm text-muted-foreground mb-4">
+                🚀 Trigger complete lead generation workflows with predefined criteria. These will run the full pipeline and send all webhook events.
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="grid gap-4">
+                {workflowTests.map((workflow) => (
+                  <Card key={workflow.id} className="border">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <CardTitle className="text-base font-medium flex items-center gap-2">
+                            <Play className="w-4 h-4" />
+                            {workflow.name}
+                          </CardTitle>
+                          <CardDescription className="text-xs">
+                            {workflow.description}
+                          </CardDescription>
+                          <div className="text-xs text-muted-foreground">
+                            📍 {workflow.jobCriteria.targetLocation} • 
+                            🏢 {workflow.jobCriteria.selectedIndustries.join(', ')} • 
+                            👥 {workflow.jobCriteria.selectedCompanySizes.join(', ')} • 
+                            🎯 {workflow.jobCriteria.leadCount[0]} leads
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(workflowResults[workflow.id])}
+                          {getStatusBadge(workflowResults[workflow.id])}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <Button 
+                        onClick={() => triggerWorkflow(workflow)}
+                        disabled={workflowResults[workflow.id] === 'pending' || loading}
+                        size="sm"
+                        className="neu-button-primary w-full"
+                      >
+                        {workflowResults[workflow.id] === 'pending' ? 'Triggering...' : 'Trigger Workflow'}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
 
-        <div className="text-xs text-muted-foreground">
-          💡 Check your browser's console for detailed webhook responses and N8N workflow logs.
-        </div>
-      </CardContent>
-    </Card>
+            <TabsContent value="webhooks" className="space-y-4 mt-6">
+              <div className="text-sm text-muted-foreground mb-4">
+                📡 Send individual webhook calls to test specific N8N workflow nodes without running full lead generation.
+              </div>
+              
+              {/* Predefined Tests */}
+              <div className="grid gap-4 md:grid-cols-2">
+                {webhookTests.map((test) => (
+                  <Card key={test.id} className="border">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm font-medium">{test.name}</CardTitle>
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(results[test.id])}
+                          {getStatusBadge(results[test.id])}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <Button 
+                        onClick={() => sendWebhook(test)}
+                        disabled={results[test.id] === 'pending'}
+                        size="sm"
+                        className="w-full"
+                      >
+                        Send Test
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Custom Payload Test */}
+              <Card className="border">
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium">Custom Payload Test</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Textarea
+                    value={customPayload}
+                    onChange={(e) => setCustomPayload(e.target.value)}
+                    placeholder="Enter custom JSON payload..."
+                    rows={6}
+                    className="font-mono text-sm"
+                  />
+                  <div className="flex items-center justify-between">
+                    <Button 
+                      onClick={sendCustomWebhook}
+                      disabled={results['custom'] === 'pending'}
+                      size="sm"
+                    >
+                      Send Custom Test
+                    </Button>
+                    <div className="flex items-center gap-2">
+                      {getStatusIcon(results['custom'])}
+                      {getStatusBadge(results['custom'])}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="text-xs text-muted-foreground">
+                💡 Check your browser's console for detailed webhook responses and N8N workflow logs.
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
