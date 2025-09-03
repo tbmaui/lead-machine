@@ -806,23 +806,21 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
           cursor: col-resize;
           background: transparent;
           z-index: 10;
+          transition: background-color 0.2s ease;
         }
-        .resize-table .resize-handle::after:hover {
+        .resize-table .resize-handle:hover::after {
           background: hsl(var(--border));
         }
         .resize-table th:hover {
           background-color: hsl(var(--muted) / 0.3);
         }
-        .resize-table th:hover::after {
-          background: hsl(var(--border));
-        }
       `}</style>
       {/* Top scroll indicator with neumorphic range slider design */}
       <div 
-        className="relative flex flex-col items-center justify-center py-4 border-b border-border" 
-        style={{ minHeight: '80px' }}
+        className="relative flex flex-col items-center justify-center py-3 border-b border-border" 
+        style={{ minHeight: '50px' }}
       >
-        <div className="text-xs text-muted-foreground mb-3 text-center">
+        <div className="text-xs text-muted-foreground mb-2 text-center">
           ← Slide to view all columns →
         </div>
         <div className="neu-range-slider">

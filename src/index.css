@@ -505,12 +505,12 @@
   /* Enhanced Neumorphic Range Slider for Table Scrolling */
   .neu-range-slider {
     width: 100%;
-    max-width: 400px;
-    height: 60px;
-    padding: 20px;
+    max-width: 600px;
+    height: 32px;
+    padding: 8px 16px;
     background: hsl(var(--neu-base));
-    border-radius: 10px;
-    box-shadow: var(--neu-shadow-medium);
+    border-radius: 16px;
+    box-shadow: var(--neu-shadow-light);
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -519,7 +519,7 @@
 
   .neu-range-input {
     width: 100%;
-    height: 20px;
+    height: 12px;
     background: transparent;
     border: none;
     outline: none;
@@ -550,16 +550,16 @@
   /* Custom track styling */
   .neu-range-input::-webkit-slider-runnable-track {
     width: 100%;
-    height: 20px;
-    border-radius: 10px;
+    height: 12px;
+    border-radius: 6px;
     background: hsl(var(--neu-base));
     box-shadow: var(--neu-shadow-inset);
   }
 
   .neu-range-input::-moz-range-track {
     width: 100%;
-    height: 20px;
-    border-radius: 10px;
+    height: 12px;
+    border-radius: 6px;
     background: hsl(var(--neu-base));
     box-shadow: var(--neu-shadow-inset);
     border: none;
@@ -568,8 +568,8 @@
   /* Custom thumb styling */
   .neu-range-input::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 40px;
-    height: 40px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: hsl(var(--neu-base));
     background-image: linear-gradient(-45deg, hsl(var(--neu-highlight) / 0.8), transparent);
@@ -580,8 +580,8 @@
   }
 
   .neu-range-input::-moz-range-thumb {
-    width: 40px;
-    height: 40px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: hsl(var(--neu-base));
     background-image: linear-gradient(-45deg, hsl(var(--neu-highlight) / 0.8), transparent);
