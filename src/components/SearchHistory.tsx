@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Clock, RotateCcw, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { useSearchHistory, SearchHistoryItem } from "@/hooks/useSearchHistory";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,9 +9,10 @@ import { useAuth } from "@/hooks/useAuth";
 interface SearchHistoryProps {
   onRestoreSearch: (job: any, leads: any[]) => void;
   onClose: () => void;
+  variant?: 'modal' | 'dropdown';
 }
 
-export function SearchHistory({ onRestoreSearch, onClose }: SearchHistoryProps) {
+export function SearchHistory({ onRestoreSearch, onClose, variant = 'modal' }: SearchHistoryProps) {
   const { user } = useAuth();
   const { searchHistory, loading, restoreSearch, formatSearchCriteria } = useSearchHistory(user?.id);
   
@@ -69,6 +71,39 @@ export function SearchHistory({ onRestoreSearch, onClose }: SearchHistoryProps) 
         <Clock className="h-4 w-4 mx-auto mb-2 text-muted-foreground" />
         <p className="text-sm text-muted-foreground">No search history yet</p>
       </div>
+    );
+  }
+
+  if (variant === 'dropdown') {
+    return (
+      <>
+        {searchHistory.slice(0, 5).map((item) => (
+          <DropdownMenuItem
+            key={item.id}
+            className={`cursor-pointer ${
+              item.status !== 'completed' ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            onClick={() => item.status === 'completed' && handleRestoreSearch(item)}
+            disabled={item.status !== 'completed'}
+          >
+            <div className="flex items-center space-x-2 w-full">
+              {getStatusIcon(item.status)}
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">
+                  {formatSearchCriteria(item.job_criteria)}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
+                  {item.total_leads_found !== null && ` • ${item.total_leads_found} leads`}
+                </div>
+              </div>
+              {item.status === 'completed' && (
+                <RotateCcw className="h-3 w-3 text-muted-foreground" />
+              )}
+            </div>
+          </DropdownMenuItem>
+        ))}
+      </>
     );
   }
 

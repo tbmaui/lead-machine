@@ -130,6 +130,7 @@ export function AuthenticatedLayout({ children, onRestoreSearch }: Authenticated
                     </>
                   ) : (
                     <SearchHistory 
+                      variant="dropdown"
                       onRestoreSearch={(job, leads) => {
                         if (onRestoreSearch) {
                           onRestoreSearch(job, leads);
