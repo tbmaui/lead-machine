@@ -53,7 +53,7 @@ function FloatingPaths({
   return (
     <div className="absolute inset-0 pointer-events-none">
       <svg
-        className="w-full h-full text-primary dark:text-primary"
+        className="w-full h-full text-primary dark:text-white"
         viewBox="-500 -200 1696 816"
         fill="none"
         preserveAspectRatio="xMidYMid slice"
