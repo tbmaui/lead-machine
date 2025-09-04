@@ -58,7 +58,7 @@ function HeroSection() {
               <h2 className="text-xl md:text-2xl lg:text-3xl leading-relaxed tracking-tight font-semibold" style={{ color: '#91bfa5' }}>
                 Quality Prospects At Scale
               </h2>
-              <p className="text-base md:text-lg max-w-3xl mx-auto" style={{ color: 'black' }}>
+              <p className="text-base md:text-lg max-w-3xl mx-auto text-muted-foreground">
                 The unfair advantage for high-quota sales teams, our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
               </p>
             </div>
@@ -129,7 +129,7 @@ function HeroSection() {
                 <h2 className="text-xl md:text-2xl lg:text-3xl leading-relaxed tracking-tight font-semibold" style={{ color: '#91bfa5' }}>
                   Quality Prospects At Scale
                 </h2>
-                <p className="text-base md:text-lg max-w-3xl mx-auto" style={{ color: 'black' }}>
+                <p className="text-base md:text-lg max-w-3xl mx-auto text-muted-foreground">
                   The unfair advantage for high-quota sales teams, our advanced lead scraping engine automatically harvests prospect data from LinkedIn, industry databases, organizational directories, and the entire web to build comprehensive lead profiles with verified contact information and company intelligence.
                 </p>
               </div>
