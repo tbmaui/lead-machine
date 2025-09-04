@@ -81,68 +81,68 @@
   }
 
   .dark {
-    /* Base colors for dark theme - Enhanced NEUMORPHIC ELEMENT 4 */
-    --background: 220 15% 18%;
-    --foreground: 220 10% 88%;
+    /* Updated dark theme colors per user specifications */
+    --background: 220 6% 12%; /* #1e1e20 converted to HSL */
+    --foreground: 220 5% 95%; /* #f1f1f2 converted to HSL */
 
-    --card: 220 15% 20%;
-    --card-foreground: 220 10% 88%;
+    --card: 220 8% 39%; /* #636a6e converted to HSL */
+    --card-foreground: 220 5% 95%; /* #f1f1f2 converted to HSL */
 
-    --popover: 220 15% 20%;
-    --popover-foreground: 220 10% 88%;
+    --popover: 220 8% 39%; /* #636a6e converted to HSL */
+    --popover-foreground: 220 5% 95%; /* #f1f1f2 converted to HSL */
 
-    /* Softer Brand Colors - NEUMORPHIC ELEMENT 4 Dark Theme */
-    --brand-green: 153 20% 45%;
-    --brand-orange: 40 50% 70%;
+    /* Brand Colors - Updated for dark theme */
+    --brand-green: 153 28% 52%; /* Keeping consistent with Complete Controller sea color */
+    --brand-orange: 15 88% 60%; /* Complete Controller tomato color */
     --primary: var(--brand-green);
-    --primary-foreground: 220 15% 15%;
+    --primary-foreground: 220 6% 12%;
 
     --secondary: var(--brand-orange);
-    --secondary-foreground: 220 15% 15%;
+    --secondary-foreground: 220 6% 12%;
 
-    --muted: 220 15% 22%;
-    --muted-foreground: 220 8% 65%;
+    --muted: 220 8% 39%; /* #636a6e surface color */
+    --muted-foreground: 220 5% 72%; /* #b5b5b8 converted to HSL */
 
     --accent: 250 50% 65%;
-    --accent-foreground: 220 15% 15%;
+    --accent-foreground: 220 6% 12%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 220 15% 20%;
+    --destructive-foreground: 220 5% 95%;
 
-    --border: 220 15% 25%;
-    --input: 220 15% 20%;
+    --border: 220 4% 54%; /* #8a8a8c stroke color converted to HSL */
+    --input: 220 8% 39%; /* #636a6e surface color */
     --ring: var(--brand-green);
 
-    /* Enhanced Neumorphism-specific variables for dark theme - NEUMORPHIC ELEMENT 4 */
-    --neu-base: 220 15% 18%;
-    --neu-highlight: 220 12% 25%;
-    --neu-shadow: 220 20% 12%;
-    --neu-shadow-dark: 220 25% 8%;
-    --neu-inset-highlight: 220 12% 22%;
-    --neu-inset-shadow: 220 18% 15%;
+    /* Enhanced Neumorphism-specific variables for dark theme - Updated */
+    --neu-base: 220 8% 39%; /* #636a6e surface color */
+    --neu-highlight: 220 4% 58%; /* Lighter for highlights */
+    --neu-shadow: 220 12% 22%; /* #323638 converted to HSL */
+    --neu-shadow-dark: 220 12% 22%; /* #323638 shadow color */
+    --neu-inset-highlight: 220 8% 58%; /* #949ea4 converted to HSL */
+    --neu-inset-shadow: 220 12% 22%; /* #323638 shadow color */
     
-    /* Enhanced soft shadow combinations for dark theme - NEUMORPHIC ELEMENT 4 */
-    --neu-shadow-small: 3px 3px 6px hsl(var(--neu-shadow)), -2px -2px 5px hsl(var(--neu-highlight));
-    --neu-shadow-light: 5px 5px 10px hsl(var(--neu-shadow)), -5px -5px 10px hsl(var(--neu-highlight));
-    --neu-shadow-medium: 8px 8px 16px hsl(var(--neu-shadow)), -8px -8px 16px hsl(var(--neu-highlight));
-    --neu-shadow-strong: 12px 12px 24px hsl(var(--neu-shadow-dark)), -12px -12px 24px hsl(var(--neu-highlight));
-    --neu-shadow-inset: inset 4px 4px 8px hsl(var(--neu-inset-shadow)), inset -4px -4px 8px hsl(var(--neu-inset-highlight));
-    --neu-shadow-pressed: inset 6px 6px 12px hsl(var(--neu-shadow)), inset -6px -6px 12px hsl(var(--neu-highlight));
+    /* Updated shadow combinations matching Complete Controller spec */
+    --neu-shadow-small: 3px 3px 6px hsl(220 12% 22%), -2px -2px 5px hsl(220 8% 58%);
+    --neu-shadow-light: 5px 5px 10px hsl(220 12% 22%), -5px -5px 10px hsl(220 8% 58%);
+    --neu-shadow-medium: 8px 8px 16px hsl(220 12% 22%), -8px -8px 16px hsl(220 8% 58%);
+    --neu-shadow-strong: 12px 12px 24px hsl(220 12% 22%), -12px -12px 24px hsl(220 8% 58%);
+    --neu-shadow-inset: inset 4.5px 4.5px 9px hsl(220 12% 22%), inset -4.5px -4.5px 9px hsl(220 8% 58%);
+    --neu-shadow-pressed: inset 6px 6px 12px hsl(220 12% 22%), inset -6px -6px 12px hsl(220 8% 58%);
     
-    /* Enhanced Gradient stroke outline system - NEUMORPHIC ELEMENT 4 Dark Theme */
-    --gradient-stroke-light: 220 12% 25%;
-    --gradient-stroke-dark: 220 25% 8%;
+    /* Updated gradient stroke for dark theme */
+    --gradient-stroke-light: 220 8% 58%;
+    --gradient-stroke-dark: 220 12% 22%;
     --stroke-gradient: linear-gradient(135deg, hsl(var(--gradient-stroke-light)) 0%, hsl(var(--gradient-stroke-dark)) 100%);
     --stroke-gradient-green: linear-gradient(135deg, hsl(var(--brand-green) / 0.6) 0%, hsl(var(--gradient-stroke-dark)) 100%);
     --stroke-gradient-orange: linear-gradient(135deg, hsl(var(--brand-orange) / 0.6) 0%, hsl(var(--gradient-stroke-dark)) 100%);
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 220 6% 12%;
+    --sidebar-foreground: 220 5% 95%;
+    --sidebar-primary: 153 28% 52%;
+    --sidebar-primary-foreground: 220 6% 12%;
+    --sidebar-accent: 220 8% 39%;
+    --sidebar-accent-foreground: 220 5% 95%;
+    --sidebar-border: 220 4% 54%;
+    --sidebar-ring: 153 28% 52%;
   }
 }
 
@@ -609,5 +609,49 @@
   .neu-range-input:active::-moz-range-thumb {
     box-shadow: var(--neu-shadow-pressed);
     cursor: grabbing;
+  }
+
+  /* Dark mode button and form element styles per user specifications */
+  .dark .neu-button:is([data-state="pressed"], [aria-pressed="true"], .pressed) {
+    background: hsl(var(--muted));
+    color: hsl(var(--brand-green));
+    border-color: hsl(var(--brand-green));
+    box-shadow: var(--neu-shadow-inset);
+  }
+
+  /* Dark mode form element styles */
+  .dark .neu-input,
+  .dark input[type="text"],
+  .dark input[type="email"], 
+  .dark input[type="password"],
+  .dark input[type="number"],
+  .dark select,
+  .dark textarea {
+    background: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    box-shadow: var(--neu-shadow-inset);
+  }
+
+  /* Dark mode placeholder styling */
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: hsl(220 5% 82%); /* #d1d1d3 converted to HSL */
+    opacity: 0.8;
+  }
+
+  /* Dark mode select option styling */
+  .dark select option {
+    background: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 2px 0;
+  }
+
+  .dark select option:hover,
+  .dark select option:focus,
+  .dark select option:checked {
+    background: color-mix(in oklab, hsl(var(--brand-orange)) 15%, hsl(var(--muted)));
+    color: hsl(var(--brand-green));
   }
 }
