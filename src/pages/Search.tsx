@@ -10,6 +10,7 @@ import { SearchActionBar } from '@/components/SearchActionBar';
 import { useLeadGeneration } from '@/hooks/useLeadGeneration';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { WebhookTester } from '@/components/WebhookTester';
+import { LeadGenDebugger } from '@/components/debug/LeadGenDebugger';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
 
@@ -36,7 +37,7 @@ const Search = ({ restoredSearch: propsRestoredSearch, onSearchRestored: propsOn
   }, [propsRestoredSearch]);
 
   // Get lead generation state to determine workflow step
-  const { currentJob, leads } = useLeadGeneration(user?.id);
+  const { currentJob, leads, restoreSearchData } = useLeadGeneration(user?.id);
 
   // Determine current workflow step
   const getCurrentStep = (): 'setup' | 'searching' | 'results' => {
@@ -135,6 +136,22 @@ const Search = ({ restoredSearch: propsRestoredSearch, onSearchRestored: propsOn
         onSearchRestored={handleSearchRestored}
         urlRestoredCriteria={urlRestoredCriteria}
       />
+
+      {/* Lead Generation Debugger - Show when there's a job that might be stuck */}
+      {currentJob && (
+        <LeadGenDebugger 
+          currentJob={currentJob}
+          onJobRefresh={(job) => {
+            // Update the job with the latest data from database
+            const currentLeads = job.status === 'completed' ? leads : [];
+            restoreSearchData(job, currentLeads);
+          }}
+          onLeadsRefresh={(leadsData) => {
+            // Update both job and leads when refreshing completed job
+            restoreSearchData(currentJob, leadsData);
+          }}
+        />
+      )}
 
       {/* Search History Modal */}
       <Dialog open={showSearchHistoryModal} onOpenChange={setShowSearchHistoryModal}>
