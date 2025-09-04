@@ -4,6 +4,7 @@ import { UnauthenticatedLayout } from "@/components/auth/UnauthenticatedLayout";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
+import { AuthDebugInfo } from "@/components/debug/AuthDebugInfo";
 
 type AuthView = "login" | "register" | "forgot-password";
 
@@ -47,6 +48,7 @@ export default function Login() {
   return (
     <UnauthenticatedLayout>
       {renderForm()}
+      <AuthDebugInfo />
     </UnauthenticatedLayout>
   );
 }

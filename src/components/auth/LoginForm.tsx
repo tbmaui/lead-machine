@@ -32,15 +32,33 @@ export function LoginForm({ onSuccess, onForgotPassword, onSignUp }: LoginFormPr
   const onSubmit = async (data: SignInFormData) => {
     setError(null);
     
-    const { user, error: authError } = await signIn(data.email, data.password);
-    
-    if (authError) {
-      setError(authError.message);
-      return;
-    }
-    
-    if (user) {
-      onSuccess?.();
+    try {
+      const { user, error: authError } = await signIn(data.email, data.password);
+      
+      if (authError) {
+        // Provide more user-friendly error messages
+        let errorMessage = authError.message;
+        
+        if (authError.message.includes('Failed to fetch') || authError.message.includes('fetch')) {
+          errorMessage = 'Unable to connect to authentication server. Please check your internet connection and try again.';
+        } else if (authError.message.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+        } else if (authError.message.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email and click the confirmation link before signing in.';
+        }
+        
+        setError(`${errorMessage} (${authError.message})`);
+        return;
+      }
+      
+      if (user) {
+        onSuccess?.();
+      }
+    } catch (error) {
+      // Handle network or other unexpected errors
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setError(`Network error: ${errorMessage}`);
+      console.error('Login error:', error);
     }
   };
 
