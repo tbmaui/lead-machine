@@ -81,27 +81,27 @@
   }
 
   .dark {
-    /* Updated dark theme colors per user specifications */
-    --background: 220 6% 12%; /* #1e1e20 converted to HSL */
-    --foreground: 220 5% 95%; /* #f1f1f2 converted to HSL */
+    /* Dark mode matching Complete Controller style guide exactly */
+    --background: 220 6% 12%; /* #1e1e20 - Deep dark background */
+    --foreground: 220 5% 95%; /* #f1f1f2 - Primary text */
 
-    --card: 220 8% 39%; /* #636a6e converted to HSL */
-    --card-foreground: 220 5% 95%; /* #f1f1f2 converted to HSL */
+    --card: 220 8% 39%; /* #636a6e - Card surface */
+    --card-foreground: 220 5% 95%; /* #f1f1f2 - Primary text */
 
-    --popover: 220 8% 39%; /* #636a6e converted to HSL */
-    --popover-foreground: 220 5% 95%; /* #f1f1f2 converted to HSL */
+    --popover: 220 8% 39%; /* #636a6e - Card surface */
+    --popover-foreground: 220 5% 95%; /* #f1f1f2 - Primary text */
 
-    /* Brand Colors - Updated for dark theme */
-    --brand-green: 153 28% 52%; /* Keeping consistent with Complete Controller sea color */
-    --brand-orange: 15 88% 60%; /* Complete Controller tomato color */
+    /* Brand Colors - Complete Controller palette */
+    --brand-green: 153 28% 52%; /* #91bfa5 - sea color */
+    --brand-orange: 15 88% 60%; /* #f36334 - tomato color */
     --primary: var(--brand-green);
     --primary-foreground: 220 6% 12%;
 
     --secondary: var(--brand-orange);
     --secondary-foreground: 220 6% 12%;
 
-    --muted: 220 8% 39%; /* #636a6e surface color */
-    --muted-foreground: 220 5% 72%; /* #b5b5b8 converted to HSL */
+    --muted: 220 8% 39%; /* #636a6e - surface */
+    --muted-foreground: 220 5% 72%; /* #b5b5b8 - Secondary text */
 
     --accent: 250 50% 65%;
     --accent-foreground: 220 6% 12%;
@@ -109,25 +109,25 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 220 5% 95%;
 
-    --border: 220 4% 54%; /* #8a8a8c stroke color converted to HSL */
-    --input: 220 8% 39%; /* #636a6e surface color */
+    --border: 220 4% 54%; /* #8a8a8c - Light gray border */
+    --input: 220 8% 39%; /* #636a6e - Card surface */
     --ring: var(--brand-green);
 
-    /* Enhanced Neumorphism-specific variables for dark theme - Updated */
-    --neu-base: 220 8% 39%; /* #636a6e surface color */
-    --neu-highlight: 220 4% 58%; /* Lighter for highlights */
-    --neu-shadow: 220 12% 22%; /* #323638 converted to HSL */
-    --neu-shadow-dark: 220 12% 22%; /* #323638 shadow color */
-    --neu-inset-highlight: 220 8% 58%; /* #949ea4 converted to HSL */
-    --neu-inset-shadow: 220 12% 22%; /* #323638 shadow color */
+    /* Complete Controller neumorphic variables - exact match */
+    --neu-base: 220 8% 39%; /* #636a6e - surface */
+    --neu-highlight: 220 8% 58%; /* #949ea4 - for highlights */
+    --neu-shadow: 220 12% 22%; /* #323638 - soft dark shadow */
+    --neu-shadow-dark: 220 12% 22%; /* #323638 - shadow color */
+    --neu-inset-highlight: 220 8% 58%; /* #949ea4 */
+    --neu-inset-shadow: 220 12% 22%; /* #323638 */
     
-    /* Updated shadow combinations matching Complete Controller spec */
-    --neu-shadow-small: 3px 3px 6px hsl(220 12% 22%), -2px -2px 5px hsl(220 8% 58%);
-    --neu-shadow-light: 5px 5px 10px hsl(220 12% 22%), -5px -5px 10px hsl(220 8% 58%);
-    --neu-shadow-medium: 8px 8px 16px hsl(220 12% 22%), -8px -8px 16px hsl(220 8% 58%);
-    --neu-shadow-strong: 12px 12px 24px hsl(220 12% 22%), -12px -12px 24px hsl(220 8% 58%);
-    --neu-shadow-inset: inset 4.5px 4.5px 9px hsl(220 12% 22%), inset -4.5px -4.5px 9px hsl(220 8% 58%);
-    --neu-shadow-pressed: inset 6px 6px 12px hsl(220 12% 22%), inset -6px -6px 12px hsl(220 8% 58%);
+    /* Exact Complete Controller shadow combinations */
+    --neu-shadow-small: 3px 3px 6px #323638, -2px -2px 5px #949ea4;
+    --neu-shadow-light: 5px 5px 10px #323638, -5px -5px 10px #949ea4;
+    --neu-shadow-medium: 8px 8px 16px #323638, -8px -8px 16px #949ea4; /* --raise */
+    --neu-shadow-strong: 12px 12px 24px #323638, -12px -12px 24px #949ea4;
+    --neu-shadow-inset: inset 4.5px 4.5px 9px #323638, inset -4.5px -4.5px 9px #949ea4; /* --inset */
+    --neu-shadow-pressed: inset 6px 6px 12px #323638, inset -6px -6px 12px #949ea4;
     
     /* Updated gradient stroke for dark theme */
     --gradient-stroke-light: 220 8% 58%;
