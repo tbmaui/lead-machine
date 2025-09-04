@@ -121,13 +121,13 @@
     --neu-inset-highlight: 220 8% 58%; /* #949ea4 */
     --neu-inset-shadow: 220 12% 22%; /* #323638 */
     
-    /* Exact Complete Controller shadow combinations */
-    --neu-shadow-small: 3px 3px 6px #323638, -2px -2px 5px #949ea4;
-    --neu-shadow-light: 5px 5px 10px #323638, -5px -5px 10px #949ea4;
-    --neu-shadow-medium: 8px 8px 16px #323638, -8px -8px 16px #949ea4; /* --raise */
-    --neu-shadow-strong: 12px 12px 24px #323638, -12px -12px 24px #949ea4;
+    /* Exact Complete Controller shadow combinations - only dark shadows for raised elements */
+    --neu-shadow-small: 3px 3px 6px #323638;
+    --neu-shadow-light: 5px 5px 10px #323638;
+    --neu-shadow-medium: 8px 8px 16px #323638; /* --raise */
+    --neu-shadow-strong: 12px 12px 24px #323638;
     --neu-shadow-inset: inset 4.5px 4.5px 9px #323638, inset -4.5px -4.5px 9px #949ea4; /* --inset */
-    --neu-shadow-pressed: inset 6px 6px 12px #323638, inset -6px -6px 12px #949ea4;
+    --neu-shadow-pressed: inset 4.5px 4.5px 9px #323638, inset -4.5px -4.5px 9px #949ea4;
     
     /* Updated gradient stroke for dark theme */
     --gradient-stroke-light: 220 8% 58%;
