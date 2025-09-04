@@ -43,7 +43,13 @@ const App = () => {
             <Route path="/data-processing-agreement" element={<DataProcessingAgreement />} />
             <Route
               path="/"
-              element={<Index />}
+              element={
+                <ProtectedRoute>
+                  <AuthenticatedLayout onRestoreSearch={handleRestoreSearch}>
+                    <Index />
+                  </AuthenticatedLayout>
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/search"

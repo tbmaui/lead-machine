@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { HeroSection } from "@/components/ui/hero-section";
 import OverviewSection from "@/components/OverviewSection";
 import QuickStartInstructions from "@/components/QuickStartInstructions";
@@ -9,6 +10,10 @@ interface IndexProps {
 }
 
 const Index = (_props: IndexProps) => {
+  // Force landing page to start in light mode
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UnauthenticatedLayout } from "@/components/auth/UnauthenticatedLayout";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -13,10 +13,22 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || "/";
+  // Force light mode on login page
+  useEffect(() => {
+    const originalTheme = document.documentElement.classList.contains('dark');
+    document.documentElement.classList.remove('dark');
+    
+    // Cleanup: restore theme when leaving login page
+    return () => {
+      if (originalTheme) {
+        document.documentElement.classList.add('dark');
+      }
+    };
+  }, []);
 
   const handleAuthSuccess = () => {
-    navigate(from, { replace: true });
+    // Always redirect to landing page after successful login
+    navigate("/", { replace: true });
   };
 
   const renderForm = () => {
