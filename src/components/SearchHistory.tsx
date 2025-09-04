@@ -1,7 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Clock, RotateCcw, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { useSearchHistory, SearchHistoryItem } from "@/hooks/useSearchHistory";
 import { useAuth } from "@/hooks/useAuth";
@@ -74,18 +73,19 @@ export function SearchHistory({ onRestoreSearch, onClose }: SearchHistoryProps) 
   }
 
   return (
-    <div className="max-h-96 overflow-y-auto">
+    <div className="max-h-96 overflow-y-auto space-y-2">
       {searchHistory.map((item) => (
-        <DropdownMenuItem 
+        <div
           key={item.id} 
-          className="cursor-pointer p-3 flex-col items-start space-y-2"
-          onClick={() => handleRestoreSearch(item)}
-          disabled={item.status !== 'completed'}
+          className={`cursor-pointer p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors ${
+            item.status !== 'completed' ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          onClick={() => item.status === 'completed' && handleRestoreSearch(item)}
         >
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center space-x-2">
               {getStatusIcon(item.status)}
-              <span className="text-sm font-medium truncate max-w-[200px]">
+              <span className="text-sm font-medium truncate max-w-[300px]">
                 {formatSearchCriteria(item.job_criteria)}
               </span>
             </div>
@@ -94,7 +94,7 @@ export function SearchHistory({ onRestoreSearch, onClose }: SearchHistoryProps) 
             )}
           </div>
           
-          <div className="flex items-center justify-between w-full text-xs text-muted-foreground">
+          <div className="flex items-center justify-between w-full text-xs text-muted-foreground mt-2">
             <span>
               {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
             </span>
@@ -107,7 +107,7 @@ export function SearchHistory({ onRestoreSearch, onClose }: SearchHistoryProps) 
               </Badge>
             </div>
           </div>
-        </DropdownMenuItem>
+        </div>
       ))}
     </div>
   );
