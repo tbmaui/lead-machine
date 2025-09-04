@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Eye, EyeOff, Loader2, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { signInSchema, type SignInFormData } from "@/lib/auth-schemas";
+import { supabaseConfig } from "@/integrations/supabase/client";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -71,6 +73,30 @@ export function LoginForm({ onSuccess, onForgotPassword, onSignUp }: LoginFormPr
         <CardDescription>
           Enter your email and password to access your account
         </CardDescription>
+        
+        {/* Debug Info - Always show in production if there are config issues */}
+        {import.meta.env.PROD && (!supabaseConfig.url || !supabaseConfig.hasValidKey) && (
+          <Alert variant="destructive" className="mt-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              <div className="space-y-2">
+                <div className="font-semibold">Configuration Error Detected</div>
+                <div className="text-sm space-y-1">
+                  <div>Environment: <Badge variant="outline">{import.meta.env.MODE}</Badge></div>
+                  <div>Supabase URL: <Badge variant={supabaseConfig.url ? 'default' : 'destructive'}>
+                    {supabaseConfig.url ? 'Present' : 'Missing'}
+                  </Badge></div>
+                  <div>API Key: <Badge variant={supabaseConfig.hasValidKey ? 'default' : 'destructive'}>
+                    {supabaseConfig.hasValidKey ? 'Valid' : 'Invalid'}
+                  </Badge></div>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    Add ?debug=true to URL for more details
+                  </div>
+                </div>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

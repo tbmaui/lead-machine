@@ -48,8 +48,9 @@ export function AuthDebugInfo() {
     setTesting(false);
   };
 
-  // Only show in development or if there are issues
-  if (import.meta.env.PROD && envHealth.status === 'healthy') {
+  // Always show if there are environment issues, or in development
+  // In production, show if there are validation errors or if explicitly enabled
+  if (import.meta.env.PROD && envHealth.status === 'healthy' && !window.location.search.includes('debug=true')) {
     return null;
   }
 
