@@ -10,19 +10,13 @@ const N8N_WEBHOOK_URL_TEST = 'https://playground.automateanythingacademy.com/web
 
 // Helper function to send data to N8N webhook
 const sendToN8NWebhook = async (data: any) => {
-  // Skip N8N webhook calls in development to avoid CORS issues
   const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const webhookUrl = isDevelopment ? N8N_WEBHOOK_URL_TEST : N8N_WEBHOOK_URL_PROD;
   
-  if (isDevelopment) {
-    console.log('🎯 [DEV] Would send to N8N webhook:', data);
-    console.log('⚠️ N8N webhook skipped in development environment');
-    return { success: true, response: 'Skipped in development' };
-  }
-
   try {
-    console.log('🎯 Sending data to N8N webhook:', data);
+    console.log(`🎯 Sending data to N8N webhook (${isDevelopment ? 'TEST' : 'PROD'}):`, data);
     
-    const response = await fetch(N8N_WEBHOOK_URL, {
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
