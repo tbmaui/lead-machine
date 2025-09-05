@@ -355,6 +355,12 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
       throw new Error('User must be authenticated to generate leads');
     }
 
+    // Prevent multiple simultaneous calls
+    if (loading) {
+      console.log('⚠️ Lead generation already in progress, ignoring duplicate call');
+      return;
+    }
+
     setLoading(true);
     setLeads([]); // Clear previous leads
 
@@ -375,19 +381,7 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
       const { jobId } = response.data;
       console.log('Lead generation job started:', jobId);
       
-      // 🎯 Send data to N8N webhook for testing (now with actual jobId)
-      const webhookResult = await sendToN8NWebhook({
-        action: 'lead_generation_started',
-        jobId,
-        userId,
-        jobCriteria,
-        message: 'Lead generation initiated from local development environment'
-      });
-      
-      if (!webhookResult.success) {
-        console.warn('N8N webhook failed:', webhookResult.error);
-        // Don't throw error - continue with normal flow even if webhook fails
-      }
+      // Note: N8N webhook is called by the edge function, no need to call again from frontend
       // Immediately subscribe to job updates to avoid missing early updates
       setJobIdForSubscription(jobId);
 
