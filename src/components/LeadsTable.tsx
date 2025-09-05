@@ -842,6 +842,40 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
           />
         </div>
       </div>
+      
+      {/* Fixed header with action buttons anchored to right */}
+      <div className="flex items-center justify-end p-3 border-b border-border">
+        <div className="flex items-center gap-2">
+          {onNewSearch && (
+            <button
+              type="button"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+              onClick={onNewSearch}
+            >
+              <ArrowLeft className="h-3 w-3 mr-1" />
+              New Search
+            </button>
+          )}
+          <button
+            type="button"
+            className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
+            onClick={() => setShowFilters((s) => !s)}
+            aria-expanded={showFilters}
+            aria-controls="filters-panel"
+          >
+            {showFilters ? 'Hide Filters' : 'Show Filters'}
+          </button>
+          <button
+            type="button"
+            className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
+            onClick={() => setFilters({ text: { name: "", title: "", company: "", email: "", location: "", industry: "" }, hasEmail: true, hasPhone: true, scoreMin: null, scoreMax: null })}
+            aria-label="Clear all filters"
+          >
+            Clear all
+          </button>
+        </div>
+      </div>
+      
       <div 
         className="relative overflow-x-auto overflow-y-hidden" 
         onScroll={(e) => {
@@ -853,8 +887,8 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
           }
         }}
       >
-        {/* Right fade indicator to show more columns */}
-        <div className="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-white/90 to-transparent pointer-events-none z-10"></div>
+        {/* Right fade indicator to show more columns - fixed for dark mode */}
+        <div className="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-background/90 to-transparent pointer-events-none z-10"></div>
       <div className="flex items-center justify-between p-3 border-b border-border">
         <div className="flex items-center gap-2 flex-wrap">
           <div className="text-xs text-muted-foreground mr-2">
@@ -961,35 +995,6 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
               Max: {filters.scoreMax} ×
             </button>
           )}
-        </div>
-        <div className="flex items-center gap-2">
-          {onNewSearch && (
-            <button
-              type="button"
-              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-              onClick={onNewSearch}
-            >
-              <ArrowLeft className="h-3 w-3 mr-1" />
-              New Search
-            </button>
-          )}
-          <button
-            type="button"
-            className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
-            onClick={() => setShowFilters((s) => !s)}
-            aria-expanded={showFilters}
-            aria-controls="filters-panel"
-          >
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
-          </button>
-          <button
-            type="button"
-            className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
-            onClick={() => setFilters({ text: { name: "", title: "", company: "", email: "", location: "", industry: "" }, hasEmail: true, hasPhone: true, scoreMin: null, scoreMax: null })}
-            aria-label="Clear all filters"
-          >
-            Clear all
-          </button>
         </div>
       </div>
       {showFilters && (
@@ -1266,7 +1271,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                       rel="noopener noreferrer"
                       aria-label={`Open LinkedIn profile for ${lead.name}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center justify-center rounded-full w-7 h-7 bg-surface border border-stroke shadow-[2px_2px_4px_#7b7b79,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] hover:text-[#f47146] active:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] active:text-[#f47146] transition-all duration-180 text-foreground focus:outline-none focus:ring-2 focus:ring-[#f47146] focus:ring-offset-2"
+                      className="inline-flex items-center justify-center rounded-full w-7 h-7 bg-surface border border-stroke neu-element hover:neu-pressed hover:text-[#f47146] active:neu-pressed active:text-[#f47146] transition-all duration-180 text-foreground focus:outline-none focus:ring-2 focus:ring-[#f47146] focus:ring-offset-2"
                     >
                       <Linkedin className="h-3 w-3" />
                     </a>
@@ -1282,7 +1287,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                       rel="noopener noreferrer"
                       aria-label={`Open company website for ${displayCompany}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center justify-center rounded-full w-7 h-7 bg-surface border border-stroke shadow-[2px_2px_4px_#7b7b79,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] hover:text-[#f47146] active:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] active:text-[#f47146] transition-all duration-180 text-foreground focus:outline-none focus:ring-2 focus:ring-[#f47146] focus:ring-offset-2"
+                      className="inline-flex items-center justify-center rounded-full w-7 h-7 bg-surface border border-stroke neu-element hover:neu-pressed hover:text-[#f47146] active:neu-pressed active:text-[#f47146] transition-all duration-180 text-foreground focus:outline-none focus:ring-2 focus:ring-[#f47146] focus:ring-offset-2"
                     >
                       <ExternalLink className="h-3 w-3" />
                     </a>
@@ -1298,7 +1303,7 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
                       rel="noopener noreferrer"
                       aria-label={`Open company LinkedIn for ${displayCompany}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center justify-center rounded-full w-7 h-7 bg-surface border border-stroke shadow-[2px_2px_4px_#7b7b79,-2px_-2px_4px_#ffffff] hover:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] hover:text-[#f47146] active:shadow-[inset_2px_2px_4px_#7b7b79,inset_-2px_-2px_4px_#ffffff] active:text-[#f47146] transition-all duration-180 text-foreground focus:outline-none focus:ring-2 focus:ring-[#f47146] focus:ring-offset-2"
+                      className="inline-flex items-center justify-center rounded-full w-7 h-7 bg-surface border border-stroke neu-element hover:neu-pressed hover:text-[#f47146] active:neu-pressed active:text-[#f47146] transition-all duration-180 text-foreground focus:outline-none focus:ring-2 focus:ring-[#f47146] focus:ring-offset-2"
                     >
                       <Linkedin className="h-3 w-3" />
                     </a>
