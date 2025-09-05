@@ -81,15 +81,15 @@
   }
 
   .dark {
-    /* Dark mode matching Complete Controller style guide exactly */
-    --background: 220 6% 12%; /* #1e1e20 - Deep dark background */
-    --foreground: 220 5% 95%; /* #f1f1f2 - Primary text */
+    /* Dark mode with custom deep blue colors */
+    --background: 221 88% 5%; /* #020617 - Very deep blue background */
+    --foreground: 220 5% 95%; /* #f1f1f2 - Primary white text */
 
-    --card: 220 8% 39%; /* #636a6e - Card surface */
-    --card-foreground: 220 5% 95%; /* #f1f1f2 - Primary text */
+    --card: 221 43% 13%; /* #11182b - Dark blue card surface */
+    --card-foreground: 220 5% 95%; /* #f1f1f2 - Primary white text */
 
-    --popover: 220 8% 39%; /* #636a6e - Card surface */
-    --popover-foreground: 220 5% 95%; /* #f1f1f2 - Primary text */
+    --popover: 221 43% 13%; /* #11182b - Dark blue card surface */
+    --popover-foreground: 220 5% 95%; /* #f1f1f2 - Primary white text */
 
     /* Brand Colors - Complete Controller palette */
     --brand-green: 153 28% 52%; /* #91bfa5 - sea color */
@@ -98,36 +98,36 @@
     --primary-foreground: 220 6% 12%;
 
     --secondary: var(--brand-orange);
-    --secondary-foreground: 220 6% 12%;
+    --secondary-foreground: 220 5% 95%; /* White text on orange buttons */
 
-    --muted: 220 8% 39%; /* #636a6e - surface */
+    --muted: 221 43% 13%; /* #11182b - Same as card surface */
     --muted-foreground: 220 5% 72%; /* #b5b5b8 - Secondary text */
 
     --accent: 250 50% 65%;
-    --accent-foreground: 220 6% 12%;
+    --accent-foreground: 220 5% 95%; /* White text on accent */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 220 5% 95%;
 
-    --border: 220 4% 54%; /* #8a8a8c - Light gray border */
-    --input: 220 8% 39%; /* #636a6e - Card surface */
+    --border: 221 43% 20%; /* Lighter than cards for subtle borders */
+    --input: 221 43% 13%; /* #11182b - Same as card surface */
     --ring: var(--brand-green);
 
-    /* Complete Controller neumorphic variables - exact match */
-    --neu-base: 220 8% 39%; /* #636a6e - surface */
-    --neu-highlight: 220 8% 58%; /* #949ea4 - for highlights */
-    --neu-shadow: 220 12% 22%; /* #323638 - soft dark shadow */
-    --neu-shadow-dark: 220 12% 22%; /* #323638 - shadow color */
-    --neu-inset-highlight: 220 8% 58%; /* #949ea4 */
-    --neu-inset-shadow: 220 12% 22%; /* #323638 */
+    /* Updated neumorphic variables for new dark blue theme */
+    --neu-base: 221 43% 13%; /* #11182b - same as card surface */
+    --neu-highlight: 221 43% 20%; /* Slightly lighter for highlights */
+    --neu-shadow: 221 88% 3%; /* Very dark blue shadow, darker than background */
+    --neu-shadow-dark: 221 88% 3%; /* Very dark blue shadow */
+    --neu-inset-highlight: 221 43% 20%; /* Slightly lighter than cards */
+    --neu-inset-shadow: 221 88% 3%; /* Very dark blue for inset shadows */
     
-    /* Well-defined dark shadows - no light ghosting, sharp definition */
-    --neu-shadow-small: 2px 2px 4px rgba(50, 54, 56, 0.8);
-    --neu-shadow-light: 3px 3px 6px rgba(50, 54, 56, 0.9);
-    --neu-shadow-medium: 4px 4px 8px rgba(50, 54, 56, 0.9); /* --raise - well-defined */
-    --neu-shadow-strong: 6px 6px 12px rgba(50, 54, 56, 1);
-    --neu-shadow-inset: inset 3px 3px 6px rgba(50, 54, 56, 0.9), inset -3px -3px 6px rgba(50, 54, 56, 0.9); /* --inset - well-defined */
-    --neu-shadow-pressed: inset 3px 3px 6px rgba(50, 54, 56, 1), inset -3px -3px 6px rgba(50, 54, 56, 1);
+    /* Well-defined dark shadows for new blue theme - no light ghosting, sharp definition */
+    --neu-shadow-small: 2px 2px 4px rgba(0, 3, 11, 0.8);
+    --neu-shadow-light: 3px 3px 6px rgba(0, 3, 11, 0.9);
+    --neu-shadow-medium: 4px 4px 8px rgba(0, 3, 11, 0.9); /* --raise - well-defined */
+    --neu-shadow-strong: 6px 6px 12px rgba(0, 3, 11, 1);
+    --neu-shadow-inset: inset 3px 3px 6px rgba(0, 3, 11, 0.9), inset -3px -3px 6px rgba(0, 3, 11, 0.9); /* --inset - well-defined */
+    --neu-shadow-pressed: inset 3px 3px 6px rgba(0, 3, 11, 1), inset -3px -3px 6px rgba(0, 3, 11, 1);
     
     /* Updated gradient stroke for dark theme */
     --gradient-stroke-light: 220 8% 58%;
@@ -135,13 +135,13 @@
     --stroke-gradient: linear-gradient(135deg, hsl(var(--gradient-stroke-light)) 0%, hsl(var(--gradient-stroke-dark)) 100%);
     --stroke-gradient-green: linear-gradient(135deg, hsl(var(--brand-green) / 0.6) 0%, hsl(var(--gradient-stroke-dark)) 100%);
     --stroke-gradient-orange: linear-gradient(135deg, hsl(var(--brand-orange) / 0.6) 0%, hsl(var(--gradient-stroke-dark)) 100%);
-    --sidebar-background: 220 6% 12%;
+    --sidebar-background: 221 88% 5%; /* Match new background */
     --sidebar-foreground: 220 5% 95%;
     --sidebar-primary: 153 28% 52%;
-    --sidebar-primary-foreground: 220 6% 12%;
-    --sidebar-accent: 220 8% 39%;
+    --sidebar-primary-foreground: 221 88% 5%; /* Use dark background for contrast */
+    --sidebar-accent: 221 43% 13%; /* Match card color */
     --sidebar-accent-foreground: 220 5% 95%;
-    --sidebar-border: 220 4% 54%;
+    --sidebar-border: 221 43% 20%; /* Match border color */
     --sidebar-ring: 153 28% 52%;
   }
 }
@@ -376,7 +376,7 @@
   .dark .neu-tier-box {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: inset 3px 3px 6px rgba(50, 54, 56, 0.9), inset -3px -3px 6px rgba(50, 54, 56, 0.9);
+    box-shadow: inset 3px 3px 6px rgba(0, 3, 11, 0.9), inset -3px -3px 6px rgba(0, 3, 11, 0.9);
   }
   
   /* Each tier row spaced and separated to create breathing room */
