@@ -161,7 +161,19 @@ const LeadGenForm = forwardRef<LeadGenFormRef, LeadGenFormProps>(({ userId, rest
     );
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (e: React.MouseEvent) => {
+    // Prevent any event bubbling or default behavior
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Extra protection against multiple clicks
+    if (loading || currentJob) {
+      console.warn('🚫 Generation already in progress or job exists, ignoring click');
+      return;
+    }
+
+    console.log('🎯 handleGenerate called - starting lead generation');
+    
     const jobCriteria = {
       targetLocation,
       industries: selectedIndustries,
@@ -170,7 +182,11 @@ const LeadGenForm = forwardRef<LeadGenFormRef, LeadGenFormProps>(({ userId, rest
       leadCount: leadCount[0]
     };
 
-    await startLeadGeneration(jobCriteria);
+    try {
+      await startLeadGeneration(jobCriteria);
+    } catch (error) {
+      console.error('❌ Lead generation failed:', error);
+    }
   };
 
   const handleNewSearch = () => {
@@ -399,7 +415,7 @@ const LeadGenForm = forwardRef<LeadGenFormRef, LeadGenFormProps>(({ userId, rest
           onClick={handleGenerate}
           className="neu-button-primary w-full font-medium py-6 text-lg"
           size="lg"
-          disabled={loading}
+          disabled={loading || !!currentJob}
         >
           {loading ? "Starting Generation..." : "🚀 Generate Leads"}
         </Button>

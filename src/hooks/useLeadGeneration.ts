@@ -72,6 +72,9 @@ export interface Lead {
   organization_url?: string;
 }
 
+// Global flag to prevent multiple simultaneous job creations across all instances
+let isJobCreationInProgress = false;
+
 export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = true) => {
   const [currentJob, setCurrentJob] = useState<LeadGenJob | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -82,6 +85,7 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
   const simulationActiveRef = useRef<boolean>(false);
   const pendingUpdateRef = useRef<{ job: any; status: LeadGenJob['status']; progress: number } | null>(null);
   const completionTimeoutRef = useRef<number | null>(null);
+  const lastCallTimeRef = useRef<number>(0);
   const { toast } = useToast();
 
   // Restore state from storage on mount
@@ -205,15 +209,6 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
 
       // Handle completion status with smooth 100% progress and pause
       if (updatedJob.status === 'completed') {
-        // 🎯 Send completion data to N8N webhook
-        sendToN8NWebhook({
-          action: 'lead_generation_completed',
-          jobId: updatedJob.id,
-          totalLeads: updatedJob.total_leads_found,
-          status: 'completed',
-          userId,
-          message: 'Lead generation completed successfully'
-        });
         
         // First, set progress to 100% and show completion
         setCurrentJob({
@@ -235,18 +230,7 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
         return;
       }
       
-      // Handle failed status
-      if (updatedJob.status === 'failed') {
-        // 🎯 Send failure data to N8N webhook
-        sendToN8NWebhook({
-          action: 'lead_generation_failed',
-          jobId: updatedJob.id,
-          status: 'failed',
-          userId,
-          error: updatedJob.error_message || 'Unknown error',
-          message: 'Lead generation failed'
-        });
-      }
+      // Handle failed status - no webhook needed, edge function handles notifications
       
       setCurrentJob({
         ...(updatedJob as LeadGenJob),
@@ -355,17 +339,23 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
       throw new Error('User must be authenticated to generate leads');
     }
 
-    // Prevent multiple simultaneous calls
-    if (loading) {
-      console.log('⚠️ Lead generation already in progress, ignoring duplicate call');
+    const now = Date.now();
+    const timeSinceLastCall = now - lastCallTimeRef.current;
+    
+    // Prevent multiple simultaneous calls with multiple layers of protection
+    if (loading || isJobCreationInProgress || currentJob || timeSinceLastCall < 2000) {
+      console.log(`⚠️ Lead generation blocked - loading:${loading}, globalFlag:${isJobCreationInProgress}, hasJob:${!!currentJob}, timeSince:${timeSinceLastCall}ms`);
       return;
     }
 
+    // Set global flag and timestamp
+    isJobCreationInProgress = true;
+    lastCallTimeRef.current = now;
     setLoading(true);
+    
     setLeads([]); // Clear previous leads
 
     try {
-      console.log('Starting lead generation with criteria:', jobCriteria);
       
       const response = await supabase.functions.invoke('trigger-lead-generation', {
         body: {
@@ -440,6 +430,8 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
       });
     } finally {
       setLoading(false);
+      isJobCreationInProgress = false;
+      console.log('🏁 Lead generation attempt completed - clearing flags');
     }
   };
 
