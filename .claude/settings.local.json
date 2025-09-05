@@ -40,7 +40,8 @@
       "Bash(npx tsc:*)",
       "Read(C:\\Users\\thadb\\Desktop\\Lead Gen Demo/**)",
       "Read(c:\\Users\\thadb\\Desktop\\Lead Gen Demo\\Troubleshoot/**)",
-      "Read(c:\\Users\\thadb\\Desktop\\Lead Gen Demo\\Troubleshoot/**)"
+      "Read(c:\\Users\\thadb\\Desktop\\Lead Gen Demo\\Troubleshoot/**)",
+      "Bash(supabase functions deploy:*)"
     ],
     "deny": [],
     "ask": []

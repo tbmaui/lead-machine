@@ -51,29 +51,43 @@ serve(async (req) => {
     
     console.log('Sending payload to N8n:', JSON.stringify(n8nPayload, null, 2));
     
-    const n8nResponse = await fetch('https://playground.automateanythingacademy.com/webhook/lead-intake', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(n8nPayload),
-    });
+    try {
+      const n8nResponse = await fetch('https://playground.automateanythingacademy.com/webhook-test/lead-intake', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(n8nPayload),
+      });
 
-    if (!n8nResponse.ok) {
-      throw new Error(`N8n webhook failed: ${n8nResponse.status}`);
-    }
+      if (n8nResponse.ok) {
+        const n8nData = await n8nResponse.json();
+        console.log('N8n response:', n8nData);
 
-    const n8nData = await n8nResponse.json();
-    console.log('N8n response:', n8nData);
-
-    // Update job with N8n execution ID if provided
-    if (n8nData.executionId) {
+        // Update job with N8n execution ID if provided
+        if (n8nData.executionId) {
+          await supabase
+            .from('lead_gen_jobs')
+            .update({
+              n8n_execution_id: n8nData.executionId,
+              status: 'processing'
+            })
+            .eq('id', job.id);
+        }
+      } else {
+        console.warn(`N8n webhook failed: ${n8nResponse.status}, continuing anyway`);
+        // Update job to processing even if N8n fails
+        await supabase
+          .from('lead_gen_jobs')
+          .update({ status: 'processing' })
+          .eq('id', job.id);
+      }
+    } catch (n8nError) {
+      console.warn('N8n webhook error:', n8nError.message, 'continuing anyway');
+      // Update job to processing even if N8n fails
       await supabase
         .from('lead_gen_jobs')
-        .update({
-          n8n_execution_id: n8nData.executionId,
-          status: 'processing'
-        })
+        .update({ status: 'processing' })
         .eq('id', job.id);
     }
 
