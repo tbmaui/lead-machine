@@ -7,7 +7,6 @@ import { decodeSearchParams, SearchCriteria } from '@/lib/url-params';
 import { SearchPageLayout } from '@/components/SearchPageLayout';
 import { SearchProgressIndicator } from '@/components/SearchProgressIndicator';
 import { SearchActionBar } from '@/components/SearchActionBar';
-import { useLeadGeneration } from '@/hooks/useLeadGeneration';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { WebhookTester } from '@/components/WebhookTester';
 import { LeadGenDebugger } from '@/components/debug/LeadGenDebugger';
