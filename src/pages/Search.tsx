@@ -36,23 +36,8 @@ const Search = ({ restoredSearch: propsRestoredSearch, onSearchRestored: propsOn
     }
   }, [propsRestoredSearch]);
 
-  // Get lead generation state to determine workflow step
-  const { currentJob, leads, restoreSearchData } = useLeadGeneration(user?.id);
-
-  // Determine current workflow step
-  const getCurrentStep = (): 'setup' | 'searching' | 'results' => {
-    if (currentJob) {
-      const status = currentJob.status;
-      if (['pending', 'processing', 'searching', 'enriching', 'validating', 'finalizing'].includes(status)) {
-        return 'searching';
-      } else if (status === 'completed' && leads.length > 0) {
-        return 'results';
-      }
-    }
-    return 'setup';
-  };
-
-  const currentStep = getCurrentStep();
+  // Let LeadGenForm handle lead generation state to avoid duplicate hooks
+  const [currentStep, setCurrentStep] = useState<'setup' | 'searching' | 'results'>('setup');
 
   // Restore search criteria from URL on mount
   useEffect(() => {
@@ -105,14 +90,7 @@ const Search = ({ restoredSearch: propsRestoredSearch, onSearchRestored: propsOn
       currentStep={currentStep}
       showBackNav={true}
     >
-      {/* Progress indicator for active searches */}
-      {currentStep === 'searching' && currentJob && (
-        <SearchProgressIndicator 
-          currentStatus={currentJob.status}
-          progress={currentJob.progress || 0}
-          showTimeEstimates={true}
-        />
-      )}
+      {/* Progress indicator for active searches - will be handled by LeadGenForm */}
 
       {/* Context-aware action bar */}
       <SearchActionBar 
@@ -124,7 +102,7 @@ const Search = ({ restoredSearch: propsRestoredSearch, onSearchRestored: propsOn
         onExportCSV={() => {/* TODO: Implement export CSV */}}
         onRefineSearch={() => {/* TODO: Implement refine search */}}
         onNewSearch={() => navigate('/search')}
-        isSearching={currentJob?.status ? ['pending', 'processing', 'searching', 'enriching'].includes(currentJob.status) : false}
+        isSearching={false}
         canPause={false}
       />
 
@@ -135,23 +113,10 @@ const Search = ({ restoredSearch: propsRestoredSearch, onSearchRestored: propsOn
         restoredSearch={restoredSearch}
         onSearchRestored={handleSearchRestored}
         urlRestoredCriteria={urlRestoredCriteria}
+        onStepChange={setCurrentStep}
       />
 
-      {/* Lead Generation Debugger - Show when there's a job that might be stuck */}
-      {currentJob && (
-        <LeadGenDebugger 
-          currentJob={currentJob}
-          onJobRefresh={(job) => {
-            // Update the job with the latest data from database
-            const currentLeads = job.status === 'completed' ? leads : [];
-            restoreSearchData(job, currentLeads);
-          }}
-          onLeadsRefresh={(leadsData) => {
-            // Update both job and leads when refreshing completed job
-            restoreSearchData(currentJob, leadsData);
-          }}
-        />
-      )}
+      {/* Lead Generation Debugger - will be handled by LeadGenForm */}
 
       {/* Search History Modal */}
       <Dialog open={showSearchHistoryModal} onOpenChange={setShowSearchHistoryModal}>

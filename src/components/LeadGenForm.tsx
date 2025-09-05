@@ -22,13 +22,14 @@ interface LeadGenFormProps {
     leadCount: number[];
     employeeRange?: [number, number];
   }> | null;
+  onStepChange?: (step: 'setup' | 'searching' | 'results') => void;
 }
 
 export interface LeadGenFormRef {
   clearForm: () => void;
 }
 
-const LeadGenForm = forwardRef<LeadGenFormRef, LeadGenFormProps>(({ userId, restoredSearch, onSearchRestored, urlRestoredCriteria }, ref) => {
+const LeadGenForm = forwardRef<LeadGenFormRef, LeadGenFormProps>(({ userId, restoredSearch, onSearchRestored, urlRestoredCriteria, onStepChange }, ref) => {
   const { currentJob, leads, loading, showingResults, startLeadGeneration, resetJob, restoreSearchData } = useLeadGeneration(userId);
   
   const jobTitleOptions = ["Owner", "CEO", "CFO", "VP of Finance", "President", "Director"];
@@ -175,6 +176,22 @@ const LeadGenForm = forwardRef<LeadGenFormRef, LeadGenFormProps>(({ userId, rest
   const handleNewSearch = () => {
     resetJob();
   };
+
+  // Notify parent of step changes
+  useEffect(() => {
+    if (onStepChange) {
+      if (currentJob) {
+        const status = currentJob.status;
+        if (['pending', 'processing', 'searching', 'enriching', 'validating', 'finalizing'].includes(status)) {
+          onStepChange('searching');
+        } else if (status === 'completed' && leads.length > 0) {
+          onStepChange('results');
+        }
+      } else {
+        onStepChange('setup');
+      }
+    }
+  }, [currentJob, leads.length, onStepChange]);
 
   if (currentJob) {
     console.log("LeadGenForm: Showing LeadGenResults with:", {
