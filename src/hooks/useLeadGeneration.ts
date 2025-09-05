@@ -4,8 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { saveSearchState, loadSearchState, clearSearchState, STORAGE_KEYS } from '@/lib/session-storage';
 
-// N8N Webhook URL for production
-const N8N_WEBHOOK_URL = 'https://playground.automateanythingacademy.com/webhook/lead-intake';
+// N8N Webhook URLs
+const N8N_WEBHOOK_URL_PROD = 'https://playground.automateanythingacademy.com/webhook/lead-intake';
+const N8N_WEBHOOK_URL_TEST = 'https://playground.automateanythingacademy.com/webhook-test/lead-intake';
 
 // Helper function to send data to N8N webhook
 const sendToN8NWebhook = async (data: any) => {
