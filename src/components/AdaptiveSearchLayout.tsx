@@ -23,8 +23,8 @@ export const AdaptiveSearchLayout = ({
         return 'max-w-2xl mx-auto text-center';
       
       case 'results':
-        // Data-focused layout - full width for tables and charts
-        return 'max-w-[1400px] mx-auto';
+        // Data-focused layout - use full screen width for better table visibility
+        return 'w-full px-4';
       
       default:
         return 'max-w-4xl mx-auto';

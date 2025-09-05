@@ -41,7 +41,8 @@
       "Read(C:\\Users\\thadb\\Desktop\\Lead Gen Demo/**)",
       "Read(c:\\Users\\thadb\\Desktop\\Lead Gen Demo\\Troubleshoot/**)",
       "Read(c:\\Users\\thadb\\Desktop\\Lead Gen Demo\\Troubleshoot/**)",
-      "Bash(supabase functions deploy:*)"
+      "Bash(supabase functions deploy:*)",
+      "Read(//c/Users/thadb/Desktop/Lead Gen Demo/Troubleshoot/**)"
     ],
     "deny": [],
     "ask": []

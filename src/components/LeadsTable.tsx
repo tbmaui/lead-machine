@@ -887,8 +887,6 @@ const LeadsTable = ({ leads, onNewSearch }: LeadsTableProps) => {
           }
         }}
       >
-        {/* Right fade indicator to show more columns - fixed for dark mode */}
-        <div className="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-background/90 to-transparent pointer-events-none z-10"></div>
       <div className="flex items-center justify-between p-3 border-b border-border">
         <div className="flex items-center gap-2 flex-wrap">
           <div className="text-xs text-muted-foreground mr-2">
