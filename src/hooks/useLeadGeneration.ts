@@ -5,10 +5,19 @@ import { useToast } from '@/hooks/use-toast';
 import { saveSearchState, loadSearchState, clearSearchState, STORAGE_KEYS } from '@/lib/session-storage';
 
 // N8N Webhook URL for testing
-const N8N_WEBHOOK_URL = 'https://playground.automateanythingacademy.com/webhook-test/52a2a2ec-2055-4e1c-8ce7-75fe43bbd14c';
+const N8N_WEBHOOK_URL = 'https://playground.automateanythingacademy.com/webhook-test/lead-intake';
 
 // Helper function to send data to N8N webhook
 const sendToN8NWebhook = async (data: any) => {
+  // Skip N8N webhook calls in development to avoid CORS issues
+  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  
+  if (isDevelopment) {
+    console.log('🎯 [DEV] Would send to N8N webhook:', data);
+    console.log('⚠️ N8N webhook skipped in development environment');
+    return { success: true, response: 'Skipped in development' };
+  }
+
   try {
     console.log('🎯 Sending data to N8N webhook:', data);
     
@@ -20,8 +29,8 @@ const sendToN8NWebhook = async (data: any) => {
       body: JSON.stringify({
         ...data,
         timestamp: new Date().toISOString(),
-        source: 'lead-machine-local-dev',
-        environment: 'development'
+        source: 'lead-machine-production',
+        environment: 'production'
       })
     });
 
