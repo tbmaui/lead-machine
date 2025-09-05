@@ -626,6 +626,19 @@
     box-shadow: var(--neu-shadow-inset);
   }
 
+  /* Dark mode button pressed/active states - green text and icons */
+  .dark button:active,
+  .dark button[aria-pressed="true"],
+  .dark button.pressed {
+    color: hsl(var(--brand-green)) !important;
+  }
+
+  .dark button:active svg,
+  .dark button[aria-pressed="true"] svg,
+  .dark button.pressed svg {
+    color: hsl(var(--brand-green)) !important;
+  }
+
   /* Dark mode form element styles */
   .dark .neu-input,
   .dark input[type="text"],

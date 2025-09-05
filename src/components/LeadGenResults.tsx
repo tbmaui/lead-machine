@@ -87,8 +87,8 @@ const LeadGenResults = ({ job, leads, onNewSearch, showingResults }: LeadGenResu
                   <span className="text-white text-xs font-bold">⏳</span>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1" style={{ color: '#466359' }}>Processing Your Lead Search</h3>
-                  <p className="text-sm" style={{ color: '#466359' }}>
+                  <h3 className="font-semibold mb-1 text-secondary">Processing Your Lead Search</h3>
+                  <p className="text-sm text-secondary">
                     This comprehensive process can take up to 5 minutes as we search, verify, and enrich your leads across multiple platforms. Please hang tight for high-quality results!
                   </p>
                 </div>
