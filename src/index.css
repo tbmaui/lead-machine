@@ -121,13 +121,13 @@
     --neu-inset-highlight: 220 8% 58%; /* #949ea4 */
     --neu-inset-shadow: 220 12% 22%; /* #323638 */
     
-    /* Exact Complete Controller shadow combinations - only dark shadows for raised elements */
-    --neu-shadow-small: 3px 3px 6px #323638;
-    --neu-shadow-light: 5px 5px 10px #323638;
-    --neu-shadow-medium: 8px 8px 16px #323638; /* --raise */
-    --neu-shadow-strong: 12px 12px 24px #323638;
-    --neu-shadow-inset: inset 4.5px 4.5px 9px #323638, inset -4.5px -4.5px 9px #323638; /* --inset - all dark shadows */
-    --neu-shadow-pressed: inset 4.5px 4.5px 9px #323638, inset -4.5px -4.5px 9px #323638;
+    /* Well-defined dark shadows - no light ghosting, sharp definition */
+    --neu-shadow-small: 2px 2px 4px rgba(50, 54, 56, 0.8);
+    --neu-shadow-light: 3px 3px 6px rgba(50, 54, 56, 0.9);
+    --neu-shadow-medium: 4px 4px 8px rgba(50, 54, 56, 0.9); /* --raise - well-defined */
+    --neu-shadow-strong: 6px 6px 12px rgba(50, 54, 56, 1);
+    --neu-shadow-inset: inset 3px 3px 6px rgba(50, 54, 56, 0.9), inset -3px -3px 6px rgba(50, 54, 56, 0.9); /* --inset - well-defined */
+    --neu-shadow-pressed: inset 3px 3px 6px rgba(50, 54, 56, 1), inset -3px -3px 6px rgba(50, 54, 56, 1);
     
     /* Updated gradient stroke for dark theme */
     --gradient-stroke-light: 220 8% 58%;
@@ -376,7 +376,7 @@
   .dark .neu-tier-box {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    box-shadow: inset 4.5px 4.5px 9px #323638, inset -4.5px -4.5px 9px #323638;
+    box-shadow: inset 3px 3px 6px rgba(50, 54, 56, 0.9), inset -3px -3px 6px rgba(50, 54, 56, 0.9);
   }
   
   /* Each tier row spaced and separated to create breathing room */
