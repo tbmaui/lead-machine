@@ -101,6 +101,12 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
   // Subscribe to real-time updates for jobs as soon as we have a jobId
   useEffect(() => {
     if (!jobIdForSubscription || !userId) return;
+    
+    // Don't create new subscription if job is already completed
+    if (currentJob && completedJobIds.has(currentJob.id)) {
+      console.log('🔒 Job already completed, skipping subscription setup');
+      return;
+    }
 
     console.log('Setting up real-time subscription for job:', jobIdForSubscription);
 
@@ -135,18 +141,17 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
           progress: 100,
         });
         
-        // Short delay before showing results for better UX
-        setTimeout(() => {
-          fetchLeads(updatedJob.id);
-          setShowingResults(true);
-          
-          toast({
-            title: "Lead generation completed!",
-            description: `Found ${updatedJob.total_leads_found} leads`,
-          });
-        }, 1500);
+        // Fetch leads and show results immediately - no more delays
+        fetchLeads(updatedJob.id);
+        setShowingResults(true);
         
-        return; // Exit early to prevent further processing
+        toast({
+          title: "Lead generation completed!",
+          description: `Found ${updatedJob.total_leads_found} leads`,
+        });
+        
+        // IMPORTANT: Don't return here - let the subscription continue 
+        // but it will be blocked from recreating due to completedJobIds check
       }
       
       // Handle failure immediately
@@ -207,6 +212,12 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
   // Subscribe to real-time updates for leads as soon as we have a jobId
   useEffect(() => {
     if (!jobIdForSubscription || !userId) return;
+    
+    // Don't create new subscription if job is already completed
+    if (currentJob && completedJobIds.has(currentJob.id)) {
+      console.log('🔒 Job already completed, skipping leads subscription setup');
+      return;
+    }
 
     console.log('Setting up real-time subscription for leads:', jobIdForSubscription);
 
