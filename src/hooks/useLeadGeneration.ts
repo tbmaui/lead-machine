@@ -107,44 +107,72 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
     const handleJobUpdate = (updatedJob: any) => {
       console.log('🔄 Job update received:', updatedJob);
       
-      const status = (updatedJob.status as LeadGenJob['status']) || 'processing';
+      // DEBUG: Check if job has completed_at but wrong status
+      if (updatedJob.completed_at && updatedJob.status !== 'completed') {
+        console.log('🚨 CRITICAL: Job has completed_at but status is not completed!');
+        console.log('📝 Raw status from DB:', updatedJob.status);
+        console.log('📅 Completed at:', updatedJob.completed_at);
+        console.log('🔍 Full job object:', JSON.stringify(updatedJob, null, 2));
+      }
+      
+      // Force status to completed if we have completed_at timestamp
+      const status = updatedJob.completed_at ? 'completed' : (updatedJob.status as LeadGenJob['status']) || 'processing';
       const progress = updatedJob.progress || statusToProgress(status);
       
-      console.log(`📊 Status: ${status}, Progress: ${progress}%`);
+      console.log(`📊 Status: ${status} (forced from completed_at: ${!!updatedJob.completed_at}), Progress: ${progress}%`);
       
-      // SIMPLE: Just update the job state without any complex logic
-      setCurrentJob({
-        ...(updatedJob as LeadGenJob),
-        status,
-        progress,
-      });
-      
-      // Handle completion
+      // Handle completion immediately - highest priority
       if (status === 'completed') {
         console.log('✅ JOB COMPLETED - Fetching leads and showing results');
         
         // Mark this job as completed to prevent any re-processing
         completedJobIds.add(updatedJob.id);
         
-        // Immediate results - no delays
-        fetchLeads(updatedJob.id);
-        setShowingResults(true);
-        
-        toast({
-          title: "Lead generation completed!",
-          description: `Found ${updatedJob.total_leads_found} leads`,
+        // Set to 100% first
+        setCurrentJob({
+          ...(updatedJob as LeadGenJob),
+          status: 'completed',
+          progress: 100,
         });
+        
+        // Short delay before showing results for better UX
+        setTimeout(() => {
+          fetchLeads(updatedJob.id);
+          setShowingResults(true);
+          
+          toast({
+            title: "Lead generation completed!",
+            description: `Found ${updatedJob.total_leads_found} leads`,
+          });
+        }, 1500);
+        
+        return; // Exit early to prevent further processing
       }
       
-      // Handle failure  
+      // Handle failure immediately
       if (status === 'failed') {
         console.log('❌ JOB FAILED');
+        setCurrentJob({
+          ...(updatedJob as LeadGenJob),
+          status: 'failed',
+          progress,
+        });
+        
         toast({
           title: "Lead generation failed",
           description: updatedJob.error_message || "An error occurred",
           variant: "destructive",
         });
+        
+        return; // Exit early
       }
+      
+      // For in-progress statuses, just update normally
+      setCurrentJob({
+        ...(updatedJob as LeadGenJob),
+        status,
+        progress,
+      });
     };
     
     const jobChannel = supabase
