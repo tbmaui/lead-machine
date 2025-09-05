@@ -145,8 +145,60 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
       // Ensure type-safe status and provide fallback progress mapping for UI smoothness
       const status = (updatedJob.status as LeadGenJob['status']) || 'processing';
       const progressFromDb: number | undefined = updatedJob.progress;
+      
+      // PRIORITY: Handle completion status immediately, bypassing all other logic
+      if (status === 'completed') {
+        console.log('✅ Job completed - bypassing simulation logic');
+        // Clear any active simulations
+        simulationTimeoutsRef.current.forEach((id) => clearTimeout(id));
+        simulationTimeoutsRef.current = [];
+        simulationActiveRef.current = false;
+        pendingUpdateRef.current = null;
+        
+        // Set progress to 100% and show completion
+        setCurrentJob({
+          ...(updatedJob as LeadGenJob),
+          status: 'completed',
+          progress: 100,
+        });
+        
+        // Wait 2-3 seconds before showing results
+        completionTimeoutRef.current = window.setTimeout(() => {
+          toast({
+            title: "Lead generation completed!",
+            description: `Found ${updatedJob.total_leads_found} leads`,
+          });
+          fetchLeads(updatedJob.id);
+          setShowingResults(true);
+        }, 2500);
+        
+        return; // EXIT EARLY - don't process any other logic
+      }
+      
+      // Handle failed status immediately  
+      if (status === 'failed') {
+        console.log('❌ Job failed - bypassing simulation logic');
+        simulationTimeoutsRef.current.forEach((id) => clearTimeout(id));
+        simulationTimeoutsRef.current = [];
+        simulationActiveRef.current = false;
+        pendingUpdateRef.current = null;
+        
+        setCurrentJob({
+          ...(updatedJob as LeadGenJob),
+          status: 'failed',
+          progress: statusToProgress(status, progressFromDb),
+        });
+        
+        toast({
+          title: "Lead generation failed",
+          description: updatedJob.error_message || "An error occurred",
+          variant: "destructive",
+        });
+        
+        return; // EXIT EARLY
+      }
+
       // Use centralized helper for mapping
-      // Import placed at top: statusToProgress
       const mergedProgress = statusToProgress(status, progressFromDb);
 
       // Handle interactions with simulation when a real update arrives
@@ -207,44 +259,14 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
         return; // Defer applying the real update immediately; simulation will catch up
       }
 
-      // Handle completion status with smooth 100% progress and pause
-      if (updatedJob.status === 'completed') {
-        
-        // First, set progress to 100% and show completion
-        setCurrentJob({
-          ...(updatedJob as LeadGenJob),
-          status,
-          progress: 100,
-        });
-        
-        // Then wait 2-3 seconds before showing results
-        completionTimeoutRef.current = window.setTimeout(() => {
-          toast({
-            title: "Lead generation completed!",
-            description: `Found ${updatedJob.total_leads_found} leads`,
-          });
-          fetchLeads(updatedJob.id);
-          setShowingResults(true);
-        }, 2500); // 2.5 second pause for user satisfaction
-        
-        return;
-      }
+      // Completion and failure are handled at the top of the function now
       
-      // Handle failed status - no webhook needed, edge function handles notifications
-      
+      // Update job with in-progress status
       setCurrentJob({
         ...(updatedJob as LeadGenJob),
         status,
         progress: mergedProgress,
       });
-      
-      if (updatedJob.status === 'failed') {
-        toast({
-          title: "Lead generation failed",
-          description: updatedJob.error_message || "An error occurred",
-          variant: "destructive",
-        });
-      }
     };
     
     const jobChannel = supabase
@@ -274,7 +296,7 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
         completionTimeoutRef.current = null;
       }
     };
-  }, [jobIdForSubscription, toast, currentJob, userId]);
+  }, [jobIdForSubscription, toast, userId]);
 
   // Subscribe to real-time updates for leads as soon as we have a jobId
   useEffect(() => {
@@ -288,23 +310,6 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
         linkedin_url: lead.linkedin_url,
         organization_linkedin_url: lead.organization_linkedin_url,
         organization_url: lead.organization_url
-      });
-      
-      // 🎯 Send new lead data to N8N webhook
-      sendToN8NWebhook({
-        action: 'new_lead_found',
-        jobId: lead.job_id,
-        leadData: {
-          name: lead.full_name,
-          title: lead.job_title,
-          company: lead.company_name,
-          linkedinUrl: lead.linkedin_url,
-          companyLinkedinUrl: lead.organization_linkedin_url,
-          companyUrl: lead.organization_url,
-          industry: lead.industry,
-          location: lead.location
-        },
-        message: 'New lead discovered'
       });
       
       setLeads(prev => [...prev, lead]);
