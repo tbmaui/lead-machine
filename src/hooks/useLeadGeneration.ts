@@ -35,9 +35,8 @@ export interface Lead {
   organization_url?: string;
 }
 
-// Global flags to prevent multiple simultaneous job creations and restarts
+// Global flag to prevent multiple simultaneous job creations
 let isJobCreationInProgress = false;
-let completedJobIds = new Set<string>();
 
 export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = true) => {
   const [currentJob, setCurrentJob] = useState<LeadGenJob | null>(null);
@@ -101,82 +100,16 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
   // Subscribe to real-time updates for jobs as soon as we have a jobId
   useEffect(() => {
     if (!jobIdForSubscription || !userId) return;
-    
-    // Don't create new subscription if job is already completed
-    if (currentJob && completedJobIds.has(currentJob.id)) {
-      console.log('🔒 Job already completed, skipping subscription setup');
-      return;
-    }
 
     console.log('Setting up real-time subscription for job:', jobIdForSubscription);
 
     const handleJobUpdate = (updatedJob: any) => {
-      console.log('🔄 Job update received:', updatedJob);
+      console.log('Job update received:', updatedJob);
       
-      // DEBUG: Check if job has completed_at but wrong status
-      if (updatedJob.completed_at && updatedJob.status !== 'completed') {
-        console.log('🚨 CRITICAL: Job has completed_at but status is not completed!');
-        console.log('📝 Raw status from DB:', updatedJob.status);
-        console.log('📅 Completed at:', updatedJob.completed_at);
-        console.log('🔍 Full job object:', JSON.stringify(updatedJob, null, 2));
-      }
-      
-      // Force status to completed if we have completed_at timestamp
-      const status = updatedJob.completed_at ? 'completed' : (updatedJob.status as LeadGenJob['status']) || 'processing';
-      const progress = updatedJob.progress || statusToProgress(status);
-      
-      console.log(`📊 Status: ${status} (forced from completed_at: ${!!updatedJob.completed_at}), Progress: ${progress}%`);
-      
-      // Handle completion immediately - highest priority
-      if (status === 'completed') {
-        console.log('✅ JOB COMPLETED - Fetching leads and showing results');
-        
-        // Mark this job as completed to prevent any re-processing
-        completedJobIds.add(updatedJob.id);
-        
-        // Set to 100% first
-        setCurrentJob({
-          ...(updatedJob as LeadGenJob),
-          status: 'completed',
-          progress: 100,
-        });
-        
-        // Fetch leads and show results immediately - no more delays
-        fetchLeads(updatedJob.id);
-        setShowingResults(true);
-        
-        toast({
-          title: "Lead generation completed!",
-          description: `Found ${updatedJob.total_leads_found} leads`,
-        });
-        
-        // IMPORTANT: Don't return here - let the subscription continue 
-        // but it will be blocked from recreating due to completedJobIds check
-      }
-      
-      // Handle failure immediately
-      if (status === 'failed') {
-        console.log('❌ JOB FAILED');
-        setCurrentJob({
-          ...(updatedJob as LeadGenJob),
-          status: 'failed',
-          progress,
-        });
-        
-        toast({
-          title: "Lead generation failed",
-          description: updatedJob.error_message || "An error occurred",
-          variant: "destructive",
-        });
-        
-        return; // Exit early
-      }
-      
-      // For in-progress statuses, just update normally
       setCurrentJob({
         ...(updatedJob as LeadGenJob),
-        status,
-        progress,
+        status: updatedJob.status || 'processing',
+        progress: updatedJob.progress || statusToProgress(updatedJob.status || 'processing'),
       });
     };
     
@@ -212,12 +145,6 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
   // Subscribe to real-time updates for leads as soon as we have a jobId
   useEffect(() => {
     if (!jobIdForSubscription || !userId) return;
-    
-    // Don't create new subscription if job is already completed
-    if (currentJob && completedJobIds.has(currentJob.id)) {
-      console.log('🔒 Job already completed, skipping leads subscription setup');
-      return;
-    }
 
     console.log('Setting up real-time subscription for leads:', jobIdForSubscription);
 
@@ -264,10 +191,9 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
     const now = Date.now();
     const timeSinceLastCall = now - lastCallTimeRef.current;
     
-    // Prevent multiple simultaneous calls with multiple layers of protection
-    const hasCompletedJob = currentJob && completedJobIds.has(currentJob.id);
-    if (loading || isJobCreationInProgress || currentJob || hasCompletedJob || timeSinceLastCall < 2000) {
-      console.log(`⚠️ Lead generation blocked - loading:${loading}, globalFlag:${isJobCreationInProgress}, hasJob:${!!currentJob}, hasCompleted:${hasCompletedJob}, timeSince:${timeSinceLastCall}ms`);
+    // Prevent multiple simultaneous calls
+    if (loading || isJobCreationInProgress || currentJob) {
+      console.log(`⚠️ Lead generation blocked - loading:${loading}, globalFlag:${isJobCreationInProgress}, hasJob:${!!currentJob}`);
       return;
     }
 
@@ -395,7 +321,6 @@ export const useLeadGeneration = (userId: string, restoreFromStorage: boolean = 
     
     // Clear global state  
     isJobCreationInProgress = false;
-    completedJobIds.clear();
     
     // Clear any pending completion timeout
     if (completionTimeoutRef.current) {
